@@ -1,0 +1,17 @@
+{
+  "name": "knitted-web",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mcofie/knitted-web.git"
+  },
+  "private": true
+}
