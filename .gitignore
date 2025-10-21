@@ -36,3 +36,5 @@ Thumbs.db
 
 # Optional Next.js cache
 .next/cache
+# Local Netlify folder
+.netlify
