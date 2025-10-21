@@ -5,7 +5,7 @@ import SettingsForm from "@/components/settings/SettingsForm";
 export const dynamic = "force-dynamic";
 
 export default async function SettingsPage() {
-    const sb = createClientServer();
+    const sb =await  createClientServer();
     const { data: { user } } = await sb.auth.getUser();
     if (!user) return <div className="p-6">You must be signed in.</div>;
     const uid = user.id;

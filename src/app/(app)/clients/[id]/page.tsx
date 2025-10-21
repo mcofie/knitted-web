@@ -8,7 +8,7 @@ import ClientTime from "@/components/ClientTime"; // ⬅️ import client compon
 
 
 export default async function ClientDetailPage({params}: { params: { id: string } }) {
-    const sb = createClientServer();
+    const sb = await createClientServer();
 
     // 1) Client
     const {data: client, error: clientErr} = await sb

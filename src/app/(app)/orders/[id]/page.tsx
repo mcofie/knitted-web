@@ -12,23 +12,23 @@ import ClientTime from "@/components/ClientTime";
 export const dynamic = "force-dynamic";
 
 export default async function OrderDetailPage({params}: { params: { id: string } }) {
-    const sb = createClientServer();
+    const sb = await createClientServer();
     const {data: {user}} = await sb.auth.getUser();
     if (!user) redirect("/login");
 
-    // 1) Order + customer + items
-    const {data: order, error: error} = await sb
+    const {data: order, error} = await sb
         .schema("knitted")
         .from("orders")
-        .select(`
-      id, status, notes, order_code,created_at, ready_at, currency_code,
-      customer:customers ( id, full_name, phone, email, city, country_code ),
-      items:order_items ( id, description, quantity, unit_price, currency_code )
-    `)
+        .select(`id, status, notes, order_code, created_at, ready_at, currency_code,
+    customer:customers ( id, full_name, phone, email, city, country_code ),
+    items:order_items ( id, description, quantity, unit_price, currency_code )
+  `)
         .eq("id", params.id)
-        // If your RLS is owner-based, keep this line; otherwise remove:
-        .eq("owner", user.id)
+        .eq("owner", user.id) // keep if your RLS is owner-based
+        // .returns<OrderRow>()
         .single();
+
+    const newOrder = order as OrderRow | null; // no `.data`
 
     if (!order) {
         return (
@@ -54,7 +54,7 @@ export default async function OrderDetailPage({params}: { params: { id: string }
         tax: Number(totals?.tax_total ?? 0),
         discount: Number(totals?.discount_total ?? 0),
         shipping: Number(totals?.shipping_total ?? 0),
-        total: Number(totals?.computed_total ?? totals?.total ?? 0),
+        total: Number(totals?.computed_total ?? totals?.items_subtotal ?? 0),
         paid: Number(totals?.paid_total ?? 0),
     };
 
@@ -65,6 +65,40 @@ export default async function OrderDetailPage({params}: { params: { id: string }
         unit_price: number;
         currency_code: string;
     };
+
+    // Types for the nested selects you’re returning
+
+    type CustomerRow = {
+        id: string;
+        full_name: string;
+        phone: string | null;
+        email: string | null;
+        city: string | null;
+        country_code: string | null;
+    };
+
+    type OrderItemRow = {
+        id: string;
+        description: string;
+        quantity: number;
+        unit_price: number;
+        currency_code: string;
+    };
+
+    type OrderRow = {
+        id: string;
+        status: string;                 // tighten to a union if you have a fixed set
+        notes: string | null;
+        order_code: string | null;      // make non-null if column is NOT NULL
+        created_at: string;
+        ready_at: string | null;
+        currency_code: string;
+
+        // Aliased relation columns from your select:
+        customer: CustomerRow | null;   // null-safe in case FK missing or RLS hides it
+        items: OrderItemRow[];          // empty array if no items
+    };
+
 
     return (
         <div className="space-y-6">
@@ -108,15 +142,15 @@ export default async function OrderDetailPage({params}: { params: { id: string }
                 <CardHeader className="pb-2"><CardTitle className="text-base">Customer</CardTitle></CardHeader>
                 <CardContent className="text-sm text-muted-foreground space-y-1">
                     <div className="text-foreground font-medium">
-                        <Link href={`/clients/${order.customer.id}`} className="hover:underline">
-                            {order.customer.full_name}
+                        <Link href={`/clients/${newOrder?.customer?.id}`} className="hover:underline">
+                            {newOrder?.customer?.full_name}
                         </Link>
                     </div>
-                    <div>{order.customer.email ?? "—"}</div>
-                    <div>{order.customer.phone ?? "—"}</div>
+                    <div>{newOrder?.customer?.email ?? "—"}</div>
+                    <div>{newOrder?.customer?.phone ?? "—"}</div>
                     <div>
-                        {order.customer.city ?? "—"}
-                        {order.customer.country_code ? ` • ${order.customer.country_code}` : ""}
+                        {newOrder?.customer?.city ?? "—"}
+                        {newOrder?.customer?.country_code ? ` • ${newOrder?.customer?.country_code}` : ""}
                     </div>
                 </CardContent>
             </Card>

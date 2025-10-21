@@ -10,7 +10,7 @@ type Props = { searchParams: { page?: string; pageSize?: string } };
 
 
 export default async function ClientsPage({searchParams}: Props) {
-    const sb = createClientServer();
+    const sb = await createClientServer();
     const {data: {user}} = await sb.auth.getUser();
     const uid = user!.id;
 

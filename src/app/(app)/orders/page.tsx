@@ -10,7 +10,7 @@ type Props = { searchParams: { page?: string; pageSize?: string } };
 export const dynamic = "force-dynamic";
 
 export default async function OrdersPage({searchParams}: Props) {
-    const sb = createClientServer();
+    const sb =await  createClientServer();
     const {data: {user}} = await sb.auth.getUser();
     if (!user) return <div className="p-6">You must be signed in.</div>;
 

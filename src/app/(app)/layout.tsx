@@ -5,7 +5,7 @@ import {ThemeProvider} from "next-themes";
 
 
 export default async function AppLayout({children}: { children: React.ReactNode }) {
-    const sb = createClientServer();
+    const sb = await  createClientServer();
     const {data: {user}} = await sb.auth.getUser();
     if (!user) redirect('/login');
     return (

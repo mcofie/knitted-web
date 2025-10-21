@@ -4,7 +4,7 @@ import {Card, CardHeader, CardTitle, CardContent} from '@/components/ui/card';
 type Row = { d: string; revenue: number; orders: number; overdue: number };
 
 export default async function ReportsPage() {
-    const sb = createClientServer();
+    const sb = await createClientServer();
     const {data: {user}} = await sb.auth.getUser();
     const uid = user!.id;
 

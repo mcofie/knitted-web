@@ -17,8 +17,9 @@ import { Separator } from "@/components/ui/separator";
 
 const ItemSchema = z.object({
     description: z.string().min(2, "Description is required"),
-    quantity: z.coerce.number().int().positive("Qty must be > 0"),
-    unit_price: z.coerce.number().nonnegative("Unit price ≥ 0"),
+    // RHF sends numbers (valueAsNumber), so use plain number for perfect typing
+    quantity: z.number().int().positive("Qty must be > 0"),
+    unit_price: z.number().nonnegative("Unit price ≥ 0"),
 });
 
 const Schema = z.object({
@@ -29,6 +30,14 @@ const Schema = z.object({
 
 type FormValues = z.infer<typeof Schema>;
 
+/** Safely read Zod array-level error (e.g. from z.array(...).min(...)) */
+function getArrayError(err: unknown): string | undefined {
+    if (err && typeof err === "object" && "root" in (err as Record<string, unknown>)) {
+        const root = (err as { root?: { message?: string } }).root;
+        return root?.message;
+    }
+    return undefined;
+}
 
 export default function CreateOrderDialog({
                                               clientId,
@@ -43,15 +52,18 @@ export default function CreateOrderDialog({
     const [open, setOpen] = useState(false);
     const [defaultCurrency, setDefaultCurrency] = useState("GHS");
 
-    // Load default currency from account_settings (matches mobile behavior)
+    // Load default currency from account_settings (schema: currency_code)
     useEffect(() => {
         (async () => {
-            const { data } = await sb
+            const { data, error } = await sb
                 .schema("knitted")
                 .from("account_settings")
-                .select("currency")
+                .select("currency_code")
                 .maybeSingle();
-            if (data?.currency) setDefaultCurrency(String(data.currency).toUpperCase());
+
+            if (!error && data?.currency_code) {
+                setDefaultCurrency(String(data.currency_code).toUpperCase());
+            }
         })();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
@@ -83,12 +95,13 @@ export default function CreateOrderDialog({
     const { fields, append, remove } = useFieldArray({ control, name: "items" });
 
     const items = watch("items");
-    const currency = watch("currency_code") || defaultCurrency;
+    const currency = (watch("currency_code") || defaultCurrency).toUpperCase();
 
     const subtotal = useMemo(
         () =>
             (items ?? []).reduce(
-                (sum, it) => sum + (Number(it.unit_price) || 0) * (Number(it.quantity) || 0),
+                (sum, it) =>
+                    sum + (Number(it.unit_price) || 0) * (Number(it.quantity) || 0),
                 0
             ),
         [items]
@@ -96,24 +109,26 @@ export default function CreateOrderDialog({
 
     async function onSubmit(values: FormValues) {
         try {
-            // 1) create order (mobile: currency + notes)
-            const { data: order, error: orderErr } = await sb
+            // 1) create order
+            const { data: orderRow, error: orderErr } = await sb
                 .schema("knitted")
                 .from("orders")
                 .insert({
                     customer_id: clientId,
                     currency_code: values.currency_code.toUpperCase(),
-                    notes: values.notes && values.notes.trim() !== "" ? values.notes.trim() : null,
-                    // title optional; backend can compute totals; we still insert items below
+                    notes:
+                        values.notes && values.notes.trim() !== ""
+                            ? values.notes.trim()
+                            : null,
                 })
                 .select("id")
-                .single();
+                .single<{ id: string }>();
 
-            if (orderErr) throw orderErr;
+            if (orderErr || !orderRow) throw orderErr ?? new Error("Order insert failed");
 
-            // 2) insert items (mobile: description, qty, unit_price, currency)
+            // 2) insert items
             const payload = values.items.map((it) => ({
-                order_id: order!.id,
+                order_id: orderRow.id,
                 description: it.description.trim(),
                 quantity: it.quantity,
                 unit_price: it.unit_price,
@@ -138,10 +153,8 @@ export default function CreateOrderDialog({
                 items: [{ description: "", quantity: 1, unit_price: 0 }],
             });
             onCreated?.();
-            // optional: you can router.refresh() from parent via a callback prop if needed
-        } catch (e: unknown) {
-            const message =
-                e instanceof Error ? e.message : "Something went wrong";
+        } catch (e) {
+            const message = e instanceof Error ? e.message : String(e);
             toast.error("Failed to create order", { description: message });
         }
     }
@@ -153,7 +166,9 @@ export default function CreateOrderDialog({
             <Dialog open={open} onOpenChange={setOpen}>
                 <DialogContent className="max-w-2xl">
                     <DialogHeader>
-                        <DialogTitle>Create order {clientName ? `for ${clientName}` : ""}</DialogTitle>
+                        <DialogTitle>
+                            Create order {clientName ? `for ${clientName}` : ""}
+                        </DialogTitle>
                     </DialogHeader>
 
                     {/* Currency & Notes */}
@@ -167,7 +182,12 @@ export default function CreateOrderDialog({
                                 {...register("currency_code", {
                                     setValueAs: (v) => String(v || "").toUpperCase(),
                                 })}
-                                onChange={(e) => setValue("currency_code", e.target.value.toUpperCase())}
+                                onChange={(e) =>
+                                    setValue("currency_code", e.target.value.toUpperCase(), {
+                                        shouldDirty: true,
+                                        shouldValidate: true,
+                                    })
+                                }
                             >
                                 <option value="GHS">GHS</option>
                                 <option value="USD">USD</option>
@@ -176,24 +196,31 @@ export default function CreateOrderDialog({
                                 <option value="GBP">GBP</option>
                             </select>
                             {errors.currency_code && (
-                                <p className="text-sm text-red-500">{errors.currency_code.message}</p>
+                                <p className="text-sm text-red-500">
+                                    {errors.currency_code.message}
+                                </p>
                             )}
                         </div>
 
                         <div className="sm:col-span-2 space-y-1">
                             <Label htmlFor="notes">Notes</Label>
-                            <Textarea id="notes" rows={3} placeholder="Optional notes"
-                                      {...register("notes")}
+                            <Textarea
+                                id="notes"
+                                rows={3}
+                                placeholder="Optional notes"
+                                {...register("notes")}
                             />
                             {errors.notes && (
-                                <p className="text-sm text-red-500">{errors.notes.message as string}</p>
+                                <p className="text-sm text-red-500">
+                                    {errors.notes.message as string}
+                                </p>
                             )}
                         </div>
                     </div>
 
                     <Separator />
 
-                    {/* Items list (mobile parity: description, unit_price, quantity) */}
+                    {/* Items list */}
                     <div className="space-y-3">
                         <div className="flex items-center justify-between">
                             <div className="font-medium">Items</div>
@@ -201,7 +228,9 @@ export default function CreateOrderDialog({
                                 type="button"
                                 variant="outline"
                                 size="sm"
-                                onClick={() => append({ description: "", quantity: 1, unit_price: 0 })}
+                                onClick={() =>
+                                    append({ description: "", quantity: 1, unit_price: 0 })
+                                }
                             >
                                 Add item
                             </Button>
@@ -230,7 +259,9 @@ export default function CreateOrderDialog({
                                             id={`price-${idx}`}
                                             type="number"
                                             step="0.01"
-                                            {...register(`items.${idx}.unit_price` as const, { valueAsNumber: true })}
+                                            {...register(`items.${idx}.unit_price` as const, {
+                                                valueAsNumber: true,
+                                            })}
                                         />
                                         {errors.items?.[idx]?.unit_price && (
                                             <p className="text-sm text-red-500">
@@ -244,7 +275,9 @@ export default function CreateOrderDialog({
                                         <Input
                                             id={`qty-${idx}`}
                                             type="number"
-                                            {...register(`items.${idx}.quantity` as const, { valueAsNumber: true })}
+                                            {...register(`items.${idx}.quantity` as const, {
+                                                valueAsNumber: true,
+                                            })}
                                         />
                                         {errors.items?.[idx]?.quantity && (
                                             <p className="text-sm text-red-500">
@@ -266,8 +299,9 @@ export default function CreateOrderDialog({
                                 </div>
                             ))}
 
-                            {errors.items?.root && (
-                                <p className="text-sm text-red-500">{errors.items.root.message}</p>
+                            {/* Array-level error from z.array().min() */}
+                            {getArrayError(errors.items) && (
+                                <p className="text-sm text-red-500">{getArrayError(errors.items)}</p>
                             )}
                         </div>
 

@@ -3,7 +3,7 @@ import {Card, CardHeader, CardTitle, CardContent} from '@/components/ui/card';
 import {Badge} from '@/components/ui/badge';
 
 export default async function DashboardPage() {
-    const sb = createClientServer();
+    const sb = await createClientServer();
     const {data: {user}} = await sb.auth.getUser();
     const uid = user!.id;
 

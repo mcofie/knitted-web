@@ -13,23 +13,25 @@ import {Label} from "@/components/ui/label";
 import {Select, SelectTrigger, SelectContent, SelectItem, SelectValue} from "@/components/ui/select";
 import {toast} from "sonner";
 
+type PaymentMethod = "cash" | "momo" | "card";
+
 type Payment = {
     id: string;
     amount: number;
     currency_code: string;
-    method: "cash" | "momo" | "card" | null;
-    note: string | null;
+    method: PaymentMethod;
+    reference: string | null;
+    // make note optional if your table doesn't have it (or include it in SELECT)
+    note?: string | null;
     created_at: string;
 };
+
 
 export default function PaymentsSection({orderId, currency}: { orderId: string; currency: string }) {
     const sb = createClientBrowser();
     const router = useRouter();
     const [rows, setRows] = useState<Payment[]>([]);
     const [open, setOpen] = useState(false);
-
-    type PaymentMethod = "cash" | "momo" | "card";
-
 
     // form state
     const [amount, setAmount] = useState<number>(0);
@@ -50,6 +52,8 @@ export default function PaymentsSection({orderId, currency}: { orderId: string; 
         }
         setRows((data ?? []) as Payment[]);
     }
+
+
 
     useEffect(() => {
         load(); /* eslint-disable-next-line */
