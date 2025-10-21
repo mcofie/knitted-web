@@ -1,18 +1,19 @@
 import Link from "next/link";
-import { createClientServer } from "@/lib/supabase/server";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
+import {createClientServer} from "@/lib/supabase/server";
+import {Card, CardHeader, CardTitle, CardContent} from "@/components/ui/card";
+import {Table, TableHeader, TableRow, TableHead, TableBody, TableCell} from "@/components/ui/table";
 import Pager from "./pager";
 import ClientTime from "@/components/ClientTime";
+import {Suspense} from "react";
 
 export const dynamic = "force-dynamic";
 
 type SearchParams = Promise<{ page?: string; pageSize?: string }>;
 
-export default async function OrdersPage({ searchParams }: { searchParams: SearchParams }) {
+export default async function OrdersPage({searchParams}: { searchParams: SearchParams }) {
     const sb = await createClientServer();
     const {
-        data: { user },
+        data: {user},
     } = await sb.auth.getUser();
     if (!user) return <div className="p-6">You must be signed in.</div>;
 
@@ -24,12 +25,12 @@ export default async function OrdersPage({ searchParams }: { searchParams: Searc
     const to = from + pageSize - 1;
 
     // 1) fetch orders (without totals)
-    const { data: ordersRows, error, count } = await sb
+    const {data: ordersRows, error, count} = await sb
         .schema("knitted")
         .from("orders")
-        .select("id, status, order_code, currency_code, created_at", { count: "exact" })
+        .select("id, status, order_code, currency_code, created_at", {count: "exact"})
         .eq("owner", user.id)
-        .order("created_at", { ascending: false })
+        .order("created_at", {ascending: false})
         .range(from, to);
 
     if (error) return <div className="p-6">Error: {error.message}</div>;
@@ -48,7 +49,7 @@ export default async function OrdersPage({ searchParams }: { searchParams: Searc
             computed_total: number | null;
         };
 
-        const { data: totalsRows } = await sb
+        const {data: totalsRows} = await sb
             .schema("knitted")
             .from("order_totals")
             .select("order_id, computed_total")
@@ -61,64 +62,67 @@ export default async function OrdersPage({ searchParams }: { searchParams: Searc
     }
 
     return (
-        <div className="space-y-6">
-            <div className="flex items-center justify-between">
-                <h1 className="text-lg font-semibold">Orders</h1>
-                <div className="text-sm text-muted-foreground">
-                    Page {page} of {totalPages} • {total.toLocaleString()} total
+        <Suspense fallback={null}>
+            <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                    <h1 className="text-lg font-semibold">Orders</h1>
+                    <div className="text-sm text-muted-foreground">
+                        Page {page} of {totalPages} • {total.toLocaleString()} total
+                    </div>
                 </div>
-            </div>
 
-            <Card>
-                <CardHeader className="pb-2">
-                    <CardTitle className="text-base">All Orders</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <div className="rounded-md border overflow-x-auto">
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Order</TableHead>
-                                    <TableHead>Status</TableHead>
-                                    <TableHead className="text-right">Total</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {orders.map((o) => {
-                                    const t = totalByOrder[o.id] ?? 0;
-                                    return (
-                                        <TableRow key={o.id}>
-                                            <TableCell className="font-medium">
-                                                <Link href={`/orders/${o.id}`} className="hover:underline">
-                                                    {o.order_code ?? `#${o.id.slice(0, 8).toUpperCase()}`}
-                                                </Link>
-                                                <div className="text-xs text-muted-foreground" suppressHydrationWarning>
-                                                    <ClientTime iso={o.created_at} />
-                                                </div>
-                                            </TableCell>
-                                            <TableCell>{o.status}</TableCell>
-                                            <TableCell className="text-right">
-                                                {o.currency_code} {t.toFixed(2)}
+                <Card>
+                    <CardHeader className="pb-2">
+                        <CardTitle className="text-base">All Orders</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="rounded-md border overflow-x-auto">
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead>Order</TableHead>
+                                        <TableHead>Status</TableHead>
+                                        <TableHead className="text-right">Total</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {orders.map((o) => {
+                                        const t = totalByOrder[o.id] ?? 0;
+                                        return (
+                                            <TableRow key={o.id}>
+                                                <TableCell className="font-medium">
+                                                    <Link href={`/orders/${o.id}`} className="hover:underline">
+                                                        {o.order_code ?? `#${o.id.slice(0, 8).toUpperCase()}`}
+                                                    </Link>
+                                                    <div className="text-xs text-muted-foreground"
+                                                         suppressHydrationWarning>
+                                                        <ClientTime iso={o.created_at}/>
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell>{o.status}</TableCell>
+                                                <TableCell className="text-right">
+                                                    {o.currency_code} {t.toFixed(2)}
+                                                </TableCell>
+                                            </TableRow>
+                                        );
+                                    })}
+                                    {orders.length === 0 && (
+                                        <TableRow>
+                                            <TableCell colSpan={3} className="py-10 text-center text-muted-foreground">
+                                                No orders yet
                                             </TableCell>
                                         </TableRow>
-                                    );
-                                })}
-                                {orders.length === 0 && (
-                                    <TableRow>
-                                        <TableCell colSpan={3} className="py-10 text-center text-muted-foreground">
-                                            No orders yet
-                                        </TableCell>
-                                    </TableRow>
-                                )}
-                            </TableBody>
-                        </Table>
-                    </div>
+                                    )}
+                                </TableBody>
+                            </Table>
+                        </div>
 
-                    <div className="pt-3">
-                        <Pager page={page} pageSize={pageSize} total={total} />
-                    </div>
-                </CardContent>
-            </Card>
-        </div>
+                        <div className="pt-3">
+                            <Pager page={page} pageSize={pageSize} total={total}/>
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
+        </Suspense>
     );
 }

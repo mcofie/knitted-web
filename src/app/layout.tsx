@@ -1,5 +1,6 @@
 import './globals.css';
 import PageLoader from "@/components/ui/page-loader";
+import {Suspense} from "react";
 
 
 export const metadata = {
@@ -9,5 +10,7 @@ export const metadata = {
 };
 
 export default function RootLayout({children}: { children: React.ReactNode }) {
-    return (<html lang="en"><body><PageLoader/>{children}</body></html>);
+    return (<html lang="en">
+    <body><Suspense fallback={null}><PageLoader/></Suspense>{children}</body>
+    </html>);
 }
