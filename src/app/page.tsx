@@ -1,9 +1,11 @@
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
-import { Hero } from '@/components/landing/hero';
-import { Features } from '@/components/landing/features';
-import { Footer } from '@/components/landing/footer';
+// import {Suspense} from "react";
+
+import {Button} from '@/components/ui/button';
+import {Separator} from '@/components/ui/separator';
+import {Hero} from '@/components/landing/hero';
+import {Features} from '@/components/landing/features';
+import {Footer} from '@/components/landing/footer';
 
 export default function LandingPage() {
     return (
@@ -15,10 +17,10 @@ export default function LandingPage() {
                     <Link href="/signup"><Button>Sign up</Button></Link>
                 </div>
             </header>
-            <Hero />
-            <Separator className="my-8" />
-            <Features />
-            <Footer />
+            <Hero/>
+            <Separator className="my-8"/>
+            <Features/>
+            <Footer/>
         </main>
     );
 }
