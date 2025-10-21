@@ -1,12 +1,13 @@
-// import {createClientServer} from '@/lib/supabase/server';
-// import {Card, CardHeader, CardTitle, CardContent} from '@/components/ui/card';
-// import {Badge} from '@/components/ui/badge';
-// import {Separator} from '@/components/ui/separator';
-// import Image from 'next/image';
-// import Link from 'next/link';
+// // src/app/track/[token]/page.tsx
+// import { createClientServer } from "@/lib/supabase/server";
+// import { notFound } from "next/navigation";
+// import Image from "next/image";
+// import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+// import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
+// import { Separator } from "@/components/ui/separator";
 //
-// // Adjust these types if your RPC returns slightly different names.
-// type OrderItemView = {
+// // ---- Types that match what your RPC returns (adjust if needed)
+// type ItemView = {
 //     id: string;
 //     description: string;
 //     quantity: number;
@@ -20,12 +21,11 @@
 //     status: string;
 //     notes: string | null;
 //
-//     // money & dates
 //     currency_code: string;
 //     created_at: string;
 //     ready_at: string | null;
 //
-//     // customer info (make sure your RPC selects/aliases these)
+//     // customer
 //     customer_name: string | null;
 //     contact_email: string | null;
 //     contact_phone: string | null;
@@ -36,7 +36,7 @@
 //     business_name: string | null;
 //     logo_path: string | null;
 //
-//     // totals (from view or computed in RPC)
+//     // totals
 //     subtotal?: number | null;
 //     tax?: number | null;
 //     discount?: number | null;
@@ -45,81 +45,116 @@
 //     computed_total?: number | null;
 //     paid?: number | null;
 //
-//     // line items
-//     items: OrderItemView[] | null;
+//     items: ItemView[] | null;
 // };
 //
-// // Match your app’s required interface exactly
+// // Final normalized view for the page
 // type OrderView = {
 //     order_id: string;
 //     title: string | null;
 //     status: string;
 //     notes: string | null;
 //
-//     currency: string;         // <-- required by your UI
+//     currency: string;
 //     created_at: string;
 //     ready_at: string | null;
 //
-//     // required by your UI
-//     total: number;
 //     subtotal: number;
 //     tax: number;
 //     discount: number;
 //     shipping: number;
+//     total: number;
 //     paid: number;
 //
-//     // required by your UI
 //     customer_name: string;
 //     contact_email: string | null;
 //     contact_phone: string | null;
 //     location_city: string | null;
 //     location_country_code: string | null;
 //
-//     // branding
 //     business_name: string | null;
 //     logo_url: string | null;
 //
-//     items: OrderItemView[];
+//     items: ItemView[];
 // };
 //
-// // Helper: coerce RPC (object or array) → first row
 // function firstRow<T>(x: unknown): T | null {
 //     if (x == null) return null;
 //     return Array.isArray(x) ? ((x[0] ?? null) as T | null) : (x as T);
 // }
 //
-// export async function fetchOrder(token: string): Promise<OrderView | null> {
+// function fmtMoney(code: string, amount: number) {
+//     // Keep simple: code + 2dp
+//     return `${code} ${amount.toFixed(2)}`;
+// }
+//
+// function fmtDate(iso: string | null) {
+//     if (!iso) return "—";
+//     try {
+//         const d = new Date(iso);
+//         return d.toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" });
+//     } catch {
+//         return iso;
+//     }
+// }
+//
+// async function fetchOrder(token: string): Promise<OrderView | null> {
 //     const sb = createClientServer();
 //
+//     // 1) Core order via RPC
 //     const { data, error } = await sb.rpc("order_status_by_token", { p_token: token });
 //     if (error) return null;
 //
 //     const row = firstRow<RpcOrderStatus>(data);
 //     if (!row) return null;
 //
-//     // Sign logo (optional)
-//     let signedLogo: string | null = null;
+//     // 2) Resolve brand logo (optional)
+//     let logo_url: string | null = null;
 //     if (row.logo_path) {
 //         try {
-//             const { data: signed } = await sb.storage
-//                 .from("knitted-brand")
-//                 .createSignedUrl(row.logo_path, 3600);
-//             signedLogo = signed?.signedUrl ?? null;
+//             const { data: signed } = await sb.storage.from("knitted-brand").createSignedUrl(row.logo_path, 3600);
+//             logo_url = signed?.signedUrl ?? null;
 //         } catch {
-//             signedLogo = null;
+//             logo_url = null;
 //         }
 //     }
 //
-//     // Normalize & map to your exact OrderView shape
+//     // 3) Normalize totals & map to view
 //     const currency = row.currency_code;
 //     const subtotal = Number(row.subtotal ?? 0);
-//     const tax      = Number(row.tax ?? 0);
+//     const tax = Number(row.tax ?? 0);
 //     const discount = Number(row.discount ?? 0);
 //     const shipping = Number(row.shipping ?? 0);
-//     const paid     = Number(row.paid ?? 0);
-//
-//     // prefer computed_total > total > fallback
+//     const paid = Number(row.paid ?? 0);
 //     const total = Number(row.computed_total ?? row.total ?? subtotal + tax + shipping - discount);
+//
+//     // 4) Attachments (read-only, signed)
+//     // NOTE: public page shows images but does not upload.
+//     let signedImages: string[] = [];
+//     try {
+//         const { data: attachments } = await sb
+//             .schema("knitted")
+//             .from("attachments")
+//             .select("file_path")
+//             .eq("order_id", row.order_id)
+//             .order("created_at", { ascending: false });
+//
+//         if (attachments && attachments.length > 0) {
+//             const signed = await Promise.all(
+//                 attachments.map(async (a) => {
+//                     try {
+//                         const { data: s } = await sb.storage.from("knitted-attachments").createSignedUrl(a.file_path, 3600);
+//                         return s?.signedUrl ?? null;
+//                     } catch {
+//                         return null;
+//                     }
+//                 })
+//             );
+//             signedImages = signed.filter(Boolean) as string[];
+//         }
+//     } catch {
+//         // ignore attachments block failures
+//     }
 //
 //     const view: OrderView = {
 //         order_id: row.order_id,
@@ -131,139 +166,169 @@
 //         created_at: row.created_at,
 //         ready_at: row.ready_at,
 //
-//         total,
 //         subtotal,
 //         tax,
 //         discount,
 //         shipping,
+//         total,
 //         paid,
 //
-//         customer_name: row.customer_name ?? "",          // required: default to empty string if null
+//         customer_name: row.customer_name ?? "",
 //         contact_email: row.contact_email ?? null,
 //         contact_phone: row.contact_phone ?? null,
 //         location_city: row.location_city ?? null,
 //         location_country_code: row.location_country_code ?? null,
 //
 //         business_name: row.business_name ?? null,
-//         logo_url: signedLogo,
-//
+//         logo_url,
 //         items: row.items ?? [],
 //     };
+//
+//     // Include signed image URLs in a non-breaking way (optional field)
+//     // @ts-expect-error add-on field for this page
+//     view._images = signedImages;
 //
 //     return view;
 // }
 //
-// function money(c: string | null, n: number | null) {
-//     return `${c ?? ''} ${(Number(n ?? 0)).toFixed(2)}`;
-// }
+// // --------- Page ----------
+// export default async function TrackPage({ params }: { params: { token: string } }) {
+//     const data = await fetchOrder(params.token);
+//     if (!data) notFound();
 //
-// export default async function TrackPage({params}: { params: { token: string } }) {
-//     const order = await fetchOrder(params.token);
-//     if (!order) {
-//         return (
-//             <main className="mx-auto max-w-2xl p-6 space-y-4">
-//                 <Card><CardHeader><CardTitle>Order not found</CardTitle></CardHeader>
-//                     <CardContent className="text-sm text-muted-foreground">Check the link and try again, or contact your
-//                         tailor.</CardContent>
-//                 </Card>
-//             </main>
-//         );
-//     }
-//     const readyAt = order.ready_at ? new Date(order.ready_at) : null;
+//     // @ts-expect-error we added it above
+//     const images: string[] = data._images ?? [];
 //
 //     return (
-//         <main className="mx-auto max-w-2xl p-6 space-y-6">
-//             {/* Branding */}
-//             <div className="flex items-center justify-between">
-//                 <div className="flex items-center gap-3">
-//                     {order?.logo_url ? (
-//                         <Image src={order?.logo_url} alt="Logo" width={36} height={36}
-//                                className="rounded-full object-cover"/>
-//                     ) : (<div className="h-9 w-9 rounded-full bg-muted"/>)}
-//                     <div className="font-semibold">{order.business_name ?? 'Knitted'}</div>
+//         <div className="mx-auto max-w-5xl p-6 space-y-6">
+//             {/* Header / Brand */}
+//             <div className="flex items-center gap-4">
+//                 {data.logo_url ? (
+//                     // Ensure your next.config.js images.domains allows your supabase host
+//                     <div className="relative h-10 w-10 overflow-hidden rounded">
+//                         <Image src={data.logo_url} alt="Logo" fill className="object-cover" />
+//                     </div>
+//                 ) : null}
+//                 <div>
+//                     <h1 className="text-xl font-semibold">
+//                         {data.business_name ?? "Order Tracking"}
+//                     </h1>
+//                     <div className="text-sm text-muted-foreground">Public order status</div>
 //                 </div>
-//                 <Link href="/" className="text-sm text-muted-foreground hover:underline">Home</Link>
 //             </div>
 //
-//             {/* Order summary */}
+//             {/* Summary */}
 //             <Card>
 //                 <CardHeader className="pb-2">
-//                     <CardTitle>{order.title ?? `#${order.order_id.slice(0, 8).toUpperCase()}`}</CardTitle>
+//                     <CardTitle className="text-base">Summary</CardTitle>
 //                 </CardHeader>
-//                 <CardContent className="text-sm text-muted-foreground space-y-2">
-//                     <div className="flex flex-wrap items-center gap-2">
-//                         <Badge variant={order.status === 'overdue' ? 'destructive' : 'secondary'}>{order.status}</Badge>
-//                         {order.customer_name && <span>· {order.customer_name}</span>}
-//                         {readyAt && <span>· Ready {readyAt.toLocaleString()}</span>}
-//                     </div>
-//                     <div className="flex items-center justify-between pt-2">
-//                         <div className="text-base font-medium">{money(order.currency, order.total)}</div>
-//                         {readyAt && (
-//                             <a
-//                                 className="text-sm underline"
-//                                 href={`/track/${order.order_id}/ics?title=${encodeURIComponent(order.title ?? 'Order Ready')}&ready=${encodeURIComponent(readyAt.toISOString())}`}
-//                             >Add to Calendar</a>
-//                         )}
+//                 <CardContent className="space-y-1 text-sm">
+//                     <div><span className="text-muted-foreground">Order:</span> {data.title ?? `#${data.order_id.slice(0, 8).toUpperCase()}`}</div>
+//                     <div><span className="text-muted-foreground">Status:</span> {data.status}</div>
+//                     <div><span className="text-muted-foreground">Created:</span> {fmtDate(data.created_at)}</div>
+//                     <div><span className="text-muted-foreground">Ready by:</span> {fmtDate(data.ready_at)}</div>
+//                     {data.notes && <div className="text-muted-foreground mt-1">{data.notes}</div>}
+//                 </CardContent>
+//             </Card>
+//
+//             {/* Customer */}
+//             <Card>
+//                 <CardHeader className="pb-2">
+//                     <CardTitle className="text-base">Customer</CardTitle>
+//                 </CardHeader>
+//                 <CardContent className="space-y-1 text-sm text-muted-foreground">
+//                     <div className="text-foreground font-medium">{data.customer_name}</div>
+//                     <div>{data.contact_email ?? "—"}</div>
+//                     <div>{data.contact_phone ?? "—"}</div>
+//                     <div>
+//                         {data.location_city ?? "—"}{" "}
+//                         {data.location_country_code ? `• ${data.location_country_code}` : ""}
 //                     </div>
 //                 </CardContent>
 //             </Card>
 //
 //             {/* Items */}
 //             <Card>
-//                 <CardHeader className="pb-2"><CardTitle className="text-base">Items</CardTitle></CardHeader>
+//                 <CardHeader className="pb-2">
+//                     <CardTitle className="text-base">Items</CardTitle>
+//                 </CardHeader>
 //                 <CardContent>
-//                     {order.items?.length ? (
-//                         <div className="space-y-3">
-//                             {order.items.map((it, i) => (
-//                                 <div key={i} className="flex items-center justify-between text-sm">
-//                                     <div>
-//                                         <div className="font-medium">{it.description}</div>
-//                                         <div className="text-muted-foreground">Qty {it.quantity}</div>
-//                                     </div>
-//                                     <div className="font-medium">{money(it.currency, it.unit_price * it.quantity)}</div>
-//                                 </div>
-//                             ))}
-//                             <Separator/>
-//                             <div className="flex items-center justify-between font-semibold">
-//                                 <div>Total</div>
-//                                 <div>{money(order.currency, order.total)}</div>
+//                     <div className="rounded-md border overflow-x-auto">
+//                         <Table>
+//                             <TableHeader>
+//                                 <TableRow>
+//                                     <TableHead>Description</TableHead>
+//                                     <TableHead className="text-right">Qty</TableHead>
+//                                     <TableHead className="text-right">Unit Price</TableHead>
+//                                     <TableHead className="text-right">Line</TableHead>
+//                                 </TableRow>
+//                             </TableHeader>
+//                             <TableBody>
+//                                 {data.items.map((it) => {
+//                                     const line = (Number(it.quantity) || 0) * (Number(it.unit_price) || 0);
+//                                     return (
+//                                         <TableRow key={it.id}>
+//                                             <TableCell className="font-medium">{it.description}</TableCell>
+//                                             <TableCell className="text-right">{it.quantity}</TableCell>
+//                                             <TableCell className="text-right">{fmtMoney(it.currency_code, Number(it.unit_price) || 0)}</TableCell>
+//                                             <TableCell className="text-right">{fmtMoney(it.currency_code, line)}</TableCell>
+//                                         </TableRow>
+//                                     );
+//                                 })}
+//                                 {data.items.length === 0 && (
+//                                     <TableRow><TableCell colSpan={4} className="text-center py-8 text-muted-foreground">No items</TableCell></TableRow>
+//                                 )}
+//                             </TableBody>
+//                         </Table>
+//                     </div>
+//
+//                     {/* Totals */}
+//                     <div className="mt-4 space-y-2">
+//                         <div className="flex items-center justify-between text-2xl font-semibold">
+//                             <div>Total</div>
+//                             <div>{fmtMoney(data.currency, data.total)}</div>
+//                         </div>
+//                         <Separator />
+//                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-sm text-muted-foreground">
+//                             <div className="flex items-center justify-between">
+//                                 <span>Paid</span><span className="text-foreground">{fmtMoney(data.currency, data.paid)}</span>
+//                             </div>
+//                             <div className="flex items-center justify-between">
+//                                 <span>Subtotal</span><span>{fmtMoney(data.currency, data.subtotal)}</span>
+//                             </div>
+//                             <div className="flex items-center justify-between">
+//                                 <span>Tax</span><span>{fmtMoney(data.currency, data.tax)}</span>
+//                             </div>
+//                             <div className="flex items-center justify-between">
+//                                 <span>Shipping</span><span>{fmtMoney(data.currency, data.shipping)}</span>
+//                             </div>
+//                             <div className="flex items-center justify-between">
+//                                 <span>Discount</span><span>{fmtMoney(data.currency, data.discount)}</span>
 //                             </div>
 //                         </div>
-//                     ) : (<div className="text-sm text-muted-foreground">No items attached.</div>)}
+//                     </div>
 //                 </CardContent>
 //             </Card>
 //
-//             {/* Invoice (latest) */}
-//             {(order?.invoice_id || order?.invoice_number) && (
-//                 <Card>
-//                     <CardHeader className="pb-2"><CardTitle className="text-base">Invoice</CardTitle></CardHeader>
-//                     <CardContent className="text-sm text-muted-foreground space-y-1">
-//                         <div>Invoice No: <span className="font-medium">{order.invoice_number ?? '—'}</span></div>
-//                         <div>Amount: <span className="font-medium">{money(order.currency, order.invoice_total)}</span>
-//                         </div>
-//                         {order.invoice_due_at && (<div>Due: <span
-//                             className="font-medium">{new Date(order.invoice_due_at).toLocaleString()}</span></div>)}
-//                         {order.invoice_status && (
-//                             <div>Status: <Badge variant="secondary">{order.invoice_status}</Badge></div>)}
-//                     </CardContent>
-//                 </Card>
-//             )}
-//
-//             {/* Contact tailor */}
+//             {/* Attachments (read-only) */}
 //             <Card>
-//                 <CardHeader className="pb-2"><CardTitle className="text-base">Contact your
-//                     tailor</CardTitle></CardHeader>
-//                 <CardContent className="text-sm text-muted-foreground space-y-2">
-//                     {order.contact_phone && (<div>Phone: <a className="underline"
-//                                                             href={`tel:${order.contact_phone}`}>{order.contact_phone}</a>
-//                     </div>)}
-//                     {order.contact_email && (<div>Email: <a className="underline"
-//                                                             href={`mailto:${order.contact_email}`}>{order.contact_email}</a>
-//                     </div>)}
-//                     {(order.city || order.country_code) && (
-//                         <div>Location: {order.city ?? '—'} {order.country_code ? `• ${order.country_code}` : ''}</div>)}
+//                 <CardHeader className="pb-2">
+//                     <CardTitle className="text-base">Attachments</CardTitle>
+//                 </CardHeader>
+//                 <CardContent>
+//                     {images.length === 0 ? (
+//                         <div className="text-sm text-muted-foreground py-8 text-center">No images</div>
+//                     ) : (
+//                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+//                             {images.map((src, i) => (
+//                                 <div key={i} className="relative aspect-square rounded border overflow-hidden">
+//                                     <Image src={src} alt={`attachment-${i}`} fill className="object-cover" />
+//                                 </div>
+//                             ))}
+//                         </div>
+//                     )}
 //                 </CardContent>
 //             </Card>
-//         </main>
+//         </div>
 //     );
 // }
