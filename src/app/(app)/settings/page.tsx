@@ -35,7 +35,6 @@ export default async function SettingsPage() {
     return (
         <div className="max-w-2xl mx-auto space-y-6">
             <h1 className="text-lg font-semibold">Settings</h1>
-            {/* @ts-expect-error Server-to-Client */}
             <SettingsForm initial={settings ?? {}} version={version} />
         </div>
     );

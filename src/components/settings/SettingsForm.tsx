@@ -1,19 +1,18 @@
-// src/components/settings/SettingsForm.tsx
 "use client";
 
-import {useEffect, useState} from "react";
-import {useTheme} from "next-themes";
-import {z} from "zod";
-import {useForm, Controller} from "react-hook-form";
-import {zodResolver} from "@hookform/resolvers/zod";
-import {createClientBrowser} from "@/lib/supabase/browser";
-import {countries} from "@/lib/countries";
-import {currencies} from "@/lib/currencies";
-import {Button} from "@/components/ui/button";
-import {Input} from "@/components/ui/input";
-import {Label} from "@/components/ui/label";
-import {Select, SelectTrigger, SelectContent, SelectItem, SelectValue} from "@/components/ui/select";
-import {toast} from "sonner";
+import { useEffect, useState } from "react";
+import { useTheme } from "next-themes";
+import { z } from "zod";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { createClientBrowser } from "@/lib/supabase/browser";
+import { countries } from "@/lib/countries";
+import { currencies } from "@/lib/currencies";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
+import { toast } from "sonner";
 
 const Schema = z.object({
     business_name: z.string().min(2, "Enter a business name"),
@@ -21,24 +20,38 @@ const Schema = z.object({
     country_code: z.string().length(2, "Pick a country"),
     measurement_system: z.enum(["metric", "imperial"]),
     currency_code: z.string().length(3, "Pick a currency"),
-    theme_pref: z.enum(["system", "light", "dark"]),
+    // UI field stays `theme`, mapped to DB `theme_pref`
+    theme: z.enum(["system", "light", "dark"]),
 });
 
 type FormValues = z.infer<typeof Schema>;
 
-export default function SettingsForm({initial, version}: { initial: any; version: string }) {
-    const sb = createClientBrowser();
-    const {setTheme, theme} = useTheme();
-    const [saving, setSaving] = useState(false);
+type AccountSettingsRow = {
+    business_name: string;
+    city: string | null;
+    country_code: string;
+    measurement_system: "metric" | "imperial";
+    currency_code: string;
+    theme_pref: "system" | "light" | "dark"; // ← DB column
+    logo_path?: string | null;
+};
 
-    // const user = sb.auth.getUserSync();
-    // if (!user) throw new Error("Not signed in");
+export default function SettingsForm({
+                                         initial,
+                                         version,
+                                     }: {
+    initial: Partial<AccountSettingsRow>;
+    version: string;
+}) {
+    const sb = createClientBrowser();
+    const { setTheme, theme } = useTheme();
+    const [saving, setSaving] = useState(false);
 
     const {
         register,
         handleSubmit,
         control,
-        formState: {errors, isDirty},
+        formState: { errors, isDirty },
     } = useForm<FormValues>({
         resolver: zodResolver(Schema),
         defaultValues: {
@@ -47,13 +60,13 @@ export default function SettingsForm({initial, version}: { initial: any; version
             country_code: (initial?.country_code ?? "GH").toUpperCase(),
             measurement_system: initial?.measurement_system ?? "metric",
             currency_code: (initial?.currency_code ?? "GHS").toUpperCase(),
-            theme_pref: initial?.theme ?? "system",
+            theme: initial?.theme_pref ?? "system", // ← read from theme_pref
         },
     });
 
-    // keep UI theme in sync with stored value (on first mount)
+    // Keep UI theme in sync on first mount
     useEffect(() => {
-        const t = initial?.theme ?? "system";
+        const t = initial?.theme_pref ?? "system";
         if (t !== theme) setTheme(t);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
@@ -62,10 +75,13 @@ export default function SettingsForm({initial, version}: { initial: any; version
         try {
             setSaving(true);
 
-            const { data: { user }, error: userErr } = await sb.auth.getUser();
+            const {
+                data: { user },
+                error: userErr,
+            } = await sb.auth.getUser();
             if (userErr || !user) throw new Error("Not signed in");
 
-            const {error} = await sb
+            const { error } = await sb
                 .schema("knitted")
                 .from("account_settings")
                 .update({
@@ -74,16 +90,18 @@ export default function SettingsForm({initial, version}: { initial: any; version
                     country_code: values.country_code,
                     measurement_system: values.measurement_system,
                     currency_code: values.currency_code,
-                    theme_pref: values.theme,
+                    theme_pref: values.theme, // ← write to theme_pref
                 })
                 .eq("owner", user.id);
+
             if (error) throw error;
 
-            // update theme immediately
+            // Reflect immediately in UI
             setTheme(values.theme);
             toast.success("Settings saved");
-        } catch (e: any) {
-            toast.error("Save failed", {description: e?.message ?? String(e)});
+        } catch (e: unknown) {
+            const message = e instanceof Error ? e.message : "Something went wrong";
+            toast.error("Save failed", { description: message });
         } finally {
             setSaving(false);
         }
@@ -111,10 +129,10 @@ export default function SettingsForm({initial, version}: { initial: any; version
                 <Controller
                     control={control}
                     name="country_code"
-                    render={({field}) => (
+                    render={({ field }) => (
                         <Select value={field.value} onValueChange={field.onChange}>
                             <SelectTrigger>
-                                <SelectValue placeholder="Select country"/>
+                                <SelectValue placeholder="Select country" />
                             </SelectTrigger>
                             <SelectContent className="max-h-72">
                                 {countries.map((c) => (
@@ -137,9 +155,9 @@ export default function SettingsForm({initial, version}: { initial: any; version
                     <Controller
                         control={control}
                         name="measurement_system"
-                        render={({field}) => (
+                        render={({ field }) => (
                             <Select value={field.value} onValueChange={field.onChange}>
-                                <SelectTrigger><SelectValue placeholder="Select unit"/></SelectTrigger>
+                                <SelectTrigger><SelectValue placeholder="Select unit" /></SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="metric">Metric (cm)</SelectItem>
                                     <SelectItem value="imperial">Imperial (in)</SelectItem>
@@ -147,8 +165,9 @@ export default function SettingsForm({initial, version}: { initial: any; version
                             </Select>
                         )}
                     />
-                    {errors.measurement_system &&
-                        <p className="text-sm text-red-500">{errors.measurement_system.message}</p>}
+                    {errors.measurement_system && (
+                        <p className="text-sm text-red-500">{errors.measurement_system.message}</p>
+                    )}
                 </div>
 
                 <div className="space-y-1">
@@ -156,9 +175,9 @@ export default function SettingsForm({initial, version}: { initial: any; version
                     <Controller
                         control={control}
                         name="currency_code"
-                        render={({field}) => (
+                        render={({ field }) => (
                             <Select value={field.value} onValueChange={field.onChange}>
-                                <SelectTrigger><SelectValue placeholder="Select currency"/></SelectTrigger>
+                                <SelectTrigger><SelectValue placeholder="Select currency" /></SelectTrigger>
                                 <SelectContent className="max-h-72">
                                     {currencies.map((c) => (
                                         <SelectItem key={c.code} value={c.code}>
@@ -173,15 +192,15 @@ export default function SettingsForm({initial, version}: { initial: any; version
                 </div>
             </div>
 
-            {/* Theme */}
+            {/* Theme (maps to theme_pref in DB) */}
             <div className="space-y-1">
                 <Label>Theme</Label>
                 <Controller
                     control={control}
                     name="theme"
-                    render={({field}) => (
+                    render={({ field }) => (
                         <Select value={field.value} onValueChange={field.onChange}>
-                            <SelectTrigger><SelectValue placeholder="Select theme"/></SelectTrigger>
+                            <SelectTrigger><SelectValue placeholder="Select theme" /></SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="system">System</SelectItem>
                                 <SelectItem value="light">Light</SelectItem>

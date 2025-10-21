@@ -45,10 +45,13 @@ export default async function ClientDetailPage({params}: { params: { id: string 
             .in("order_id", orderIds);
 
         if (!totalsErr && totalsRows) {
-            totalsByOrder = totalsRows.reduce((acc, r: any) => {
-                acc[r.order_id] = Number(r.computed_total ?? 0);
-                return acc;
-            }, {} as Record<string, number>);
+            totalsByOrder = totalsRows.reduce(
+                (acc: Record<string, number>, r: { order_id: string; computed_total: number | null }) => {
+                    acc[r.order_id] = Number(r.computed_total ?? 0);
+                    return acc;
+                },
+                {}
+            );
         }
     }
 

@@ -11,12 +11,24 @@ export default async function DashboardPage() {
         .schema('knitted').from('account_settings')
         .select('*').eq('owner', uid).maybeSingle();
 
-    // Use your RPC if present
-    let stats: any = null;
+    // Define what your dashboard stats should contain
+    type DashboardStats = {
+        active_orders: number;
+        total_orders: number;
+        pending_pickup: number;
+        overdue_orders: number;
+        total_revenue: number;
+    };
+
+// Initialize with a clear type instead of `any`
+    let stats: DashboardStats | null = null;
+
     try {
         const {data} = await sb.rpc('knitted_dashboard_stats');
-        stats = data;
-    } catch {
+        // Supabase RPC returns `data: any`, so we cast safely
+        stats = data as DashboardStats;
+    } catch (error) {
+        console.error("Error fetching dashboard stats:", error);
     }
 
     return (
