@@ -28,7 +28,10 @@ export default function LoginClient() {
     async function signInGoogle() {
         const {error} = await sb.auth.signInWithOAuth({
             provider: "google",
-            options: {redirectTo: `${window.location.origin}/auth/v1/callback`},
+            options: {
+                redirectTo: typeof window !== 'undefined' ? `${window.location.origin}/auth/callback` : undefined,
+                queryParams: {access_type: 'offline', prompt: 'consent'},
+            },
         });
         if (error) alert(error.message);
     }
