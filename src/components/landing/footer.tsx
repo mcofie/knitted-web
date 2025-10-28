@@ -6,7 +6,7 @@ export function Footer() {
             <p>© {new Date().getFullYear()} Knitted. All rights reserved.</p>
             <div className="flex justify-center gap-4 mt-2">
                 <Link href="/terms">Terms</Link>
-                <Link href="/privacy">Privacy</Link>
+                <Link href="/privacy/Page">Privacy</Link>
             </div>
         </footer>
     );

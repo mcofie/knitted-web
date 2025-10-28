@@ -1,6 +1,7 @@
 import './globals.css';
 import PageLoader from "@/components/ui/page-loader";
 import {Suspense} from "react";
+import {ThemeProvider} from "next-themes";
 
 
 export const metadata = {
@@ -11,6 +12,12 @@ export const metadata = {
 
 export default function RootLayout({children}: { children: React.ReactNode }) {
     return (<html lang="en">
-    <body><Suspense fallback={null}><PageLoader/></Suspense>{children}</body>
+    <body>
+    <Suspense fallback={null}><PageLoader/></Suspense>
+    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+        {children}
+    </ThemeProvider>
+    </body>
+
     </html>);
 }

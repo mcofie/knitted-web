@@ -32,6 +32,10 @@ const nextConfig = {
         remotePatterns: [
             {protocol: "https", hostname: SUPABASE_HOST, pathname: "/storage/v1/object/**"},
         ],
+        domains: [
+            'play.google.com',
+            'developer.apple.com',
+        ],
     },
 };
 
