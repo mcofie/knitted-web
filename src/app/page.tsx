@@ -268,12 +268,24 @@ export default function LandingPage() {
                             variants={fadeUp}
                             className="rounded-[var(--radius-lg)] p-2"
                         >
+                            {/* Light mode image */}
                             <Image
-                                src={'/iphone_mockup_four.png'}
-                                alt={'Hero image'}
-                                width={300}
-                                height={100}
-                                className="h-auto mx-auto rounded-[calc(var(--radius-lg)-0.5rem)]"
+                                src="/iphone_mockup_four_light.png"
+                                alt="Knitted app mockup (light)"
+                                width={350}
+                                height={400}
+                                className="h-auto mx-auto rounded-[calc(var(--radius-lg)-0.5rem)] dark:hidden"
+                                priority
+                            />
+
+                            {/* Dark mode image */}
+                            <Image
+                                src="/iphone_mockup_four_dark.png"
+                                alt="Knitted app mockup (dark)"
+                                width={350}
+                                height={400}
+                                className="hidden h-auto mx-auto rounded-[calc(var(--radius-lg)-0.5rem)] dark:block"
+                                priority
                             />
                         </motion.div>
                     </div>
@@ -303,19 +315,22 @@ export default function LandingPage() {
                                 title: 'Clients & Measurements',
                                 desc: 'Keep every client’s details, measurements, and preferences in one elegant profile.',
                                 points: ['Measure once, reuse always', 'Notes & preferences', 'Attachments'],
-                                img: '/iphone_mockup_two.png',
+                                img_light: '/iphone_mockup_two_light.png',
+                                img_dark: '/iphone_mockup_two_dark.png',
                             },
                             {
                                 title: 'Orders & Invoices',
                                 desc: 'Track every order from sketch to pickup. Create branded invoices in a click.',
                                 points: ['Order stages & due dates', 'PDF invoices', 'Payments & receipts'],
-                                img: '/iphone_mockup_three.png',
+                                img_light: '/iphone_mockup_three_light.png',
+                                img_dark: '/iphone_mockup_three_dark.png',
                             },
                             {
                                 title: 'Reminders & Reports',
                                 desc: 'Stay ahead of deadlines and understand what drives your atelier’s growth.',
                                 points: ['Smart reminders', 'Monthly revenue & trends', 'Top clients & items'],
-                                img: '/iphone_mockup_one.png',
+                                img_light: '/iphone_mockup_one_light.png',
+                                img_dark: '/iphone_mockup_one_dark.png',
                             },
                         ].map((f, i) => (
                             <motion.div
@@ -345,13 +360,32 @@ export default function LandingPage() {
                                     variants={fadeUp}
                                     className="rounded-[var(--radius-lg)] p-2"
                                 >
-                                    <Image
-                                        src={f.img}
-                                        alt={f.title}
-                                        width={300}
-                                        height={100}
-                                        className="h-auto mx-auto rounded-[calc(var(--radius-lg)-0.5rem)]"
-                                    />
+                                    <motion.div
+                                        variants={fadeUp}
+                                        className="rounded-[var(--radius-lg)] p-2"
+                                    >
+                                        {/* Light mode image */}
+                                        <Image
+                                            src={f.img_light}
+                                            alt={f.title}
+                                            width={350}
+                                            height={400}
+                                            className="h-auto mx-auto rounded-[calc(var(--radius-lg)-0.5rem)] dark:hidden"
+                                            priority
+                                        />
+
+                                        {/* Dark mode image */}
+                                        <Image
+                                            src={f.img_dark}
+                                            alt={f.title}
+                                            width={350}
+                                            height={400}
+                                            className="hidden h-auto mx-auto rounded-[calc(var(--radius-lg)-0.5rem)] dark:block"
+                                            priority
+                                        />
+                                    </motion.div>
+
+
                                 </motion.div>
                             </motion.div>
                         ))}
