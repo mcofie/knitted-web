@@ -237,7 +237,8 @@ export default function LandingPage() {
                 <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 py-20 md:grid-cols-2 md:px-6 md:py-24">
                     <motion.div variants={stagger} initial="hidden" whileInView="show"
                                 viewport={{once: true, amount: 0.4}}>
-                        <motion.h1 variants={fadeUp} className="text-4xl font-bold tracking-tight md:text-5xl">
+                        <motion.h1 variants={fadeUp}
+                                   className="text-4xl font-bold tracking-tight md:text-5xl lg:text-7xl">
                             Tailoring,{' '}
                             <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">beautifully organized</span>.
                         </motion.h1>
@@ -262,26 +263,20 @@ export default function LandingPage() {
                             </DemoDialog>
                         </motion.div>
                     </motion.div>
-
-                    <motion.div
-                        variants={fadeUp}
-                        initial="hidden"
-                        whileInView="show"
-                        viewport={{once: true, amount: 0.3}}
-                        className="relative"
-                    >
-                        <div className="rounded-[var(--radius-lg)] border bg-card p-2 shadow-sm">
+                    <div className="">
+                        <motion.div
+                            variants={fadeUp}
+                            className="rounded-[var(--radius-lg)] p-2"
+                        >
                             <Image
-                                src="/images/landing/hero-ui.png"
-                                alt="Knitted web app preview"
-                                width={1200}
-                                height={720}
-                                className="rounded-[calc(var(--radius-lg)-0.5rem)] border"
-                                priority
+                                src={'/iphone_mockup_four.png'}
+                                alt={'Hero image'}
+                                width={300}
+                                height={100}
+                                className="h-auto mx-auto rounded-[calc(var(--radius-lg)-0.5rem)]"
                             />
-                        </div>
-                        <p className="mt-2 text-center text-xs text-muted-foreground">Quick demo · 60s overview</p>
-                    </motion.div>
+                        </motion.div>
+                    </div>
                 </div>
             </section>
 
