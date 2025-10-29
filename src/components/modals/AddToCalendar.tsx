@@ -100,7 +100,7 @@ export function AddToCalendarButton(props: AddToCalendarProps) {
     }
 
     return (
-        <div className="flex flex-wrap md:flex-row flex-col lg:flex-row gap-2">
+        <div className="flex flex-wrap md:flex-row flex-col sm:flex-row lg:flex-row gap-2">
             <button
                 type="button"
                 onClick={downloadICS}
