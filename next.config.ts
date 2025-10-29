@@ -31,6 +31,12 @@ const nextConfig = {
     images: {
         remotePatterns: [
             {protocol: "https", hostname: SUPABASE_HOST, pathname: "/storage/v1/object/**"},
+            {
+                protocol: "https",
+                hostname: "api.dicebear.com",
+                port: "",
+                pathname: "/**",
+            },
         ],
         domains: [
             'play.google.com',

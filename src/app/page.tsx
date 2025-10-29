@@ -564,8 +564,18 @@ export default function LandingPage() {
                                 className="rounded-[var(--radius-lg)] border bg-card p-6"
                             >
                                 <div className="mb-4 flex items-center gap-3">
-                                    <div
-                                        className="h-10 w-10 rounded-full bg-gradient-to-br from-primary/40 to-secondary/40"/>
+
+
+                                    <Image
+                                        src={`https://api.dicebear.com/9.x/glass/svg?seed=${encodeURIComponent(t?.name || "Guest")}`}
+                                        alt={t?.name || "Avatar"}
+                                        width={40}
+                                        height={40}
+                                        unoptimized
+                                        className="rounded-full border border-border bg-muted"
+                                    />
+
+
                                     <div>
                                         <figcaption className="text-sm font-semibold">{t.name}</figcaption>
                                         <p className="text-xs text-muted-foreground">{t.role}</p>
