@@ -1,4 +1,5 @@
 import Image from "next/image";
+import {AddToCalendarButton} from "@/components/modals/AddToCalendar";
 
 /**
  * Server-rendered, theme-aware public tracking page.
@@ -16,7 +17,7 @@ export const dynamicParams = true;
 type Order = {
     id: string;
     order_code: string; // e.g., "KNT-00027"
-    status: "READY" | "CONFIRMED" | "IN PRODUCTION" | "DELIVERED" | "CANCELLED";
+    status: "ready" | "confirmed" | "in_production" | "delivered" | "cancelled";
     currency: string;   // fallback if totals.currency_code missing
     created_at: string;
     ready_at: string | null;
@@ -84,12 +85,12 @@ async function fetchJson<T>(url: string, init?: RequestInit): Promise<T> {
         ...(init?.headers || {}),
     };
 
-    const res = await fetch(url, { ...init, headers, cache: "no-store" });
+    const res = await fetch(url, {...init, headers, cache: "no-store"});
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     return res.json() as Promise<T>;
 }
 
-function Money({ amount, currency }: { amount: number; currency: string }) {
+function Money({amount, currency}: { amount: number; currency: string }) {
     try {
         return (
             <>
@@ -109,16 +110,16 @@ function Money({ amount, currency }: { amount: number; currency: string }) {
     }
 }
 
-function StatusBadge({ status }: { status: Order["status"] }) {
+function StatusBadge({status}: { status: Order["status"] }) {
     const cls: Record<Order["status"], string> = {
-        READY: "bg-violet-500/15 text-violet-600 dark:text-violet-300",
-        "IN PRODUCTION": "bg-amber-500/15 text-amber-600 dark:text-amber-300",
-        CONFIRMED: "bg-blue-500/15 text-blue-600 dark:text-blue-300",
-        DELIVERED: "bg-emerald-500/15 text-emerald-600 dark:text-emerald-300",
-        CANCELLED: "bg-rose-500/15 text-rose-600 dark:text-rose-300",
+        ready: "bg-violet-500/15 text-violet-600 dark:text-violet-300",
+        in_production: "bg-amber-500/15 text-amber-600 dark:text-amber-300",
+        confirmed: "bg-blue-500/15 text-blue-600 dark:text-blue-300",
+        delivered: "bg-emerald-500/15 text-emerald-600 dark:text-emerald-300",
+        cancelled: "bg-rose-500/15 text-rose-600 dark:text-rose-300",
     };
     return (
-        <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${cls[status]}`}>
+        <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-sm font-medium ${cls[status]}`}>
       {status}
     </span>
     );
@@ -131,7 +132,7 @@ export default async function TrackPage({
                                         }: {
     params: Promise<{ token: string }>;
 }) {
-    const { token: rawToken } = await params;
+    const {token: rawToken} = await params;
     const token = decodeURIComponent(rawToken || "");
 
     const base = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -262,35 +263,51 @@ export default async function TrackPage({
         <main className="bg-background text-foreground">
             {/* soft halo */}
             <div aria-hidden className="pointer-events-none fixed inset-0 -z-10">
-                <div className="absolute -top-24 -left-24 h-80 w-80 rounded-full bg-gradient-to-br from-primary/20 via-indigo-500/15 to-purple-500/15 blur-3xl" />
+                <div
+                    className="absolute -top-24 -left-24 h-80 w-80 rounded-full bg-gradient-to-br from-primary/20 via-indigo-500/15 to-purple-500/15 blur-3xl"/>
             </div>
 
             <section className="mx-auto max-w-3xl px-4 py-10 md:py-14">
                 {/* header */}
                 <div className="mb-6 flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                        <Image src="/knitted-logo.svg" alt="Knitted" width={28} height={28} />
+                        <Image src="/knitted-logo.svg" alt="Knitted" width={28} height={28}/>
                         <span className="text-sm font-semibold">Knitted</span>
                     </div>
-                    <span className="text-xs text-muted-foreground">Public tracking</span>
+                    <span className="text-xs text-muted-foreground hidden">Public tracking</span>
                 </div>
 
                 {/* SUMMARY */}
                 <div className="rounded-xl border bg-card/70 p-5 backdrop-blur">
-                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex flex-row justify-between gap-2 sm:flex-row sm:items-center sm:justify-between">
                         <div>
                             <h1 className="text-xl font-semibold">{order.order_code}</h1>
-                            <p className="text-sm text-muted-foreground">
+                            <p className="text-xs text-muted-foreground">
                                 {new Date(order.created_at).toLocaleString()}
                             </p>
                         </div>
                         <div className="flex items-center gap-3">
-                            <StatusBadge status={order.status} />
+                            <StatusBadge status={order.status}/>
+                        </div>
+                    </div>
+
+                    <div className={'flex flex-col lg:flex-row md:flex-row justify-between mt-5'}>
+                        <div className={'flex items-center gap-3 my-2 lg:my-0 md:my-0 xl:my-0'}>
                             {!!order.ready_at && (
-                                <span className="text-xs text-muted-foreground">
-                  Ready by {new Date(order.ready_at).toLocaleString()}
-                </span>
+                                <span className="text-sm">
+                                  Ready by {new Date(order.ready_at).toLocaleString()}
+                                </span>
                             )}
+                        </div>
+                        <div className={'flex items-center gap-3'}>
+                            <AddToCalendarButton
+                                title={`Pickup: ${order.order_code}`}
+                                start={order.ready_at!}               // ISO string, ensure not null
+                                durationMinutes={30}                  // adjust as needed
+                                location={"Your Atelier Address"}     // optional
+                                description={`Your order ${order.order_code} will be ready for pickup.`}
+                                filename={`${order.order_code}-pickup.ics`}
+                            />
                         </div>
                     </div>
 
@@ -320,15 +337,16 @@ export default async function TrackPage({
                                                 <td className="px-3 py-2 align-top">
                                                     <div className="font-medium">{it.name || "Item"}</div>
                                                     {it.notes && (
-                                                        <div className="mt-0.5 text-xs text-muted-foreground">{it.notes}</div>
+                                                        <div
+                                                            className="mt-0.5 text-xs text-muted-foreground">{it.notes}</div>
                                                     )}
                                                 </td>
                                                 <td className="px-3 py-2 align-top text-right">{it.quantity ?? 0}</td>
                                                 <td className="px-3 py-2 align-top text-right">
-                                                    <Money amount={unit} currency={lineCurrency} />
+                                                    <Money amount={unit} currency={lineCurrency}/>
                                                 </td>
                                                 <td className="px-3 py-2 align-top text-right font-medium">
-                                                    <Money amount={line} currency={lineCurrency} />
+                                                    <Money amount={line} currency={lineCurrency}/>
                                                 </td>
                                             </tr>
                                         );
@@ -344,19 +362,19 @@ export default async function TrackPage({
                         <div className="rounded-lg border bg-background p-4">
                             <div className="text-xs text-muted-foreground">Subtotal</div>
                             <div className="mt-1 text-base font-medium">
-                                <Money amount={totals?.items_subtotal ?? 0} currency={currency} />
+                                <Money amount={totals?.items_subtotal ?? 0} currency={currency}/>
                             </div>
                         </div>
                         <div className="rounded-lg border bg-background p-4">
                             <div className="text-xs text-muted-foreground">Total</div>
                             <div className="mt-1 text-base font-medium">
-                                <Money amount={totals?.computed_total ?? 0} currency={currency} />
+                                <Money amount={totals?.computed_total ?? 0} currency={currency}/>
                             </div>
                         </div>
                         <div className="rounded-lg border bg-background p-4">
                             <div className="text-xs text-muted-foreground">Paid</div>
                             <div className="mt-1 text-base font-medium">
-                                <Money amount={totals?.paid_total ?? 0} currency={currency} />
+                                <Money amount={totals?.paid_total ?? 0} currency={currency}/>
                             </div>
                         </div>
                     </div>
@@ -365,7 +383,7 @@ export default async function TrackPage({
                     <div className="mt-3 flex items-center justify-between rounded-lg border bg-background px-4 py-3">
                         <span className="text-sm text-muted-foreground">Balance</span>
                         <span className="text-base font-semibold">
-              <Money amount={finalBalance ?? 0} currency={currency} />
+              <Money amount={finalBalance ?? 0} currency={currency}/>
             </span>
                     </div>
 
@@ -409,7 +427,7 @@ export default async function TrackPage({
                             {payments.map((p) => (
                                 <li key={p.id} className="py-3">
                                     <div className="text-sm font-medium">
-                                        <Money amount={p.amount} currency={p.currency_code} />
+                                        <Money amount={p.amount} currency={p.currency_code}/>
                                     </div>
                                     <div className="text-xs text-muted-foreground">
                                         {(p.method ?? "payment")} • {new Date(p.created_at).toLocaleString()}
