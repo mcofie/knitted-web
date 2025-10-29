@@ -185,7 +185,7 @@ export default async function TrackPage({
 
     let totals: Totals = null;
     try {
-        const rows = await fetchJson<any[]>(totalsUrl.toString());
+        const rows = await fetchJson<Totals[]>(totalsUrl.toString());
         totals = rows?.[0] ?? null;
     } catch {
         totals = null;
