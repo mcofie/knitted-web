@@ -386,10 +386,6 @@ export default async function TrackPage({
               <Money amount={finalBalance ?? 0} currency={currency}/>
             </span>
                     </div>
-
-                    <p className="mt-8 text-center text-xs text-muted-foreground">
-                        This page updates as your tailor records progress and payments.
-                    </p>
                 </div>
 
                 {/* CUSTOMER */}
@@ -463,6 +459,16 @@ export default async function TrackPage({
                         </ul>
                     )}
                 </div>
+
+                <p className="mt-8 text-center text-xs text-muted-foreground">
+                    This page updates as your tailor records progress and payments.
+                </p>
+
+                <footer className="mt-10 border-t border-border border-t-gray-100 pt-6 text-center text-xs text-muted-foreground">
+  <span className="inline-block opacity-80 transition hover:opacity-100"> &copy;2025 | Knitted.
+    Made in <span className="text-foreground font-medium"> Accra</span> with <span className="text-rose-500">❤️</span>
+  </span>
+                </footer>
             </section>
         </main>
     );

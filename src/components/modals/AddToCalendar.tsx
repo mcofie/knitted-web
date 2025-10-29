@@ -104,7 +104,7 @@ export function AddToCalendarButton(props: AddToCalendarProps) {
             <button
                 type="button"
                 onClick={downloadICS}
-                className="inline-flex  items-center rounded-md border bg-purple-100 px-3 py-2 text-sm font-medium hover:bg-card/80"
+                className="inline-flex items-center rounded-md border bg-purple-100 text-purple-800 dark:bg-purple-500/20 dark:text-purple-300 px-3 py-2 text-xs font-medium hover:bg-purple-200 dark:hover:bg-purple-500/30 transition"
             >
                 Add to Apple/Outlook (ICS)
             </button>
@@ -113,7 +113,7 @@ export function AddToCalendarButton(props: AddToCalendarProps) {
                 href={googleUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center rounded-md border bg-indigo-100 px-3 py-2 text-sm font-medium hover:bg-card/80"
+                className="inline-flex items-center rounded-md border bg-indigo-100 text-indigo-800 dark:bg-indigo-500/20 dark:text-indigo-300 px-3 py-2 text-xs font-medium hover:bg-indigo-200 dark:hover:bg-indigo-500/30 transition"
             >
                 Add to Google Calendar
             </a>
