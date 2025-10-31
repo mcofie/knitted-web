@@ -66,7 +66,13 @@ export default async function OrdersPage({searchParams}: { searchParams: SearchP
         <Suspense fallback={null}>
             <div className="space-y-6">
                 <div className="flex items-center justify-between">
-                    <h1 className="text-lg font-semibold">Orders</h1>
+                    <div>
+                        <h1 className="text-lg font-semibold">Orders</h1>
+                        <small className="text-gray-500">List of all clients you have List of all clients you
+                            have</small>
+                    </div>
+
+
                     <div className="text-sm text-muted-foreground">
                         Page {page} of {totalPages} • {total.toLocaleString()} total
                     </div>

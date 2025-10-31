@@ -7,6 +7,15 @@ import ClientActions from "@/app/(app)/clients/[id]/client-actions";
 import ClientTime from "@/components/ClientTime";
 import OrdersTable from "@/app/(app)/clients/[id]/orders-table";
 import OrdersListItems from "@/app/(app)/clients/[id]/order-list-items";
+import {
+    Breadcrumb,
+    BreadcrumbItem,
+    BreadcrumbLink,
+    BreadcrumbList, BreadcrumbPage,
+    BreadcrumbSeparator
+} from "@/components/ui/breadcrumb";
+import {MdPhoneEnabled} from "react-icons/md";
+import {FiEdit3} from "react-icons/fi";
 
 export const dynamic = "force-dynamic";
 
@@ -78,7 +87,29 @@ export default async function ClientDetailPage({params}: { params: RouteParams }
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between">
-                <h1 className="text-lg font-semibold">Client detail</h1>
+                <div>
+                    <h1 className="text-lg font-semibold">Client detail</h1>
+
+                    <Breadcrumb>
+                        <BreadcrumbList>
+                            <BreadcrumbItem>
+                                <BreadcrumbLink asChild>
+                                    <Link href="/dashboard">Home</Link>
+                                </BreadcrumbLink>
+                            </BreadcrumbItem>
+                            <BreadcrumbSeparator/>
+                            <BreadcrumbItem>
+                                <BreadcrumbLink asChild>
+                                    <Link href="/clients">Clients</Link>
+                                </BreadcrumbLink>
+                            </BreadcrumbItem>
+                            <BreadcrumbSeparator/>
+                            <BreadcrumbItem>
+                                <BreadcrumbPage>{displayName}</BreadcrumbPage>
+                            </BreadcrumbItem>
+                        </BreadcrumbList>
+                    </Breadcrumb>
+                </div>
                 <ClientActions clientId={client.id} clientName={displayName}/>
             </div>
 
@@ -93,14 +124,14 @@ export default async function ClientDetailPage({params}: { params: RouteParams }
                             className="rounded-full p-1.5 text-muted-foreground hover:text-primary hover:bg-muted transition-colors"
                             title="Contact"
                         >
-                            <p>Phone</p>
+                            <MdPhoneEnabled/>
                         </Link>
                         <Link
                             href={`/clients/${client.id}/edit`}
                             className="rounded-full p-1.5 text-muted-foreground hover:text-primary hover:bg-muted transition-colors"
                             title="Edit client"
                         >
-                            <p>Edit</p>
+                            <FiEdit3/>
                         </Link>
                     </div>
 

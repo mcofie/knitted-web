@@ -7,7 +7,6 @@ import {Suspense} from "react";
 import Image from "next/image";
 
 
-
 export const dynamic = "force-dynamic";
 
 // In newer Next, searchParams is async in RSC. Await it before use.
@@ -48,14 +47,18 @@ export default async function ClientsPage({searchParams}: { searchParams: Search
         <Suspense fallback={null}>
             <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                    <h1 className="text-xl font-semibold">Clients</h1>
+                    <div>
+                        <h1 className="text-xl font-semibold">Clients</h1>
+                        <small className="text-gray-500">List of all clients you have List of all clients you have</small>
+                    </div>
                     <ClientsPageActions/>
                 </div>
 
                 <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
                     {clients?.map((c) => (
 
-                        <div key={c.id} className="group relative rounded-2xl border border-border bg-card/70 p-6 transition-all duration-300 hover:shadow-md hover:bg-card">
+                        <div key={c.id}
+                             className="group relative rounded-2xl border border-border bg-card/70 p-6 transition-all duration-300 hover:shadow-md hover:bg-card">
                             <div className="mb-4 flex items-center gap-4">
                                 <Image
                                     src={`https://api.dicebear.com/9.x/glass/svg?seed=${encodeURIComponent(c?.name || "Guest")}`}
@@ -82,7 +85,8 @@ export default async function ClientsPage({searchParams}: { searchParams: Search
                             {/* <blockquote className="text-sm italic text-muted-foreground">“{c.note || 'Reliable client'}”</blockquote> */}
 
                             {/* Subtle hover indicator */}
-                            <div className="absolute right-4 top-4 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                            <div
+                                className="absolute right-4 top-4 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
                                 <Link
                                     href={`/clients/${c.id}`}
                                     className="text-xs text-primary hover:underline"

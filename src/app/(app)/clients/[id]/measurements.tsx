@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { createClientBrowser } from "@/lib/supabase/browser";
-import { Button } from "@/components/ui/button";
-import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
-import { toast } from "sonner";
+import {useEffect, useState} from "react";
+import {createClientBrowser} from "@/lib/supabase/browser";
+import {Button} from "@/components/ui/button";
+import {Table, TableHeader, TableRow, TableHead, TableBody, TableCell} from "@/components/ui/table";
+import {toast} from "sonner";
 import MeasurementDialog from "./measurement-dialog";
 import {
     AlertDialog,
@@ -16,6 +16,8 @@ import {
     AlertDialogCancel,
     AlertDialogAction,
 } from "@/components/ui/alert-dialog";
+import {FiEdit3} from "react-icons/fi";
+import {TbHttpDelete} from "react-icons/tb";
 
 type Measurement = {
     id: string;
@@ -25,7 +27,7 @@ type Measurement = {
     created_at: string;
 };
 
-export default function MeasurementsSection({ customerId }: { customerId: string }) {
+export default function MeasurementsSection({customerId}: { customerId: string }) {
     const sb = createClientBrowser();
     const [items, setItems] = useState<Measurement[]>([]);
     const [loading, setLoading] = useState(true);
@@ -40,16 +42,16 @@ export default function MeasurementsSection({ customerId }: { customerId: string
 
     async function load() {
         setLoading(true);
-        const { data, error } = await sb
+        const {data, error} = await sb
             .schema("knitted")
             .from("measurements")
             .select("id, name, value, unit, created_at")
             .eq("customer_id", customerId)
-            .order("created_at", { ascending: false });
+            .order("created_at", {ascending: false});
 
         setLoading(false);
         if (error) {
-            toast.error("Load failed", { description: error.message });
+            toast.error("Load failed", {description: error.message});
             return;
         }
         setItems((data ?? []) as Measurement[]);
@@ -57,9 +59,9 @@ export default function MeasurementsSection({ customerId }: { customerId: string
 
     async function confirmDelete() {
         if (!deleteRow) return;
-        const { error } = await sb.schema("knitted").from("measurements").delete().eq("id", deleteRow.id);
+        const {error} = await sb.schema("knitted").from("measurements").delete().eq("id", deleteRow.id);
         if (error) {
-            toast.error("Delete failed", { description: error.message });
+            toast.error("Delete failed", {description: error.message});
             return;
         }
         toast.success("Measurement deleted");
@@ -88,7 +90,7 @@ export default function MeasurementsSection({ customerId }: { customerId: string
                 </Button>
             </div>
 
-            <div className="rounded-md border overflow-x-auto">
+            <div className="rounded-md border overflow-x-auto p-2">
                 <Table>
                     <TableHeader>
                         <TableRow>
@@ -138,7 +140,7 @@ export default function MeasurementsSection({ customerId }: { customerId: string
                                             setOpenEdit(true);
                                         }}
                                     >
-                                        Edit
+                                        <FiEdit3/>
                                     </Button>
                                     <Button
                                         variant="destructive"
@@ -148,7 +150,7 @@ export default function MeasurementsSection({ customerId }: { customerId: string
                                             setOpenDelete(true);
                                         }}
                                     >
-                                        Delete
+                                        <TbHttpDelete />
                                     </Button>
                                 </TableCell>
                             </TableRow>
@@ -175,7 +177,8 @@ export default function MeasurementsSection({ customerId }: { customerId: string
                     <AlertDialogHeader>
                         <AlertDialogTitle>Delete measurement?</AlertDialogTitle>
                         <AlertDialogDescription>
-                            This will permanently remove <strong>{deleteRow?.name}</strong>. This action cannot be undone.
+                            This will permanently remove <strong>{deleteRow?.name}</strong>. This action cannot be
+                            undone.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>

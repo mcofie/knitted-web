@@ -1,13 +1,25 @@
-import { redirect } from "next/navigation";
+import {redirect} from "next/navigation";
 import Link from "next/link";
-import { createClientServer } from "@/lib/supabase/server";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
+import {createClientServer} from "@/lib/supabase/server";
+import {Card, CardHeader, CardTitle, CardContent} from "@/components/ui/card";
+import {Table, TableHeader, TableRow, TableHead, TableBody, TableCell} from "@/components/ui/table";
 import PaymentsSection from "./payments";
 import StatusSelect from "./status-select";
 import ReadyAtPicker from "./ready-at-picker";
 import AttachmentsSection from "./attachments";
 import ClientTime from "@/components/ClientTime";
+import {
+    Breadcrumb,
+    BreadcrumbItem,
+    BreadcrumbLink,
+    BreadcrumbList,
+    BreadcrumbPage,
+    BreadcrumbSeparator
+} from "@/components/ui/breadcrumb";
+import {MdPhoneEnabled} from "react-icons/md";
+import {FiEdit3} from "react-icons/fi";
+import Image from "next/image";
+import StatusBadge from "@/components/StatusBadge";
 
 export const dynamic = "force-dynamic";
 
@@ -53,17 +65,17 @@ type TotalsRow = {
 
 type RouteParams = Promise<{ id: string }>;
 
-export default async function OrderDetailPage({ params }: { params: RouteParams }) {
-    const { id } = await params; // ⬅️ await params
+export default async function OrderDetailPage({params}: { params: RouteParams }) {
+    const {id} = await params; // ⬅️ await params
 
     const sb = await createClientServer();
     const {
-        data: { user },
+        data: {user},
     } = await sb.auth.getUser();
     if (!user) redirect("/login");
 
     // 1) Order with nested customer + items
-    const { data: order, error } = await sb
+    const {data: order, error} = await sb
         .schema("knitted")
         .from("orders")
         .select(
@@ -89,7 +101,7 @@ export default async function OrderDetailPage({ params }: { params: RouteParams 
     const ord = order as unknown as OrderRow;
 
     // 2) Totals from the VIEW (separate request)
-    const { data: totals } = await sb
+    const {data: totals} = await sb
         .schema("knitted")
         .from("order_totals")
         .select(
@@ -112,179 +124,235 @@ export default async function OrderDetailPage({ params }: { params: RouteParams 
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between">
-                <h1 className="text-lg font-semibold">
-                    {ord.order_code ?? `Order #${ord.id.slice(0, 8).toUpperCase()}`}
-                </h1>
+                <div>
+                    <h1 className="text-lg font-semibold">
+                        Order details
+                    </h1>
+                    <Breadcrumb>
+                        <BreadcrumbList>
+                            <BreadcrumbItem>
+                                <BreadcrumbLink asChild>
+                                    <Link href="/dashboard">Home</Link>
+                                </BreadcrumbLink>
+                            </BreadcrumbItem>
+                            <BreadcrumbSeparator/>
+                            <BreadcrumbItem>
+                                <BreadcrumbLink asChild>
+                                    <Link href="/orders">Orders</Link>
+                                </BreadcrumbLink>
+                            </BreadcrumbItem>
+                            <BreadcrumbSeparator/>
+                            <BreadcrumbItem>
+                                <BreadcrumbPage>
+                                    {ord.order_code ?? `Order #${ord.id.slice(0, 8).toUpperCase()}`}
+                                </BreadcrumbPage>
+                            </BreadcrumbItem>
+                        </BreadcrumbList>
+                    </Breadcrumb>
+                </div>
                 <div className="text-sm text-muted-foreground">
-                    <ClientTime iso={ord.created_at} />
+                    <StatusBadge status={ord.status} />
                 </div>
             </div>
 
-            {/* Summary */}
-            <Card>
-                <CardHeader className="pb-2">
-                    <CardTitle className="text-base">Summary</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                    <div className="flex flex-wrap gap-4 text-sm">
-                        <div>
-                            <span className="text-muted-foreground">Order ID:</span> {ord.id}
+            <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2">
+                {/* Summary */}
+                <div
+                    className="w-full group relative rounded-2xl border border-border bg-card/70 p-4">
+                    <div className="space-y-3">
+                        <div className="flex flex-wrap gap-4 text-sm justify-between items-center">
+                            <div>
+                                <span className="text-muted-foreground">Order ID:</span> {ord.order_code}
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <span className="text-muted-foreground">Status:</span>
+                                <StatusSelect orderId={ord.id} initial={ord.status}/>
+                            </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                            <span className="text-muted-foreground">Status:</span>
-                            <StatusSelect orderId={ord.id} initial={ord.status} />
+                        <div className="flex flex-wrap gap-4 text-sm justify-between items-center">
+                            <div className="flex items-center gap-2">
+                                <span className="text-muted-foreground">Ready at:</span>
+                                <ReadyAtPicker orderId={ord.id} initial={ord.ready_at}/>
+                            </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                            <span className="text-muted-foreground">Ready at:</span>
-                            <ReadyAtPicker orderId={ord.id} initial={ord.ready_at} />
-                        </div>
-                    </div>
 
-                    {ord.notes && (
-                        <div className="text-sm">
-                            <div className="text-muted-foreground">Notes</div>
-                            <div className="whitespace-pre-wrap">{ord.notes}</div>
-                        </div>
-                    )}
-                </CardContent>
-            </Card>
-
-            {/* Customer */}
-            <Card>
-                <CardHeader className="pb-2">
-                    <CardTitle className="text-base">Customer</CardTitle>
-                </CardHeader>
-                <CardContent className="text-sm text-muted-foreground space-y-1">
-                    <div className="text-foreground font-medium">
-                        {ord.customer ? (
-                            <Link href={`/clients/${ord.customer.id}`} className="hover:underline">
-                                {ord.customer.full_name}
-                            </Link>
-                        ) : (
-                            "—"
+                        {ord.notes && (
+                            <div className="flex flex-wrap gap-4 text-sm justify-between items-center">
+                                <div className="text-muted-foreground">Notes:</div>
+                                <div className="whitespace-pre-wrap">{ord.notes}</div>
+                            </div>
                         )}
                     </div>
-                    <div>{ord.customer?.email ?? "—"}</div>
-                    <div>{ord.customer?.phone ?? "—"}</div>
-                    <div>
-                        {ord.customer?.city ?? "—"}
-                        {ord.customer?.country_code ? ` • ${ord.customer?.country_code}` : ""}
+                </div>
+
+                <div className='flex items-center justify-between'>
+                    <div
+                        className="w-full group relative rounded-2xl border border-border bg-card/70 p-6 transition-all duration-300 hover:shadow-md hover:bg-card">
+                        {/* Top Right Action Buttons */}
+                        <div
+                            className="absolute right-4 top-4 flex gap-2 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                            <Link
+                                href={`tel:${ord.customer?.phone}`}
+                                className="rounded-full p-1.5 text-muted-foreground hover:text-primary hover:bg-muted transition-colors"
+                                title="Contact"
+                            >
+                                <MdPhoneEnabled/>
+                            </Link>
+                            <Link
+                                href={`/clients/${ord.customer?.id}/edit`}
+                                className="rounded-full p-1.5 text-muted-foreground hover:text-primary hover:bg-muted transition-colors"
+                                title="Edit client"
+                            >
+                                <FiEdit3/>
+                            </Link>
+                        </div>
+
+                        {/* Client Info */}
+                        <div className="mb-4 flex items-center gap-4">
+                            <Image
+                                src={`https://api.dicebear.com/9.x/glass/svg?seed=${encodeURIComponent(ord.customer?.full_name || "Guest")}`}
+                                alt={ord.customer?.full_name || "Avatar"}
+                                width={98}
+                                height={98}
+                                unoptimized
+                                className="rounded-full border border-border bg-muted ring-2 ring-transparent transition-all duration-300 group-hover:ring-primary/40"
+                            />
+
+                            <div className="flex flex-col">
+                                <h1 className='text-lg font-semibold'>
+                                    {ord.customer?.full_name}
+                                </h1>
+                                <p className="text-xs text-muted-foreground">{ord.customer?.phone}</p>
+                                {/*<p className="text-xs text-muted-foreground">{client.city}</p>*/}
+                                <p className="text-xs text-muted-foreground">{ord.customer?.city ?? "—"} {ord.customer?.country_code ? `• ${ord.customer?.country_code}` : ""}</p>
+                            </div>
+                        </div>
+
+                        {/* Optional note or quote */}
+                        {/* <blockquote className="text-sm italic text-muted-foreground">“{c.note || 'Reliable client'}”</blockquote> */}
                     </div>
-                </CardContent>
-            </Card>
 
-            {/* Items */}
-            <Card>
-                <CardHeader className="pb-2">
-                    <CardTitle className="text-base">Items</CardTitle>
-                </CardHeader>
-                <CardContent className="rounded-md border overflow-x-auto">
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Description</TableHead>
-                                <TableHead className="w-24 text-right">Qty</TableHead>
-                                <TableHead className="w-32 text-right">Unit Price</TableHead>
-                                <TableHead className="w-32 text-right">Line Total</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {(ord.items ?? []).map((it) => {
-                                const line = (Number(it.quantity) || 0) * (Number(it.unit_price) || 0);
-                                return (
-                                    <TableRow key={it.id}>
-                                        <TableCell className="font-medium">{it.description}</TableCell>
-                                        <TableCell className="text-right">{it.quantity}</TableCell>
-                                        <TableCell className="text-right">
-                                            {it.currency_code} {(Number(it.unit_price) || 0).toFixed(2)}
-                                        </TableCell>
-                                        <TableCell className="text-right">
-                                            {it.currency_code} {line.toFixed(2)}
-                                        </TableCell>
+                </div>
+
+
+            </div>
+
+            <div className="flex flex-row gap-4">
+                {/* Items */}
+                <div className="w-1/2">
+                    <CardTitle className="text-base my-2">Items</CardTitle>
+                    <div className="w-full group relative rounded-2xl border border-border bg-card/70 p-2">
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead>Description</TableHead>
+                                        <TableHead className="w-24 text-right">Qty</TableHead>
+                                        <TableHead className="w-32 text-right">Unit Price</TableHead>
+                                        <TableHead className="w-32 text-right">Line Total</TableHead>
                                     </TableRow>
-                                );
-                            })}
-                            {(!ord.items || ord.items.length === 0) && (
-                                <TableRow>
-                                    <TableCell colSpan={4} className="py-8 text-center text-muted-foreground">
-                                        No items
-                                    </TableCell>
-                                </TableRow>
-                            )}
-                        </TableBody>
-                    </Table>
-                </CardContent>
-            </Card>
-
-            {/* Totals */}
-            <Card>
-                <CardHeader className="pb-2">
-                    <CardTitle className="text-base">Totals</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <div className="space-y-4">
-                        {/* Main total */}
-                        <div className="flex items-baseline justify-between border-b pb-2">
-                            <span className="text-sm text-muted-foreground">Grand Total</span>
-                            <span className="text-2xl font-semibold tracking-tight">
+                                </TableHeader>
+                                <TableBody>
+                                    {(ord.items ?? []).map((it) => {
+                                        const line = (Number(it.quantity) || 0) * (Number(it.unit_price) || 0);
+                                        return (
+                                            <TableRow key={it.id}>
+                                                <TableCell className="font-medium">{it.description}</TableCell>
+                                                <TableCell className="text-right">{it.quantity}</TableCell>
+                                                <TableCell className="text-right">
+                                                    {it.currency_code} {(Number(it.unit_price) || 0).toFixed(2)}
+                                                </TableCell>
+                                                <TableCell className="text-right">
+                                                    {it.currency_code} {line.toFixed(2)}
+                                                </TableCell>
+                                            </TableRow>
+                                        );
+                                    })}
+                                    {(!ord.items || ord.items.length === 0) && (
+                                        <TableRow>
+                                            <TableCell colSpan={4} className="py-8 text-center text-muted-foreground">
+                                                No items
+                                            </TableCell>
+                                        </TableRow>
+                                    )}
+                                </TableBody>
+                            </Table>
+                    </div>
+                </div>
+                {/* Totals */}
+                <div className="w-2/3">
+                    <CardTitle className="text-base my-2">Totals</CardTitle>
+                    <div className="w-full group relative rounded-2xl border border-border bg-card/70 px-4 py-5">
+                            <div className="space-y-4">
+                                {/* Main total */}
+                                <div className="flex items-baseline justify-between border-b pb-2">
+                                    <span className="text-sm text-muted-foreground">Grand Total</span>
+                                    <span className="text-2xl font-semibold tracking-tight">
                 {currency} {t.total.toFixed(2)}
               </span>
-                        </div>
+                                </div>
 
-                        {/* Paid section (slightly emphasized) */}
-                        <div className="flex items-baseline justify-between border-b pb-2">
-                            <span className="text-sm text-muted-foreground">Paid</span>
-                            <span
-                                className={`text-lg font-medium ${
-                                    t.paid >= t.total ? "text-green-600" : "text-yellow-600"
-                                }`}
-                            >
+                                {/* Paid section (slightly emphasized) */}
+                                <div className="flex items-baseline justify-between border-b pb-2">
+                                    <span className="text-sm text-muted-foreground">Paid</span>
+                                    <span
+                                        className={`text-lg font-medium ${
+                                            t.paid >= t.total ? "text-green-600" : "text-yellow-600"
+                                        }`}
+                                    >
                 {currency} {t.paid.toFixed(2)}
               </span>
-                        </div>
+                                </div>
 
-                        {/* Derivatives */}
-                        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm text-muted-foreground">
-                            <div className="flex justify-between">
-                                <span>Subtotal</span>
-                                <span>
+                                {/* Derivatives */}
+                                <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm text-muted-foreground">
+                                    <div className="flex justify-between">
+                                        <span>Subtotal</span>
+                                        <span>
                   {currency} {t.subtotal.toFixed(2)}
                 </span>
-                            </div>
-                            <div className="flex justify-between">
-                                <span>Tax</span>
-                                <span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span>Tax</span>
+                                        <span>
                   {currency} {t.tax.toFixed(2)}
                 </span>
-                            </div>
-                            <div className="flex justify-between">
-                                <span>Discount</span>
-                                <span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span>Discount</span>
+                                        <span>
                   -{currency} {t.discount.toFixed(2)}
                 </span>
-                            </div>
-                            <div className="flex justify-between">
-                                <span>Shipping</span>
-                                <span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span>Shipping</span>
+                                        <span>
                   {currency} {t.shipping.toFixed(2)}
                 </span>
-                            </div>
-                            <div className="flex justify-between">
-                                <span>Balance</span>
-                                <span className="font-medium text-foreground">
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span>Balance</span>
+                                        <span className="font-medium text-foreground">
                   {currency} {(t.total - t.paid).toFixed(2)}
                 </span>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
                     </div>
-                </CardContent>
-            </Card>
+                </div>
+            </div>
 
-            {/* Payments */}
-            <PaymentsSection orderId={ord.id} currency={currency} />
 
-            {/* Attachments */}
-            <AttachmentsSection orderId={ord.id} />
+            <div className="flex flex-row gap-4">
+                {/* Payments */}
+                <div className="w-1/2">
+                    <PaymentsSection orderId={ord.id} currency={currency}/>
+                </div>
+
+                {/* Attachments */}
+                <div className="w-1/2">
+                    <AttachmentsSection orderId={ord.id}/>
+                </div>
+            </div>
         </div>
     );
 }

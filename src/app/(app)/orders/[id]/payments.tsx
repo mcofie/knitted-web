@@ -12,6 +12,7 @@ import {Input} from "@/components/ui/input";
 import {Label} from "@/components/ui/label";
 import {Select, SelectTrigger, SelectContent, SelectItem, SelectValue} from "@/components/ui/select";
 import {toast} from "sonner";
+import ClientTime from "@/components/ClientTime";
 
 type PaymentMethod = "cash" | "momo" | "card";
 
@@ -54,7 +55,6 @@ export default function PaymentsSection({orderId, currency}: { orderId: string; 
     }
 
 
-
     useEffect(() => {
         load(); /* eslint-disable-next-line */
     }, [orderId]);
@@ -92,13 +92,13 @@ export default function PaymentsSection({orderId, currency}: { orderId: string; 
     }
 
     return (
-        <Card>
-            <CardHeader className="pb-2 flex items-center justify-between">
+        <div className="">
+            <div className="pb-2 flex items-center justify-between">
                 <CardTitle className="text-base">Payments</CardTitle>
                 <Button size="sm" onClick={() => setOpen(true)}>Add payment</Button>
-            </CardHeader>
-            <CardContent>
-                <div className="rounded-md border overflow-x-auto">
+            </div>
+            <div className="w-full group relative rounded-2xl border border-border bg-card/70 p-2">
+                <div className="overflow-x-auto">
                     <Table>
                         <TableHeader>
                             <TableRow>
@@ -111,7 +111,7 @@ export default function PaymentsSection({orderId, currency}: { orderId: string; 
                         <TableBody>
                             {rows.map((p) => (
                                 <TableRow key={p.id}>
-                                    <TableCell className="text-sm">{new Date(p.created_at).toLocaleString()}</TableCell>
+                                    <TableCell className="text-sm"><ClientTime iso={p.created_at}/></TableCell>
                                     <TableCell className="text-sm">{p.method ?? "—"}</TableCell>
                                     <TableCell className="text-sm">{p.reference ?? "—"}</TableCell>
                                     <TableCell
@@ -127,7 +127,7 @@ export default function PaymentsSection({orderId, currency}: { orderId: string; 
                         </TableBody>
                     </Table>
                 </div>
-            </CardContent>
+            </div>
 
             {/* Add payment dialog */}
             <Dialog open={open} onOpenChange={setOpen}>
@@ -178,6 +178,6 @@ export default function PaymentsSection({orderId, currency}: { orderId: string; 
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
-        </Card>
+        </div>
     );
 }

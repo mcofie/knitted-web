@@ -101,14 +101,11 @@ export default function AttachmentsSection({ orderId }: { orderId: string }) {
     }
 
     return (
-        <Card>
-            <CardHeader className="pb-2 flex items-center justify-between">
+        <div>
+            <div className="pb-2 flex items-center justify-between">
                 <CardTitle className="text-base">Attachments</CardTitle>
-                <Button size="sm" onClick={upload} disabled={uploading}>
-                    {uploading ? "Uploading…" : "Add images"}
-                </Button>
-            </CardHeader>
-            <CardContent>
+            </div>
+            <div className="w-full group relative rounded-2xl border border-border bg-card/70 p-4">
                 {rows.length === 0 && (
                     <div className="text-sm text-muted-foreground py-8 text-center">
                         No images yet
@@ -140,7 +137,7 @@ export default function AttachmentsSection({ orderId }: { orderId: string }) {
                         );
                     })}
                 </div>
-            </CardContent>
+            </div>
 
             {/* Modal view */}
             <Dialog open={!!selectedUrl} onOpenChange={() => setSelectedUrl(null)}>
@@ -158,6 +155,6 @@ export default function AttachmentsSection({ orderId }: { orderId: string }) {
                     )}
                 </DialogContent>
             </Dialog>
-        </Card>
+        </div>
     );
 }

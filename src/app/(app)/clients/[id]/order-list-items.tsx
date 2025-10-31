@@ -67,7 +67,7 @@ export default function OrdersListFlex({
     }
 
     return (
-        <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+        <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3">
             {orders.map((o) => {
                 const total = totalsByOrder[o.id] ?? 0;
                 const code = o.order_code ?? `#${o.id.slice(0, 8).toUpperCase()}`;
@@ -92,14 +92,14 @@ export default function OrdersListFlex({
                                     width={58}
                                     height={58}
                                     unoptimized
-                                    className="opacity-30 rounded-full border border-border bg-muted ring-2 ring-transparent transition-all duration-300 group-hover:ring-primary/40"
+                                    className="opacity-45 rounded-full border border-border bg-muted ring-2 ring-transparent transition-all duration-300 group-hover:ring-primary/40"
                                 />
 
                                 <div className="min-w-0">
-                  <span className="block truncate font-mono text-sm font-medium">
+                  <span className="block truncate font-mono text-md font-medium">
                     {code}
                   </span>
-                                    <small className="text-xs">
+                                    <small className="text-xs text-gray-500">
                                         <ClientTime iso={o.created_at} />
                                     </small>
                                     <div className="mt-1">

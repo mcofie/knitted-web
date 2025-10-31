@@ -5,7 +5,7 @@ import {createClientBrowser} from "@/lib/supabase/browser";
 import {Select, SelectTrigger, SelectContent, SelectItem, SelectValue} from "@/components/ui/select";
 import {toast} from "sonner";
 
-const STATUSES = ["draft", "active", "in_progress", "ready", "delivered", "cancelled"];
+const STATUSES = ["confirmed", "active", "in_production", "ready", "delivered", "cancelled"];
 
 export default function StatusSelect({orderId, initial}: { orderId: string; initial: string }) {
     const sb = createClientBrowser();
