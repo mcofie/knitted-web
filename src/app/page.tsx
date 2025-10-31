@@ -125,7 +125,6 @@ export default function LandingPage() {
     }, []);
 
     const links = [
-        {href: '/', label: 'Home'},
         {href: '/features', label: 'Features'},
         {href: '/pricing', label: 'Pricing'},
     ];
@@ -152,25 +151,25 @@ export default function LandingPage() {
                     </Link>
 
                     {/* Nav Links */}
-                    <nav className="hidden items-center gap-6 md:flex">
-                        {links.map((l) => {
-                            const active = pathname === l.href || (l.href !== '/' && pathname?.startsWith(l.href));
-                            return (
-                                <Link key={l.href} href={l.href}
-                                      className="relative text-sm font-medium text-muted-foreground hover:text-foreground">
-                  <span className="relative inline-block">
-                    {l.label}
-                      {active && (
-                          <motion.span
-                              layoutId="nav-underline"
-                              className="absolute -bottom-1 left-0 h-[2px] w-full rounded bg-primary"
-                          />
-                      )}
-                  </span>
-                                </Link>
-                            );
-                        })}
-                    </nav>
+                  {/*  <nav className="hidden items-center gap-6 md:flex">*/}
+                  {/*      {links.map((l) => {*/}
+                  {/*          const active = pathname === l.href || (l.href !== '/' && pathname?.startsWith(l.href));*/}
+                  {/*          return (*/}
+                  {/*              <Link key={l.href} href={"#" + l.href}*/}
+                  {/*                    className="relative text-sm font-medium text-muted-foreground hover:text-foreground">*/}
+                  {/*<span className="relative inline-block">*/}
+                  {/*  {l.label}*/}
+                  {/*    {active && (*/}
+                  {/*        <motion.span*/}
+                  {/*            layoutId="nav-underline"*/}
+                  {/*            className="absolute -bottom-1 left-0 h-[2px] w-full rounded bg-primary"*/}
+                  {/*        />*/}
+                  {/*    )}*/}
+                  {/*</span>*/}
+                  {/*              </Link>*/}
+                  {/*          );*/}
+                  {/*      })}*/}
+                  {/*  </nav>*/}
 
                     {/* Auth + App Buttons */}
                     <div className="flex items-center gap-3">
@@ -205,15 +204,9 @@ export default function LandingPage() {
                         </Link>
 
                         {/* Auth links */}
-                        <Link
-                            href="/login"
-                            className="text-sm font-medium text-muted-foreground hover:text-primary"
-                        >
-                            Sign in
-                        </Link>
 
                         <Link
-                            href="/signup"
+                            href="/login"
                             className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
                         >
                             Sign up
