@@ -2,11 +2,22 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import {useEffect, useMemo, useState} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import {usePathname} from 'next/navigation';
 import {Play, Check, ArrowRight, Star, X} from 'lucide-react';
 import {motion, type Variants} from 'framer-motion';
 import * as Dialog from '@radix-ui/react-dialog';
+import Autoplay from "embla-carousel-autoplay";
+import {
+    Carousel,
+    CarouselContent,
+    CarouselItem,
+    CarouselNext,
+    CarouselPrevious,
+} from "@/components/ui/carousel";
+import {IoMoonOutline} from "react-icons/io5";
+import {GoSun} from "react-icons/go";
+import {useTheme} from "next-themes";
 
 /* ========================= Animations ========================= */
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
@@ -129,12 +140,22 @@ export default function LandingPage() {
         {href: '/pricing', label: 'Pricing'},
     ];
 
+    const plugin = React.useRef(
+        Autoplay({delay: 4000, stopOnInteraction: true})
+    )
+
+    const {theme, setTheme} = useTheme();
+    const [mounted, setMounted] = useState(false);
+    useEffect(() => setMounted(true), []);
+
     return (
         <main className="bg-background text-foreground min-h-screen flex flex-col">
             {/* ============================ Navbar ============================ */}
             <header
                 className={`sticky top-0 z-50 transition-all duration-300 ${
-                    scrolled ? 'border-b bg-background/95 backdrop-blur-md shadow-sm' : 'border-transparent bg-transparent backdrop-blur-0'
+                    scrolled
+                        ? "border-b bg-background/95 backdrop-blur-md shadow-sm"
+                        : "border-transparent bg-transparent backdrop-blur-0"
                 }`}
             >
                 <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-2 md:px-6">
@@ -142,34 +163,13 @@ export default function LandingPage() {
                     <Link href="/" className="flex items-center gap-2">
                         <motion.div
                             animate={scrolled ? {scale: 0.9, opacity: 0.9} : {scale: 1, opacity: 1}}
-                            transition={{duration: 0.25, ease: EASE}}
+                            transition={{duration: 0.25, ease: [0.16, 1, 0.3, 1] /* EASE */}}
                             className="flex items-center gap-2"
                         >
                             <Image src="/knitted-logo.svg" alt="Knitted Logo" width={32} height={32}/>
                             <span className="text-lg font-semibold">Knitted</span>
                         </motion.div>
                     </Link>
-
-                    {/* Nav Links */}
-                  {/*  <nav className="hidden items-center gap-6 md:flex">*/}
-                  {/*      {links.map((l) => {*/}
-                  {/*          const active = pathname === l.href || (l.href !== '/' && pathname?.startsWith(l.href));*/}
-                  {/*          return (*/}
-                  {/*              <Link key={l.href} href={"#" + l.href}*/}
-                  {/*                    className="relative text-sm font-medium text-muted-foreground hover:text-foreground">*/}
-                  {/*<span className="relative inline-block">*/}
-                  {/*  {l.label}*/}
-                  {/*    {active && (*/}
-                  {/*        <motion.span*/}
-                  {/*            layoutId="nav-underline"*/}
-                  {/*            className="absolute -bottom-1 left-0 h-[2px] w-full rounded bg-primary"*/}
-                  {/*        />*/}
-                  {/*    )}*/}
-                  {/*</span>*/}
-                  {/*              </Link>*/}
-                  {/*          );*/}
-                  {/*      })}*/}
-                  {/*  </nav>*/}
 
                     {/* Auth + App Buttons */}
                     <div className="flex items-center gap-3">
@@ -203,8 +203,23 @@ export default function LandingPage() {
                             />
                         </Link>
 
-                        {/* Auth links */}
+                        {/* Theme toggle */}
+                        {mounted && (
+                            <button
+                                type="button"
+                                onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+                                aria-label="Toggle theme"
+                                className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-transparent text-muted-foreground transition hover:bg-muted/60 hover:text-foreground"
+                            >
+                                {theme === "light" ? (
+                                    <IoMoonOutline className="h-5 w-5"/>
+                                ) : (
+                                    <GoSun className="h-5 w-5"/>
+                                )}
+                            </button>
+                        )}
 
+                        {/* Auth link */}
                         <Link
                             href="/login"
                             className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
@@ -222,6 +237,7 @@ export default function LandingPage() {
                 <div
                     className="absolute -bottom-24 -right-24 h-96 w-96 rounded-full bg-gradient-to-tr from-secondary/25 via-indigo-500/20 to-purple-500/20 blur-3xl"/>
             </div>
+
 
             {/* ============================ Hero ============================ */}
             <section className="relative overflow-hidden">
@@ -261,25 +277,47 @@ export default function LandingPage() {
                             variants={fadeUp}
                             className="rounded-[var(--radius-lg)] p-2"
                         >
-                            {/* Light mode image */}
-                            <Image
-                                src="/iphone_mockup_four_light.png"
-                                alt="Knitted app mockup (light)"
-                                width={350}
-                                height={400}
-                                className="h-auto mx-auto rounded-[calc(var(--radius-lg)-0.5rem)] dark:hidden"
-                                priority
-                            />
+                            <Carousel
+                                plugins={[plugin.current]}
+                                className="w-full  mx-auto"
+                                onMouseEnter={plugin.current.stop}
+                                onMouseLeave={plugin.current.reset}
+                            >
+                                <CarouselContent>
+                                    {['/iphone_mockup_one_', '/iphone_mockup_two_', '/iphone_mockup_four_', '/iphone_mockup_five_', '/iphone_mockup_three_'].map((url, index) => (
+                                        <CarouselItem key={index}>
+                                            <div className="p-1">
+                                                <div
+                                                    className="flex aspect-square items-center justify-center p-6">
+                                                    {/* Light mode image */}
+                                                    <Image
+                                                        src={url + "light.png"}
+                                                        alt="Knitted app mockup (light)"
+                                                        width={350}
+                                                        height={400}
+                                                        className="h-auto mx-auto rounded-[calc(var(--radius-lg)-0.5rem)] dark:hidden"
+                                                        priority
+                                                    />
 
-                            {/* Dark mode image */}
-                            <Image
-                                src="/iphone_mockup_four_dark.png"
-                                alt="Knitted app mockup (dark)"
-                                width={350}
-                                height={400}
-                                className="hidden h-auto mx-auto rounded-[calc(var(--radius-lg)-0.5rem)] dark:block"
-                                priority
-                            />
+                                                    {/* Dark mode image */}
+                                                    <Image
+                                                        src={url + "dark.png"}
+                                                        alt="Knitted app mockup (dark)"
+                                                        width={350}
+                                                        height={400}
+                                                        className="hidden h-auto mx-auto rounded-[calc(var(--radius-lg)-0.5rem)] dark:block"
+                                                        priority
+                                                    />
+                                                </div>
+                                            </div>
+                                        </CarouselItem>
+                                    ))}
+                                </CarouselContent>
+                                <CarouselPrevious/>
+                                <CarouselNext/>
+                            </Carousel>
+
+
                         </motion.div>
                     </div>
                 </div>
@@ -415,21 +453,21 @@ export default function LandingPage() {
                                 price: 'Free',
                                 desc: 'Independent tailors',
                                 highlight: false,
-                                features: ['Clients & measurements', 'Up to 50 orders', 'Basic invoices (PDF)', 'Email support'],
+                                features: [' 1 user', 'Clients & measurements', 'Up to 20 active orders', 'Order notes & attachments', 'Local reminders (no automation)', '500 MB storage'],
                             },
                             {
                                 name: 'Studio',
                                 price: '$5/mo',
                                 desc: 'Growing teams',
                                 highlight: true,
-                                features: ['Unlimited orders', 'Branded invoices', 'Reminders & reports', 'Priority support'],
+                                features: ['Up to 5 team members', 'Unlimited orders', 'Unlimited storage', 'Branded invoices', 'Reminders & reports', 'Order tracking for clients', 'Web portal access'],
                             },
                             {
                                 name: 'Atelier',
                                 price: '$20/mo',
                                 desc: 'Full-scale ateliers',
                                 highlight: false,
-                                features: ['Team roles & permissions', 'Advanced analytics', 'Export & backups', 'SLA support'],
+                                features: ['Unlimited team members', 'Unlimited orders, customers, and invoices', 'Advanced analytics & custom reports', 'Export & backups', 'Web portal access', 'Order tracking for clients'],
                             },
                         ].map((t) => (
                             <motion.div
@@ -467,23 +505,30 @@ export default function LandingPage() {
 
             {/* ======================= App store download ======================= */}
             <section className="relative border-t overflow-hidden">
+                {/* Background gradient */}
                 <div
                     aria-hidden
-                    className="absolute inset-0 -z-10 bg-gradient-to-tr from-blue-500/10 via-indigo-500/10 to-purple-500/10 dark:from-blue-400/15 dark:via-indigo-400/15 dark:to-purple-400/15"
+                    className="absolute inset-0 -z-10 bg-gradient-to-tr from-indigo-500/30 via-purple-500/40 to-fuchsia-500/30 dark:from-indigo-600/30 dark:via-purple-600/40 dark:to-fuchsia-600/30"
                 />
+
                 <div className="mx-auto max-w-6xl px-4 py-16 text-center md:px-6 md:py-20">
                     <motion.h2
                         initial="hidden"
                         whileInView="show"
                         viewport={{once: true, amount: 0.4}}
                         variants={fadeUp}
-                        className="text-3xl font-bold tracking-tight md:text-4xl"
+                        className="text-3xl font-bold tracking-tight md:text-4xl text-indigo-950 dark:text-indigo-100"
                     >
                         Get Knitted on your phone
                     </motion.h2>
-                    <motion.p variants={fadeUp} className="mt-3 text-muted-foreground">
+
+                    <motion.p
+                        variants={fadeUp}
+                        className="mt-3 text-muted-foreground text-indigo-900/70 dark:text-indigo-200/70"
+                    >
                         Manage clients and orders on the go. Seamless sync with the web app.
                     </motion.p>
+
                     <motion.div
                         variants={stagger}
                         initial="hidden"
@@ -493,25 +538,31 @@ export default function LandingPage() {
                     >
                         <Link
                             href="https://apps.apple.com/app/your-app"
-                            className="inline-flex items-center gap-3 rounded-[var(--radius)] px-4 py-3 text-sm font-semibold transition hover:bg-card/80"
+                            className="inline-flex items-center gap-3 rounded-[var(--radius)] px-4 py-3 text-sm font-semibold transition hover:bg-indigo-500/10 dark:hover:bg-purple-600/20"
                         >
-                            <Image alt="Download on the App Store"
-                                   src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg"
-                                   width={140}
-                                   height={40}/>
+                            <Image
+                                alt="Download on the App Store"
+                                src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg"
+                                width={140}
+                                height={40}
+                            />
                         </Link>
+
                         <Link
                             href="https://play.google.com/store/apps/details?id=your.app"
-                            className="inline-flex items-center gap-3 rounded-[var(--radius)] px-4 py-3 text-sm font-semibold transition hover:bg-card/80"
+                            className="inline-flex items-center gap-3 rounded-[var(--radius)] px-4 py-3 text-sm font-semibold transition hover:bg-indigo-500/10 dark:hover:bg-purple-600/20"
                         >
-                            <Image alt="Get it on Google Play"
-                                   src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png"
-                                   width={150}
-                                   height={56}/>
+                            <Image
+                                alt="Get it on Google Play"
+                                src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png"
+                                width={150}
+                                height={56}
+                            />
                         </Link>
                     </motion.div>
                 </div>
             </section>
+
 
             {/* ============================ Testimonials ============================ */}
             <section className="relative border-t overflow-hidden">
