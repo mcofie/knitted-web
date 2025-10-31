@@ -1,29 +1,29 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { useTheme } from 'next-themes';
-import { useEffect, useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { createClientBrowser } from '@/lib/supabase/browser';
-import { RiHomeLine } from 'react-icons/ri';
-import { GoPeople, GoSun } from 'react-icons/go';
-import { TbInvoice } from 'react-icons/tb';
-import { CiSettings } from 'react-icons/ci';
-import { LuLogOut } from 'react-icons/lu';
-import { IoMoonOutline } from 'react-icons/io5';
+import {usePathname} from 'next/navigation';
+import {useTheme} from 'next-themes';
+import {useEffect, useState} from 'react';
+import {Button} from '@/components/ui/button';
+import {createClientBrowser} from '@/lib/supabase/browser';
+import {RiHomeLine} from 'react-icons/ri';
+import {GoPeople, GoSun} from 'react-icons/go';
+import {TbInvoice} from 'react-icons/tb';
+import {CiSettings} from 'react-icons/ci';
+import {LuLogOut} from 'react-icons/lu';
+import {IoMoonOutline} from 'react-icons/io5';
 
 const links = [
-    { href: '/dashboard', label: 'Dashboard' },
-    { href: '/clients', label: 'Clients' },
-    { href: '/orders', label: 'Orders' },
-    { href: '/settings', label: 'Settings' },
+    { href: '/dashboard', label: 'Dashboard', icon: <RiHomeLine /> },
+    { href: '/clients', label: 'Clients', icon: <GoPeople /> },
+    { href: '/orders', label: 'Orders', icon: <TbInvoice /> },
+    { href: '/settings', label: 'Settings', icon: <CiSettings /> },
 ];
 
-export default function Shell({ children }: { children: React.ReactNode }) {
+export default function Shell({children}: { children: React.ReactNode }) {
     const pathname = usePathname();
     const sb = createClientBrowser();
-    const { theme, setTheme } = useTheme();
+    const {theme, setTheme} = useTheme();
     const [mounted, setMounted] = useState(false);
 
     useEffect(() => setMounted(true), []);
@@ -32,8 +32,6 @@ export default function Shell({ children }: { children: React.ReactNode }) {
         await sb.auth.signOut();
         window.location.href = '/login';
     }
-
-    const icons = [<RiHomeLine />, <GoPeople />, <TbInvoice />, <CiSettings />];
 
     return (
         <div className="min-h-screen flex flex-col transition-colors">
@@ -45,9 +43,8 @@ export default function Shell({ children }: { children: React.ReactNode }) {
                         Knitted
                     </Link>
 
-                    {/* Nav */}
                     <nav className="flex items-center gap-4">
-                        {links.map((l, index) => (
+                        {links.map((l) => (
                             <Link
                                 key={l.href}
                                 href={l.href}
@@ -57,8 +54,10 @@ export default function Shell({ children }: { children: React.ReactNode }) {
                                         : 'text-muted-foreground hover:text-foreground'
                                 }`}
                             >
-                                {icons[index]}
-                                <span className="ml-2">{l.label}</span>
+                                <div className="flex items-center gap-2">
+                                    {l.icon}
+                                    <span>{l.label}</span>
+                                </div>
                             </Link>
                         ))}
                     </nav>
@@ -74,11 +73,11 @@ export default function Shell({ children }: { children: React.ReactNode }) {
                                 }
                                 aria-label="Toggle theme"
                             >
-                                {theme === 'light' ? <IoMoonOutline /> : <GoSun />}
+                                {theme === 'light' ? <IoMoonOutline/> : <GoSun/>}
                             </Button>
                         )}
                         <Button variant="outline" size="sm" onClick={signOut}>
-                            <LuLogOut className="mr-1.5 h-4 w-4" />
+                            <LuLogOut className="mr-1.5 h-4 w-4"/>
                             Sign out
                         </Button>
                     </div>
@@ -92,7 +91,8 @@ export default function Shell({ children }: { children: React.ReactNode }) {
 
             {/* Footer */}
             <footer className="border-t bg-background/50 backdrop-blur supports-[backdrop-filter]:bg-background/30">
-                <div className="container mx-auto flex flex-col md:flex-row items-center justify-between gap-4 px-4 py-6 text-sm text-muted-foreground">
+                <div
+                    className="container mx-auto flex flex-col md:flex-row items-center justify-between gap-4 px-4 py-6 text-sm text-muted-foreground">
                     <div className="text-center md:text-left">
                         <span className="font-semibold text-foreground">Knitted</span> ©{' '}
                         {new Date().getFullYear()} — All rights reserved.
