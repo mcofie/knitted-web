@@ -5,6 +5,7 @@ import {Table, TableHeader, TableRow, TableHead, TableBody, TableCell} from "@/c
 import Pager from "./pager";
 import ClientTime from "@/components/ClientTime";
 import {Suspense} from "react";
+import OrdersListItems from "@/app/(app)/clients/[id]/order-list-items";
 
 export const dynamic = "force-dynamic";
 
@@ -71,57 +72,15 @@ export default async function OrdersPage({searchParams}: { searchParams: SearchP
                     </div>
                 </div>
 
-                <Card>
-                    <CardHeader className="pb-2">
-                        <CardTitle className="text-base">All Orders</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="rounded-md border overflow-x-auto">
-                            <Table>
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead>Order</TableHead>
-                                        <TableHead>Status</TableHead>
-                                        <TableHead className="text-right">Total</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {orders.map((o) => {
-                                        const t = totalByOrder[o.id] ?? 0;
-                                        return (
-                                            <TableRow key={o.id}>
-                                                <TableCell className="font-medium">
-                                                    <Link href={`/orders/${o.id}`} className="hover:underline">
-                                                        {o.order_code ?? `#${o.id.slice(0, 8).toUpperCase()}`}
-                                                    </Link>
-                                                    <div className="text-xs text-muted-foreground"
-                                                         suppressHydrationWarning>
-                                                        <ClientTime iso={o.created_at}/>
-                                                    </div>
-                                                </TableCell>
-                                                <TableCell>{o.status}</TableCell>
-                                                <TableCell className="text-right">
-                                                    {o.currency_code} {t.toFixed(2)}
-                                                </TableCell>
-                                            </TableRow>
-                                        );
-                                    })}
-                                    {orders.length === 0 && (
-                                        <TableRow>
-                                            <TableCell colSpan={3} className="py-10 text-center text-muted-foreground">
-                                                No orders yet
-                                            </TableCell>
-                                        </TableRow>
-                                    )}
-                                </TableBody>
-                            </Table>
-                        </div>
+                <div>
+                    <div className="overflow-x-auto">
+                        <OrdersListItems orders={orders} totalsByOrder={totalByOrder}/>
+                    </div>
 
-                        <div className="pt-3">
-                            <Pager page={page} pageSize={pageSize} total={total}/>
-                        </div>
-                    </CardContent>
-                </Card>
+                    <div className="pt-3">
+                        <Pager page={page} pageSize={pageSize} total={total}/>
+                    </div>
+                </div>
             </div>
         </Suspense>
     );
