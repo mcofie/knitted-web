@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { createClientServer } from "@/lib/supabase/server";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import DashboardCharts from "../../../components/dashboard-charts";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -15,47 +16,77 @@ type DashboardStats = {
     total_revenue: number;
 };
 
+type SeriesPoint = { x: string; orders: number; revenue: number };
+
 export default async function DashboardPage() {
     const sb = await createClientServer();
 
-    // Auth gate (prevents prerender crashes)
-    const { data: { user }, error: userErr } = await sb.auth.getUser();
+    // Auth gate
+    const {
+        data: { user },
+        error: userErr,
+    } = await sb.auth.getUser();
     if (userErr || !user) {
         redirect("/login?redirectTo=/dashboard");
     }
-    const uid = user.id;
+    const uid = user!.id;
 
-    // Settings (note: measurement_system + currency_code are your column names)
+    // Settings
     const { data: settings } = await sb
         .schema("knitted")
         .from("account_settings")
-        .select("business_name, currency_code, measurement_system")
+        .select("business_name, currency_code, measurement_system, city")
         .eq("owner", uid)
         .maybeSingle();
 
-    // Stats via RPC (if your RPC needs owner, pass it explicitly)
+    // Summary stats (RPC should return the fields in DashboardStats)
     let stats: DashboardStats | null = null;
     try {
         const { data } = await sb.rpc("knitted_dashboard_stats", { p_owner: uid });
         stats = (data ?? null) as DashboardStats | null;
     } catch {
-        // swallow to avoid build/runtime crashes
+        stats = null;
     }
 
-    // UI
+    // Helper to safely unwrap RPCs returning series arrays
+    async function safeSeries(promise: ReturnType<typeof sb.rpc>): Promise<SeriesPoint[]> {
+        try {
+            const r = await promise;
+            return (r.data as SeriesPoint[] | null) ?? [];
+        } catch {
+            return [];
+        }
+    }
+
+    // Trends (fallbacks handled in the charts component too, but we keep this clean)
+    const daily = await safeSeries(
+        sb.rpc("knitted_dashboard_trend_daily", { p_owner: uid, p_days: 30 })
+    );
+    const weekly = await safeSeries(
+        sb.rpc("knitted_dashboard_trend_weekly", { p_owner: uid, p_weeks: 12 })
+    );
+    const monthly = await safeSeries(
+        sb.rpc("knitted_dashboard_trend_monthly", { p_owner: uid, p_months: 12 })
+    );
+
+    const currency = settings?.currency_code ?? "GHS";
+
     return (
         <div className="space-y-6">
+            {/* Header / account summary */}
             <Card>
                 <CardHeader className="pb-2">
                     <CardTitle>{settings?.business_name ?? "Knitted"}</CardTitle>
                 </CardHeader>
                 <CardContent className="text-sm text-muted-foreground">
-                    Currency: {settings?.currency_code ?? "GHS"} &middot; Unit:{" "}
+                    {/* Keep it simple; you can swap this for your theme-aware hero later */}
+                    City: {settings?.city ?? "—"} &middot; Currency: {currency} &middot; Unit:{" "}
                     {settings?.measurement_system ?? "metric"}
                 </CardContent>
             </Card>
 
-            <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
+            {/* KPIs */}
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
                 <Stat title="Total Orders" value={num(stats?.total_orders)} />
                 <Stat
                     title="Active"
@@ -65,6 +96,17 @@ export default async function DashboardPage() {
                                 Active
                             </Badge>
                             {num(stats?.active_orders)}
+                        </>
+                    }
+                />
+                <Stat
+                    title="Pending Pickup"
+                    value={
+                        <>
+                            <Badge variant="outline" className="mr-2">
+                                Pending
+                            </Badge>
+                            {num(stats?.pending_pickup)}
                         </>
                     }
                 />
@@ -79,7 +121,14 @@ export default async function DashboardPage() {
                         </>
                     }
                 />
+                <Stat
+                    title="Total Revenue"
+                    value={<span className="tabular-nums">{money(currency, stats?.total_revenue)}</span>}
+                />
             </div>
+
+            {/* Charts (theme-aware; uses dummy data if arrays are empty) */}
+            <DashboardCharts currencyCode={currency} daily={daily} weekly={weekly} monthly={monthly} />
         </div>
     );
 }
@@ -97,4 +146,19 @@ function Stat({ title, value }: { title: string; value: React.ReactNode }) {
 
 function num(n?: number | null) {
     return typeof n === "number" ? n.toLocaleString() : "—";
+}
+
+function money(code: string, n?: number | null) {
+    if (typeof n !== "number") return "—";
+    try {
+        return new Intl.NumberFormat(undefined, {
+            style: "currency",
+            currency: code,
+            currencyDisplay: "code",
+            maximumFractionDigits: 2,
+            minimumFractionDigits: 2,
+        }).format(n);
+    } catch {
+        return `${code} ${n.toFixed(2)}`;
+    }
 }

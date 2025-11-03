@@ -85,7 +85,7 @@ export default function Shell({children}: { children: React.ReactNode }) {
             </header>
 
             {/* Main */}
-            <main className="container mx-auto w-full md:w-2/3 p-4 my-10 flex-1">
+            <main className="container mx-auto w-full md:w-3/4 p-4 my-10 flex-1">
                 {children}
             </main>
 

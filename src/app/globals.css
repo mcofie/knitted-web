@@ -22,6 +22,10 @@
     --surface: 0 0% 100%;                 /* Flutter: Colors.white */
     --surface-container-highest: 240 7% 97%;  /* #F7F7F8 */
 
+    --chart-1: 222 84% 56%;      /* primary-ish (orders) */
+    --chart-2: 240 5.3% 26.1%;   /* foreground-ish (revenue line) */
+    --chart-grid: 240 3.8% 46.1%;/* muted-foreground */
+
     /* Foregrounds */
     --on-surface: 222 47% 11%;            /* deep ink */
     --on-surface-variant: 215 16% 47%;
@@ -59,6 +63,10 @@
     --on-surface-variant: 220 12% 65%;
 
     --outline-variant: 220 12% 22%;
+
+    --chart-1: 217 91% 60%;
+    --chart-2: 210 40% 98%;
+    --chart-grid: 215 20% 65%;
 
     /* Brand slightly brighter in dark, but same hue family */
     --primary: 214 35% 43%;               /* brighten a touch if desired */
