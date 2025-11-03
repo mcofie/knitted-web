@@ -18,6 +18,7 @@ import {
 import {IoMoonOutline} from "react-icons/io5";
 import {GoSun} from "react-icons/go";
 import {useTheme} from "next-themes";
+import WebAppScreens from "@/components/landing/web-app-screen";
 
 /* ========================= Animations ========================= */
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
@@ -323,6 +324,7 @@ export default function LandingPage() {
                 </div>
             </section>
 
+
             {/* ============================ Features ============================ */}
             <section className="relative border-t overflow-hidden">
                 <div
@@ -423,6 +425,9 @@ export default function LandingPage() {
                     </div>
                 </div>
             </section>
+
+            <WebAppScreens/>
+
 
             {/* ============================ Pricing ============================ */}
             <section className="relative border-t overflow-hidden">
