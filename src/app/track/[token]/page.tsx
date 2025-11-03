@@ -1,5 +1,9 @@
 import Image from "next/image";
 import {AddToCalendarButton} from "@/components/modals/AddToCalendar";
+import {createClientServer} from "@/lib/supabase/server";
+import {Card} from "@/components/ui/card";
+import {FileText, Mail, MapPin, Phone, User} from "lucide-react";
+import Link from "next/link";
 
 /**
  * Server-rendered, theme-aware public tracking page.
@@ -42,12 +46,25 @@ type Payment = {
     created_at: string;
 };
 
-type Attachment = {
+// Replace your current Attachment type with these two:
+
+type DbAttachment = {
     id: string;
-    kind: "photo" | "file";
-    file_path: string;       // Supabase Storage relative path
+    order_id: string;
+    file_type: string | null;   // e.g. "image/png", "application/pdf", etc.
+    file_path: string | null;   // storage path like "orders/123/invoice.pdf"
     created_at: string;
 };
+
+type Attachment = {
+    id: string;
+    order_id: string;
+    kind: "image" | "pdf" | "file" | "other";
+    file_path: string;          // required by UI
+    created_at: string;
+    signed_url: string | null;  // signed url to display/download
+};
+
 
 type Customer = {
     id: string;
@@ -63,13 +80,11 @@ type Customer = {
 type OrderItem = {
     id: string;
     order_id: string;
-    name: string | null;         // e.g. "2-piece Suit"
-    notes?: string | null;       // optional description/notes
+    description: string;
     quantity: number;            // integer/decimal
     unit_price: number | null;   // per item price
     currency_code?: string | null;
     line_total?: number | null;  // if stored; else compute qty * unit_price
-    position?: number | null;    // for ordering lines
     created_at?: string;
 };
 
@@ -213,50 +228,133 @@ export default async function TrackPage({
     }
 
     /* ============ 4) Attachments ============ */
-    const attachmentsUrl = new URL(`${base}/rest/v1/attachments`);
-    attachmentsUrl.searchParams.set("select", "*");
-    attachmentsUrl.searchParams.set("order_id", `eq.${order.id}`);
-    attachmentsUrl.searchParams.set("order", "created_at.desc");
+    /* ============ 4) Attachments ============ */
+    const sb = await createClientServer();
 
     let attachments: Attachment[] = [];
     try {
-        attachments = await fetchJson<Attachment[]>(attachmentsUrl.toString());
-    } catch {
+        const {data, error} = await sb
+            .schema("knitted") // remove if table is in public
+            .from("attachments")
+            .select("id,order_id,file_type,file_path,created_at")
+            .eq("order_id", order.id)
+            .order("created_at", {ascending: false});
+
+        if (error) {
+            console.error("Fetch attachments failed:", error);
+        }
+
+        const rows = (data ?? []) as DbAttachment[];
+        // Map DB rows to UI shape
+        attachments = rows
+            .filter((r) => !!r.file_path) // ensure we have a path
+            .map((r) => ({
+                id: r.id,
+                order_id: r.order_id,
+                kind: normalizeKind(r.file_type),
+                file_path: r.file_path as string,
+                created_at: r.created_at,
+                signed_url: null, // to be populated below
+            }));
+    } catch (e) {
+        console.error("Unexpected attachments error:", e);
         attachments = [];
     }
 
-    /* ============ 5) Customer (optional) ============ */
-    let customer: Customer = null;
-    if (order.customer_id) {
-        const customerUrl = new URL(`${base}/rest/v1/customers`);
-        customerUrl.searchParams.set("select", "id,name,phone,email,address,city,country_code,created_at");
-        customerUrl.searchParams.set("id", `eq.${order.customer_id}`);
-        customerUrl.searchParams.set("limit", "1");
-        try {
-            const rows = await fetchJson<Customer[]>(customerUrl.toString());
-            customer = rows?.[0] ?? null;
-        } catch {
-            customer = null;
-        }
+// Generate signed URLs (1 hour validity)
+    if (attachments.length) {
+        attachments = await Promise.all(
+            attachments.map(async (a) => {
+                try {
+                    const {data, error} = await sb.storage
+                        .from("knitted") // your bucket name
+                        .createSignedUrl(a.file_path, 3600);
+                    return {...a, signed_url: error ? null : data?.signedUrl ?? null};
+                } catch {
+                    return {...a, signed_url: null};
+                }
+            })
+        );
     }
 
+    function normalizeKind(t: string | null | undefined): Attachment["kind"] {
+        const v = (t || "").toLowerCase();
+        if (v.startsWith("image/")) return "image";
+        if (v.includes("pdf")) return "pdf";
+        if (v.length) return "file";
+        return "other";
+    }
+
+
+    // 2) Fetch with proper nullability and schema
+    // const sb = await createClientServer();
+
+    let customer: Customer | null = null;
+
+    if (order.customer_id) {
+        const {data, error} = await sb
+            .schema("knitted")               // remove this if your table is in public
+            .from("customers")
+            .select(
+                "id,name,phone,email,address,city,country_code,created_at"
+            )
+            .eq("id", order.customer_id)
+            .maybeSingle<Customer>();     // 👈 type the row shape here
+
+        if (error) {
+            // Optional: log server-side
+            console.error("Fetch customer failed:", error);
+        }
+        customer = data ?? null;           // `maybeSingle` returns `null` when not found
+    } else {
+        customer = null;
+    }
+
+
     /* ============ 6) Order Items (NEW) ============ */
-    const itemsUrl = new URL(`${base}/rest/v1/order_items`);
-    // Select the columns you actually have
-    itemsUrl.searchParams.set(
-        "select",
-        "id,order_id,name,notes,quantity,unit_price,currency_code,line_total,position,created_at"
-    );
-    itemsUrl.searchParams.set("order_id", `eq.${order.id}`);
-    // Order lines by explicit position if you have it, then by created_at
-    itemsUrl.searchParams.append("order", "position.asc");
-    itemsUrl.searchParams.append("order", "created_at.asc");
 
     let items: OrderItem[] = [];
+
     try {
-        items = await fetchJson<OrderItem[]>(itemsUrl.toString());
-    } catch {
+        const {data, error} = await sb
+            .schema("knitted") // remove if the table is public
+            .from("order_items")
+            .select(
+                "id,order_id,description,quantity,unit_price,currency_code,line_total,created_at"
+            )
+            .eq("order_id", order.id)
+            .order("created_at", {ascending: true});
+
+        if (error) {
+            console.error("Fetch order items failed:", error);
+        }
+
+        items = data ?? [];
+    } catch (e) {
+        console.error("Unexpected error fetching items:", e);
         items = [];
+    }
+
+
+    let signed: typeof attachments = attachments ?? [];
+
+    // Generate signed URLs (1 hour validity)
+    if (signed?.length) {
+        signed = await Promise.all(
+            signed.map(async (a) => {
+                try {
+                    const {data, error} = await sb.storage
+                        .from("knitted")
+                        .createSignedUrl(a.file_path, 3600);
+                    return {
+                        ...a,
+                        signed_url: !error ? data?.signedUrl ?? null : null,
+                    };
+                } catch {
+                    return {...a, signed_url: null};
+                }
+            })
+        );
     }
 
     return (
@@ -312,12 +410,12 @@ export default async function TrackPage({
                     </div>
 
                     {/* ITEMS (NEW) */}
-                    <div className="mt-6 rounded-lg border bg-background p-4">
+                    <div className="mt-6 rounded-md border bg-background p-4">
                         <div className="mb-2 text-sm font-semibold">Items</div>
                         {items.length === 0 ? (
                             <p className="text-sm text-muted-foreground">No items recorded.</p>
                         ) : (
-                            <div className="overflow-hidden rounded-lg border">
+                            <div className="overflow-hidden">
                                 <table className="w-full text-sm">
                                     <thead className="bg-muted/50 text-muted-foreground">
                                     <tr>
@@ -335,11 +433,7 @@ export default async function TrackPage({
                                         return (
                                             <tr key={it.id} className="bg-background">
                                                 <td className="px-3 py-2 align-top">
-                                                    <div className="font-medium">{it.name || "Item"}</div>
-                                                    {it.notes && (
-                                                        <div
-                                                            className="mt-0.5 text-xs text-muted-foreground">{it.notes}</div>
-                                                    )}
+                                                    <div className="font-medium">{it.description || "Item"}</div>
                                                 </td>
                                                 <td className="px-3 py-2 align-top text-right">{it.quantity ?? 0}</td>
                                                 <td className="px-3 py-2 align-top text-right">
@@ -359,19 +453,19 @@ export default async function TrackPage({
 
                     {/* TOTALS */}
                     <div className="mt-6 grid gap-3 sm:grid-cols-3">
-                        <div className="rounded-lg border bg-background p-4">
+                        <div className="rounded-md border bg-background p-4">
                             <div className="text-xs text-muted-foreground">Subtotal</div>
                             <div className="mt-1 text-base font-medium">
                                 <Money amount={totals?.items_subtotal ?? 0} currency={currency}/>
                             </div>
                         </div>
-                        <div className="rounded-lg border bg-background p-4">
+                        <div className="rounded-md border bg-background p-4">
                             <div className="text-xs text-muted-foreground">Total</div>
                             <div className="mt-1 text-base font-medium">
                                 <Money amount={totals?.computed_total ?? 0} currency={currency}/>
                             </div>
                         </div>
-                        <div className="rounded-lg border bg-background p-4">
+                        <div className="rounded-md border bg-background p-4">
                             <div className="text-xs text-muted-foreground">Paid</div>
                             <div className="mt-1 text-base font-medium">
                                 <Money amount={totals?.paid_total ?? 0} currency={currency}/>
@@ -380,7 +474,7 @@ export default async function TrackPage({
                     </div>
 
                     {/* BALANCE */}
-                    <div className="mt-3 flex items-center justify-between rounded-lg border bg-background px-4 py-3">
+                    <div className="mt-3 flex items-center justify-between rounded-md border bg-background px-4 py-3">
                         <span className="text-sm text-muted-foreground">Balance</span>
                         <span className="text-base font-semibold">
               <Money amount={finalBalance ?? 0} currency={currency}/>
@@ -389,30 +483,64 @@ export default async function TrackPage({
                 </div>
 
                 {/* CUSTOMER */}
-                <div className="mt-8 rounded-xl border bg-card/70 backdrop-blur p-4">
-                    <div className="mb-2 text-sm font-semibold">Customer</div>
-                    {customer ? (
-                        <div className="text-sm">
-                            <div className="font-medium">
-                                {customer.name || order.customer_name || "Customer"}
-                            </div>
-                            <div className="mt-1 text-muted-foreground">
-                                {[customer.phone, customer.email].filter(Boolean).join(" • ") || "—"}
-                            </div>
-                            {(customer.address || customer.city || customer.country_code) && (
-                                <div className="mt-1 text-muted-foreground">
-                                    {[customer.address, customer.city, customer.country_code].filter(Boolean).join(", ")}
-                                </div>
-                            )}
-                        </div>
-                    ) : (
-                        <div className="text-sm">
-                            <div className="font-medium">{order.customer_name || "Customer"}</div>
-                            <div className="mt-1 text-muted-foreground">Details not available.</div>
-                        </div>
-                    )}
-                </div>
 
+                <div className="mt-8">
+                    <Card
+                        className="rounded-2xl border border-border/50 bg-card/70 backdrop-blur-md p-5 shadow-sm hover:shadow-md transition-all duration-300">
+                        <div className="flex items-center gap-3 border-b border-border/50 pb-3 mb-3">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted">
+                                <User className="h-5 w-5 text-muted-foreground"/>
+                            </div>
+                            <div>
+                                <div className="text-sm font-semibold tracking-tight text-foreground">Customer</div>
+                                <p className="text-xs text-muted-foreground">Order contact details</p>
+                            </div>
+                        </div>
+
+                        {customer ? (
+                            <div className="space-y-2 text-sm">
+                                <div className="text-base font-medium leading-tight text-foreground">
+                                    {customer.name || order.customer_name || "Customer"}
+                                </div>
+
+                                {(customer.phone || customer.email) && (
+                                    <div className="flex flex-col gap-1 text-muted-foreground">
+                                        {customer.phone && (
+                                            <div className="flex items-center gap-2">
+                                                <Phone className="h-3.5 w-3.5"/>
+                                                <span>{customer.phone}</span>
+                                            </div>
+                                        )}
+                                        {customer.email && (
+                                            <div className="flex items-center gap-2">
+                                                <Mail className="h-3.5 w-3.5"/>
+                                                <span>{customer.email}</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+
+                                {(customer.address || customer.city || customer.country_code) && (
+                                    <div className="flex items-start gap-2 text-muted-foreground mt-2">
+                                        <MapPin className="h-3.5 w-3.5 mt-0.5"/>
+                                        <span>
+              {[customer.address, customer.city, customer.country_code]
+                  .filter(Boolean)
+                  .join(", ")}
+            </span>
+                                    </div>
+                                )}
+                            </div>
+                        ) : (
+                            <div className="text-sm text-muted-foreground">
+                                <div className="text-base font-medium text-foreground">
+                                    {order.customer_name || "Customer"}
+                                </div>
+                                <p className="mt-1 italic opacity-75">Details not available.</p>
+                            </div>
+                        )}
+                    </Card>
+                </div>
                 {/* PAYMENTS */}
                 <div className="mt-8 rounded-xl border bg-card/70 p-5 backdrop-blur">
                     <h2 className="text-sm font-semibold">Payments</h2>
@@ -434,25 +562,51 @@ export default async function TrackPage({
                     )}
                 </div>
 
+
                 {/* ATTACHMENTS */}
-                <div className="mt-8 rounded-xl border bg-card/70 p-5 backdrop-blur">
-                    <h2 className="text-sm font-semibold">Attachments</h2>
-                    {attachments.length === 0 ? (
-                        <p className="mt-2 text-sm text-muted-foreground">No attachments yet.</p>
+
+
+                {/* ATTACHMENTS */}
+                <div className="mt-8 rounded-xl border bg-card/70 p-5 backdrop-blur-md transition-all hover:shadow-md">
+                    <h2 className="text-sm font-semibold tracking-tight text-foreground flex items-center gap-2">
+                        <FileText className="h-4 w-4 text-muted-foreground"/> Attachments
+                    </h2>
+
+                    {!attachments?.length ? (
+                        <p className="mt-3 text-sm text-muted-foreground italic">
+                            No attachments yet.
+                        </p>
                     ) : (
-                        <ul className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                        <ul className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
                             {attachments.map((a) => {
-                                const url = `${base}/storage/v1/object/public/knitted/${a.file_path}`;
+                                const isImage = a.kind === "image";
+                                const url = a.signed_url ?? "#";
+
                                 return (
-                                    <li key={a.id} className="group overflow-hidden rounded-lg border">
-                                        <a href={url} target="_blank" rel="noreferrer" className="block">
-                                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                                            <img
-                                                src={url}
-                                                alt={"Attachment"}
-                                                className="h-36 w-full object-cover transition group-hover:opacity-90"
-                                            />
-                                        </a>
+                                    <li
+                                        key={a.id}
+                                        className="group relative overflow-hidden rounded-lg border bg-muted/30 hover:bg-muted/50 transition"
+                                    >
+                                        <Link href={url} target="_blank" rel="noreferrer">
+                                            {isImage ? (
+                                                // eslint-disable-next-line @next/next/no-img-element
+                                                <img
+                                                    src={url}
+                                                    alt={a.file_path ?? "Attachment"}
+                                                    className="h-40 w-full object-cover transition group-hover:opacity-90"
+                                                />
+                                            ) : (
+                                                <div
+                                                    className="flex h-40 items-center justify-center text-muted-foreground">
+                                                    <FileText className="h-8 w-8"/>
+                                                </div>
+                                            )}
+
+                                            <div
+                                                className="absolute inset-x-0 bottom-0 flex items-center justify-between bg-gradient-to-t from-black/60 px-2 py-1 text-xs text-white opacity-0 group-hover:opacity-100 transition">
+                                                <span className="truncate">{a.file_path}</span>
+                                            </div>
+                                        </Link>
                                     </li>
                                 );
                             })}
@@ -464,7 +618,8 @@ export default async function TrackPage({
                     This page updates as your tailor records progress and payments.
                 </p>
 
-                <footer className="mt-10 border-t border-border border-t-gray-100 dark:border-t-gray-600 pt-6 text-center text-xs text-muted-foreground">
+                <footer
+                    className="mt-10 border-t border-border border-t-gray-200 dark:border-t-gray-600 pt-6 text-center text-xs text-muted-foreground">
   <span className="inline-block opacity-80 transition hover:opacity-100"> &copy;2025 | Knitted.
     Made in <span className="text-foreground font-medium"> Accra</span> with <span className="text-rose-500">❤️</span>
   </span>

@@ -4,6 +4,15 @@ import { createClientServer } from "@/lib/supabase/server";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import DashboardCharts from "../../../components/dashboard-charts";
+import {
+    Activity,
+    Clock,
+    AlertTriangle,
+    ReceiptText,
+    TrendingUp,
+    MapPin,
+    Sparkles,
+} from "lucide-react";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -39,7 +48,7 @@ export default async function DashboardPage() {
         .eq("owner", uid)
         .maybeSingle();
 
-    // Summary stats (RPC should return the fields in DashboardStats)
+    // Summary stats
     let stats: DashboardStats | null = null;
     try {
         const { data } = await sb.rpc("knitted_dashboard_stats", { p_owner: uid });
@@ -58,7 +67,7 @@ export default async function DashboardPage() {
         }
     }
 
-    // Trends (fallbacks handled in the charts component too, but we keep this clean)
+    // Trends
     const daily = await safeSeries(
         sb.rpc("knitted_dashboard_trend_daily", { p_owner: uid, p_days: 30 })
     );
@@ -71,24 +80,73 @@ export default async function DashboardPage() {
 
     const currency = settings?.currency_code ?? "GHS";
 
+    // Simple server-side greeting (no client JS needed)
+    const hour = new Date().getHours();
+    const greeting =
+        hour < 5 || hour >= 20
+            ? "Good evening"
+            : hour < 12
+                ? "Good morning"
+                : hour < 17
+                    ? "Good afternoon"
+                    : "Good evening";
+
+    const quotePool = [
+        "Measure twice, cut once.",
+        "Every stitch tells a story.",
+        "Consistency turns craft into mastery.",
+        "Details make the design.",
+        "Small improvements, big results.",
+    ];
+    const quote = quotePool[new Date().getDay() % quotePool.length];
+
     return (
         <div className="space-y-6">
-            {/* Header / account summary */}
-            <Card>
-                <CardHeader className="pb-2">
-                    <CardTitle>{settings?.business_name ?? "Knitted"}</CardTitle>
-                </CardHeader>
-                <CardContent className="text-sm text-muted-foreground">
-                    {/* Keep it simple; you can swap this for your theme-aware hero later */}
-                    City: {settings?.city ?? "—"} &middot; Currency: {currency} &middot; Unit:{" "}
-                    {settings?.measurement_system ?? "metric"}
-                </CardContent>
-            </Card>
+            {/* Greeting / business hero */}
+            <div className="overflow-hidden border-0 rounded-2xl">
+                <div className="bg-primary px-4 py-6 text-primary-foreground md:px-6 md:py-7">
+                    <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                        <div className="flex items-start gap-3">
+                            <div className="mt-1 inline-flex h-10 w-10 items-center justify-center rounded-xl bg-background/30 ring-1 ring-primary-foreground/20">
+                                <Sparkles className="h-5 w-5" />
+                            </div>
+                            <div>
+                                <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">
+                                    {greeting}, <span className="opacity-95">{settings?.business_name ?? "Knitted"}</span> 👋
+                                </h1>
+                                <p className="mt-1 text-sm/6 opacity-90">{quote}</p>
+                                <div className="mt-3 flex flex-wrap items-center gap-2 text-sm">
+                  <span className="inline-flex items-center gap-1 rounded-md bg-background/25 px-2 py-1 ring-1 ring-primary-foreground/15">
+                    <MapPin className="h-3.5 w-3.5" />
+                    <span className="font-medium">
+                      {settings?.city ?? "—"}
+                    </span>
+                  </span>
+                                    <span className="inline-flex items-center gap-1 rounded-md bg-background/25 px-2 py-1 ring-1 ring-primary-foreground/15">
+                    Currency: <span className="font-medium">{currency}</span>
+                  </span>
+                                    <span className="inline-flex items-center gap-1 rounded-md bg-background/25 px-2 py-1 ring-1 ring-primary-foreground/15">
+                    Unit:{" "}
+                                        <span className="font-medium">
+                      {settings?.measurement_system ?? "metric"}
+                    </span>
+                  </span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
 
             {/* KPIs */}
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
-                <Stat title="Total Orders" value={num(stats?.total_orders)} />
-                <Stat
+                <Kpi
+                    title="Total Orders"
+                    value={num(stats?.total_orders)}
+                    icon={<ReceiptText className="h-4 w-4" />}
+                />
+                <Kpi
                     title="Active"
                     value={
                         <>
@@ -98,8 +156,9 @@ export default async function DashboardPage() {
                             {num(stats?.active_orders)}
                         </>
                     }
+                    icon={<Activity className="h-4 w-4" />}
                 />
-                <Stat
+                <Kpi
                     title="Pending Pickup"
                     value={
                         <>
@@ -109,8 +168,9 @@ export default async function DashboardPage() {
                             {num(stats?.pending_pickup)}
                         </>
                     }
+                    icon={<Clock className="h-4 w-4" />}
                 />
-                <Stat
+                <Kpi
                     title="Overdue"
                     value={
                         <>
@@ -120,27 +180,66 @@ export default async function DashboardPage() {
                             {num(stats?.overdue_orders)}
                         </>
                     }
+                    icon={<AlertTriangle className="h-4 w-4" />}
                 />
-                <Stat
+                <Kpi
                     title="Total Revenue"
                     value={<span className="tabular-nums">{money(currency, stats?.total_revenue)}</span>}
+                    icon={<TrendingUp className="h-4 w-4" />}
                 />
             </div>
 
-            {/* Charts (theme-aware; uses dummy data if arrays are empty) */}
-            <DashboardCharts currencyCode={currency} daily={daily} weekly={weekly} monthly={monthly} />
+            {/* Main content: Charts + right column (optional space for recent items) */}
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+                <div className="lg:col-span-2">
+                    <DashboardCharts currencyCode={currency} daily={daily} weekly={weekly} monthly={monthly} />
+                </div>
+
+                <Card className="self-start">
+                    <CardHeader className="pb-2">
+                        <CardTitle className="text-sm text-muted-foreground">At a glance</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3 text-sm">
+                        <Row label="Active orders" value={num(stats?.active_orders)} />
+                        <Row label="Pending pickup" value={num(stats?.pending_pickup)} />
+                        <Row label="Overdue" value={num(stats?.overdue_orders)} />
+                        <Row label="Total orders" value={num(stats?.total_orders)} />
+                        <Row label="Total revenue" value={money(currency, stats?.total_revenue)} />
+                    </CardContent>
+                </Card>
+            </div>
         </div>
     );
 }
 
-function Stat({ title, value }: { title: string; value: React.ReactNode }) {
+/* ——— UI helpers ——— */
+
+function Kpi({
+                 title,
+                 value,
+                 icon,
+             }: {
+    title: string;
+    value: React.ReactNode;
+    icon?: React.ReactNode;
+}) {
     return (
-        <Card>
-            <CardHeader className="pb-2">
+        <Card className="h-full">
+            <CardHeader className="flex flex-row items-center justify-between pb-1">
                 <CardTitle className="text-sm text-muted-foreground">{title}</CardTitle>
+                {icon ? <div className="text-muted-foreground/70">{icon}</div> : null}
             </CardHeader>
             <CardContent className="text-2xl font-semibold">{value}</CardContent>
         </Card>
+    );
+}
+
+function Row({ label, value }: { label: string; value: React.ReactNode }) {
+    return (
+        <div className="flex items-center justify-between rounded-md border border-transparent px-2 py-1 hover:border-border">
+            <span className="text-muted-foreground">{label}</span>
+            <span className="font-medium">{value}</span>
+        </div>
     );
 }
 
