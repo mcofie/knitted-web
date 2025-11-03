@@ -367,12 +367,11 @@ export default async function TrackPage({
 
             <section className="mx-auto max-w-3xl px-4 py-10 md:py-14">
                 {/* header */}
-                <div className="mb-6 flex items-center justify-between">
+                <div className="mb-6 flex items-center justify-center">
                     <div className="flex items-center gap-3">
                         <Image src="/knitted-logo.svg" alt="Knitted" width={28} height={28}/>
                         <span className="text-sm font-semibold">Knitted</span>
                     </div>
-                    <span className="text-xs text-muted-foreground hidden">Public tracking</span>
                 </div>
 
                 {/* SUMMARY */}
@@ -412,44 +411,90 @@ export default async function TrackPage({
                     {/* ITEMS (NEW) */}
                     <div className="mt-6 rounded-md border bg-background p-4">
                         <div className="mb-2 text-sm font-semibold">Items</div>
+
                         {items.length === 0 ? (
                             <p className="text-sm text-muted-foreground">No items recorded.</p>
                         ) : (
-                            <div className="overflow-hidden">
-                                <table className="w-full text-sm">
-                                    <thead className="bg-muted/50 text-muted-foreground">
-                                    <tr>
-                                        <th className="px-3 py-2 text-left font-medium">Item</th>
-                                        <th className="px-3 py-2 text-right font-medium">Qty</th>
-                                        <th className="px-3 py-2 text-right font-medium">Unit</th>
-                                        <th className="px-3 py-2 text-right font-medium">Line total</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody className="divide-y">
+                            <>
+                                {/* Mobile: stacked cards */}
+                                <ul className="md:hidden space-y-3">
                                     {items.map((it) => {
                                         const lineCurrency = it.currency_code || currency;
                                         const unit = it.unit_price ?? 0;
-                                        const line = it.line_total ?? (unit * (it.quantity || 0));
+                                        const line = it.line_total ?? unit * (it.quantity || 0);
+
                                         return (
-                                            <tr key={it.id} className="bg-background">
-                                                <td className="px-3 py-2 align-top">
-                                                    <div className="font-medium">{it.description || "Item"}</div>
-                                                </td>
-                                                <td className="px-3 py-2 align-top text-right">{it.quantity ?? 0}</td>
-                                                <td className="px-3 py-2 align-top text-right">
-                                                    <Money amount={unit} currency={lineCurrency}/>
-                                                </td>
-                                                <td className="px-3 py-2 align-top text-right font-medium">
-                                                    <Money amount={line} currency={lineCurrency}/>
-                                                </td>
-                                            </tr>
+                                            <li
+                                                key={it.id}
+                                                className="bg-card/50"
+                                            >
+                                                <div className="flex items-start justify-between gap-3">
+                                                    <div className="min-w-0">
+                                                        <div className="font-medium truncate">
+                                                            {it.description || "Item"}
+                                                        </div>
+                                                        <div className="mt-1 grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-muted-foreground">
+                                                            <span>Qty</span>
+                                                            <span className="text-right">{it.quantity ?? 0}</span>
+                                                            <span>Unit</span>
+                                                            <span className="text-right">
+                      <Money amount={unit} currency={lineCurrency} />
+                    </span>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="text-right">
+                                                        <div className="text-xs text-muted-foreground">Line total</div>
+                                                        <div className="font-semibold">
+                                                            <Money amount={line} currency={lineCurrency} />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </li>
                                         );
                                     })}
-                                    </tbody>
-                                </table>
-                            </div>
+                                </ul>
+
+                                {/* Desktop/tablet: traditional table */}
+                                <div className="hidden md:block overflow-x-auto">
+                                    <table className="w-full text-sm">
+                                        <thead className="bg-muted/50 text-muted-foreground">
+                                        <tr>
+                                            <th className="px-3 py-2 text-left font-medium">Item</th>
+                                            <th className="px-3 py-2 text-right font-medium">Qty</th>
+                                            <th className="px-3 py-2 text-right font-medium">Unit</th>
+                                            <th className="px-3 py-2 text-right font-medium">Line total</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody className="divide-y">
+                                        {items.map((it) => {
+                                            const lineCurrency = it.currency_code || currency;
+                                            const unit = it.unit_price ?? 0;
+                                            const line = it.line_total ?? unit * (it.quantity || 0);
+
+                                            return (
+                                                <tr key={it.id} className="bg-background">
+                                                    <td className="px-3 py-2 align-top">
+                                                        <div className="font-medium">{it.description || "Item"}</div>
+                                                    </td>
+                                                    <td className="px-3 py-2 align-top text-right">{it.quantity ?? 0}</td>
+                                                    <td className="px-3 py-2 align-top text-right">
+                                                        <Money amount={unit} currency={lineCurrency} />
+                                                    </td>
+                                                    <td className="px-3 py-2 align-top text-right font-medium">
+                                                        <Money amount={line} currency={lineCurrency} />
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </>
                         )}
                     </div>
+
+
 
                     {/* TOTALS */}
                     <div className="mt-6 grid gap-3 sm:grid-cols-3">
