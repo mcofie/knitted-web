@@ -1,36 +1,45 @@
 import Link from "next/link";
+import Image from "next/image";
+import {Suspense} from "react";
 import {createClientServer} from "@/lib/supabase/server";
-import {Card, CardHeader, CardTitle, CardContent} from "@/components/ui/card";
+import {MapPin, Phone, Users, SearchX} from "lucide-react";
+
 import ClientsPageActions from "./ClientsPageActions";
 import ClientsPager from "@/app/(app)/clients/pager";
-import {Suspense} from "react";
-import Image from "next/image";
-
+import {Button} from "@/components/ui/button";
 
 export const dynamic = "force-dynamic";
 
-// In newer Next, searchParams is async in RSC. Await it before use.
 type SearchParams = Promise<{ page?: string; pageSize?: string }>;
 
 export default async function ClientsPage({searchParams}: { searchParams: SearchParams }) {
     const sb = await createClientServer();
 
-
-    // auth
+    // Auth Check
     const {data: {user}} = await sb.auth.getUser();
+
+    // A modern "Not Signed In" state (optional: could be a redirect)
     if (!user) {
-        return <div className="p-6">Not signed in</div>;
+        return (
+            <div className="flex h-[50vh] items-center justify-center">
+                <div className="text-center">
+                    <h2 className="text-lg font-semibold">Access Denied</h2>
+                    <p className="text-muted-foreground">Please sign in to view your clients.</p>
+                </div>
+            </div>
+        );
     }
+
     const uid = user.id;
 
-    // await the params first
+    // Parse Params
     const sp = await searchParams;
     const page = Math.max(1, Number(sp.page ?? 1));
-    const pageSize = Math.min(100, Math.max(6, Number(sp.pageSize ?? 24)));
+    const pageSize = Math.min(100, Math.max(6, Number(sp.pageSize ?? 12))); // Adjusted default pageSize
     const from = (page - 1) * pageSize;
     const to = from + pageSize - 1;
 
-    // fetch clients with total count
+    // Data Fetching
     const {data: clients, error, count} = await sb
         .schema("knitted")
         .from("customers")
@@ -39,75 +48,136 @@ export default async function ClientsPage({searchParams}: { searchParams: Search
         .order("full_name")
         .range(from, to);
 
-    if (error) return <div className="p-6">Error: {error.message}</div>;
+    if (error) {
+        return (
+            <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-6 text-destructive">
+                Error loading clients: {error.message}
+            </div>
+        );
+    }
 
     const total = count ?? 0;
+    const hasClients = clients && clients.length > 0;
 
     return (
-        <Suspense fallback={null}>
-            <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                    <div>
-                        <h1 className="text-xl font-semibold">Clients</h1>
-                        <small className="text-gray-500">List of all clients you have List of all clients you have</small>
+        <Suspense fallback={<ClientsLoadingSkeleton/>}>
+            <div className="space-y-8 pb-10">
+
+                {/* Header Section */}
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="space-y-1">
+                        <h1 className="text-3xl font-bold tracking-tight text-foreground">Clients</h1>
+                        <p className="text-sm text-muted-foreground">
+                            Manage your customer directory and details.
+                        </p>
                     </div>
                     <ClientsPageActions/>
                 </div>
 
-                <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-                    {clients?.map((c) => (
-
-                        <div key={c.id}
-                             className="group relative rounded-2xl border border-border bg-card/70 p-6 transition-all duration-300 hover:shadow-md hover:bg-card">
-                            <div className="mb-4 flex items-center gap-4">
-                                <Image
-                                    src={`https://api.dicebear.com/9.x/glass/svg?seed=${encodeURIComponent(c?.name || "Guest")}`}
-                                    alt={c?.name || "Avatar"}
-                                    width={48}
-                                    height={48}
-                                    unoptimized
-                                    className="rounded-full border border-border bg-muted ring-2 ring-transparent transition-all duration-300 group-hover:ring-primary/40"
-                                />
-
-                                <div className="flex flex-col">
-                                    <Link
-                                        href={`/clients/${c.id}`}
-                                        className="text-sm font-semibold text-foreground hover:text-primary transition-colors"
-                                    >
-                                        {c.name}
-                                    </Link>
-                                    <p className="text-xs text-muted-foreground">{c.phone}</p>
-                                    <p className="text-xs text-muted-foreground">{c.city}</p>
-                                </div>
-                            </div>
-
-                            {/* Optional accent or quote */}
-                            {/* <blockquote className="text-sm italic text-muted-foreground">“{c.note || 'Reliable client'}”</blockquote> */}
-
-                            {/* Subtle hover indicator */}
-                            <div
-                                className="absolute right-4 top-4 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                {/* Content Section */}
+                {!hasClients ? (
+                    <EmptyState/>
+                ) : (
+                    <>
+                        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                            {clients.map((c) => (
                                 <Link
+                                    key={c.id}
                                     href={`/clients/${c.id}`}
-                                    className="text-xs text-primary hover:underline"
+                                    className="group relative flex flex-col rounded-xl border border-border bg-card p-5 shadow-sm transition-all duration-200 hover:border-primary/50 hover:shadow-md"
                                 >
-                                    View
+                                    {/* Avatar & Name */}
+                                    <div className="flex items-start gap-4">
+                                        <div
+                                            className="relative h-12 w-12 flex-shrink-0 overflow-hidden rounded-full bg-secondary ring-2 ring-background group-hover:ring-primary/20 transition-all">
+                                            <Image
+                                                src={`https://api.dicebear.com/9.x/glass/svg?seed=${encodeURIComponent(c?.name || "Guest")}`}
+                                                alt={c?.name || "Avatar"}
+                                                fill
+                                                className="object-cover"
+                                                unoptimized
+                                            />
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <h3 className="truncate text-base font-semibold text-foreground group-hover:text-primary transition-colors">
+                                                {c.name || "Unknown Name"}
+                                            </h3>
+                                            <p className="truncate text-sm text-muted-foreground">
+                                                {c.full_name !== c.name ? c.full_name : "Customer"}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <hr className="my-4 border-border/50"/>
+
+                                    {/* Details */}
+                                    <div className="mt-auto space-y-2 text-sm text-muted-foreground">
+                                        <div className="flex items-center gap-2">
+                                            <Phone className="h-3.5 w-3.5 opacity-70"/>
+                                            <span className="truncate">{c.phone || "No phone number"}</span>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <MapPin className="h-3.5 w-3.5 opacity-70"/>
+                                            <span className="truncate">
+                        {[c.city, c.country_code].filter(Boolean).join(", ") || "No location"}
+                      </span>
+                                        </div>
+                                    </div>
                                 </Link>
-                            </div>
+                            ))}
                         </div>
 
-                    ))}
-                    {clients?.length === 0 && (
-                        <Card>
-                            <CardContent className="py-10 text-center text-muted-foreground">
-                                No clients yet. Add your first one.
-                            </CardContent>
-                        </Card>
-                    )}
-                </div>
-
-                <ClientsPager page={page} pageSize={pageSize} total={total}/>
+                        {/* Pagination */}
+                        <div className="pt-4">
+                            <ClientsPager page={page} pageSize={pageSize} total={total}/>
+                        </div>
+                    </>
+                )}
             </div>
         </Suspense>
+    );
+}
+
+// --- Sub Components ---
+
+function EmptyState() {
+    return (
+        <div
+            className="flex min-h-[400px] flex-col items-center justify-center rounded-2xl border-2 border-dashed border-muted bg-muted/5 p-8 text-center animate-in fade-in-50">
+            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-muted shadow-sm mb-4">
+                <Users className="h-10 w-10 text-muted-foreground"/>
+            </div>
+            <h3 className="text-lg font-semibold">No clients found</h3>
+            <p className="mb-6 mt-2 max-w-sm text-sm text-muted-foreground">
+                You haven't added any clients yet. Start building your directory to track measurements and orders.
+            </p>
+
+            {/* Ideally, this button triggers the same action as ClientsPageActions.
+        If ClientsPageActions is a client component opening a modal, render it here too,
+        or pass a prop to trigger it.
+      */}
+            <div className="opacity-50 pointer-events-none">
+                <Button variant="outline">Use the 'Add Client' button above</Button>
+            </div>
+        </div>
+    );
+}
+
+function ClientsLoadingSkeleton() {
+    return (
+        <div className="space-y-8">
+            <div className="flex items-center justify-between">
+                <div className="space-y-2">
+                    <div className="h-8 w-32 animate-pulse rounded-md bg-muted"/>
+                    <div className="h-4 w-64 animate-pulse rounded-md bg-muted"/>
+                </div>
+                <div className="h-10 w-28 animate-pulse rounded-md bg-muted"/>
+            </div>
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+                {[...Array(8)].map((_, i) => (
+                    <div key={i} className="h-48 animate-pulse rounded-xl border bg-muted/30"/>
+                ))}
+            </div>
+        </div>
     );
 }
