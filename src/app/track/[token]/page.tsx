@@ -1,28 +1,34 @@
 import Image from "next/image";
-import {AddToCalendarButton} from "@/components/modals/AddToCalendar";
-import {createClientServer} from "@/lib/supabase/server";
-import {Card} from "@/components/ui/card";
-import {FileText, Mail, MapPin, Phone, User} from "lucide-react";
+import { AddToCalendarButton } from "@/components/modals/AddToCalendar";
+import { createClientServer } from "@/lib/supabase/server";
+import {
+    FileText,
+    Mail,
+    MapPin,
+    Phone,
+    User,
+    CheckCircle2,
+    Package,
+    Scissors,
+    Truck,
+    AlertCircle,
+    Clock,
+    Download,
+    CreditCard,
+    ArrowUpRight
+} from "lucide-react";
 import Link from "next/link";
-
-/**
- * Server-rendered, theme-aware public tracking page.
- * Requires:
- *  - NEXT_PUBLIC_SUPABASE_URL
- *  - NEXT_PUBLIC_SUPABASE_ANON_KEY
- * RLS must allow anonymous (role anon) select on needed tables/views with the knitted schema.
- */
+import { cn } from "@/lib/utils";
 
 export const revalidate = 0;
 export const dynamic = "force-dynamic";
-export const dynamicParams = true;
 
-/* ======================= Types (adjust to your schema) ======================= */
+/* ======================= Types ======================= */
 type Order = {
     id: string;
-    order_code: string; // e.g., "KNT-00027"
+    order_code: string;
     status: "ready" | "confirmed" | "in_production" | "delivered" | "cancelled";
-    currency: string;   // fallback if totals.currency_code missing
+    currency: string;
     created_at: string;
     ready_at: string | null;
     customer_name?: string | null;
@@ -34,7 +40,8 @@ type Totals = {
     items_subtotal: number;
     computed_total: number;
     paid_total: number;
-    balance: number;         // if your view provides a balance already
+    discount_total?: number;
+    tax_total?: number;
     currency_code: string;
 } | null;
 
@@ -46,13 +53,11 @@ type Payment = {
     created_at: string;
 };
 
-// Replace your current Attachment type with these two:
-
 type DbAttachment = {
     id: string;
     order_id: string;
-    file_type: string | null;   // e.g. "image/png", "application/pdf", etc.
-    file_path: string | null;   // storage path like "orders/123/invoice.pdf"
+    file_type: string | null;
+    file_path: string | null;
     created_at: string;
 };
 
@@ -60,31 +65,29 @@ type Attachment = {
     id: string;
     order_id: string;
     kind: "image" | "pdf" | "file" | "other";
-    file_path: string;          // required by UI
+    file_path: string;
     created_at: string;
-    signed_url: string | null;  // signed url to display/download
+    signed_url: string | null;
 };
-
 
 type Customer = {
     id: string;
     name: string | null;
     phone?: string | null;
     email?: string | null;
-    address?: string | null; // adjust to your schema
+    address?: string | null;
     city?: string | null;
     country_code?: string | null;
 } | null;
 
-/** Order items — adjust columns to your actual schema */
 type OrderItem = {
     id: string;
     order_id: string;
     description: string;
-    quantity: number;            // integer/decimal
-    unit_price: number | null;   // per item price
+    quantity: number;
+    unit_price: number | null;
     currency_code?: string | null;
-    line_total?: number | null;  // if stored; else compute qty * unit_price
+    line_total?: number | null;
     created_at?: string;
 };
 
@@ -95,78 +98,117 @@ async function fetchJson<T>(url: string, init?: RequestInit): Promise<T> {
         apikey: anon,
         Authorization: `Bearer ${anon}`,
         "Content-Type": "application/json",
-        // Tell PostgREST to use the 'knitted' schema
         "Accept-Profile": "knitted",
         ...(init?.headers || {}),
     };
 
-    const res = await fetch(url, {...init, headers, cache: "no-store"});
+    const res = await fetch(url, { ...init, headers, cache: "no-store" });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     return res.json() as Promise<T>;
 }
 
-function Money({amount, currency}: { amount: number; currency: string }) {
+function Money({ amount, currency, className }: { amount: number; currency: string, className?: string }) {
     try {
         return (
-            <>
-                {new Intl.NumberFormat(undefined, {
-                    style: "currency",
-                    currency,
-                    maximumFractionDigits: 2,
-                }).format(amount)}
-            </>
+            <span className={cn("font-mono tracking-tight", className)}>
+        {new Intl.NumberFormat(undefined, {
+            style: "currency",
+            currency,
+            maximumFractionDigits: 2,
+        }).format(amount)}
+      </span>
         );
     } catch {
-        return (
-            <>
-                {currency} {amount.toFixed(2)}
-            </>
-        );
+        return <span className={className}>{currency} {amount.toFixed(2)}</span>;
     }
 }
 
-function StatusBadge({status}: { status: Order["status"] }) {
-    const cls: Record<Order["status"], string> = {
-        ready: "bg-violet-500/15 text-violet-600 dark:text-violet-300",
-        in_production: "bg-amber-500/15 text-amber-600 dark:text-amber-300",
-        confirmed: "bg-blue-500/15 text-blue-600 dark:text-blue-300",
-        delivered: "bg-emerald-500/15 text-emerald-600 dark:text-emerald-300",
-        cancelled: "bg-rose-500/15 text-rose-600 dark:text-rose-300",
-    };
+function normalizeKind(t: string | null | undefined): Attachment["kind"] {
+    const v = (t || "").toLowerCase();
+    if (v.startsWith("image/")) return "image";
+    if (v.includes("pdf")) return "pdf";
+    if (v.length) return "file";
+    return "other";
+}
+
+/* ============================== Components ============================== */
+
+function OrderTimeline({ status, created_at }: { status: Order['status'], created_at: string }) {
+    if (status === 'cancelled') {
+        return (
+            <div className="rounded-lg bg-red-50 border border-red-100 p-4 flex items-center gap-3 text-red-700 dark:bg-red-900/10 dark:border-red-900/20 dark:text-red-400">
+                <AlertCircle className="w-5 h-5" />
+                <div>
+                    <p className="font-medium text-sm">Order Cancelled</p>
+                    <p className="text-xs opacity-80">Please contact support for details.</p>
+                </div>
+            </div>
+        );
+    }
+
+    const steps = [
+        { id: 'confirmed', label: 'Confirmed', icon: CheckCircle2 },
+        { id: 'in_production', label: 'Sewing', icon: Scissors },
+        { id: 'ready', label: 'Ready', icon: Package },
+        { id: 'delivered', label: 'Delivered', icon: Truck },
+    ];
+
+    const currentIdx = steps.findIndex(s => s.id === status);
+    const safeIdx = currentIdx === -1 ? 0 : currentIdx;
+
     return (
-        <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-sm font-medium ${cls[status]}`}>
-      {status}
-    </span>
+        <div className="w-full py-4">
+            <div className="relative flex justify-between">
+                <div className="absolute top-1/2 left-0 w-full h-0.5 bg-muted -translate-y-1/2 -z-10 rounded" />
+                <div
+                    className="absolute top-1/2 left-0 h-0.5 bg-primary -translate-y-1/2 -z-10 rounded transition-all duration-700"
+                    style={{ width: `${(safeIdx / (steps.length - 1)) * 100}%` }}
+                />
+
+                {steps.map((step, idx) => {
+                    const isCompleted = idx <= safeIdx;
+                    const isCurrent = idx === safeIdx;
+
+                    return (
+                        <div key={step.id} className="flex flex-col items-center bg-background px-2">
+                            <div
+                                className={cn(
+                                    "w-8 h-8 rounded-full flex items-center justify-center border-2 transition-all duration-300",
+                                    isCompleted ? "bg-primary border-primary text-primary-foreground" : "bg-background border-muted text-muted-foreground",
+                                    isCurrent && "ring-4 ring-primary/10"
+                                )}
+                            >
+                                <step.icon className="w-4 h-4" />
+                            </div>
+                            <span className={cn(
+                                "mt-2 text-[10px] uppercase font-bold tracking-wider transition-colors",
+                                isCompleted ? "text-foreground" : "text-muted-foreground"
+                            )}>
+                {step.label}
+              </span>
+                        </div>
+                    );
+                })}
+            </div>
+            <div className="mt-4 text-center">
+                <p className="text-xs text-muted-foreground">
+                    Ordered on {new Date(created_at).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}
+                </p>
+            </div>
+        </div>
     );
 }
 
-/* ============================== Page (Server) ============================== */
-// Accept Promise and await before using properties (Next.js App Router requirement)
+/* ============================== Page ============================== */
 export default async function TrackPage({
                                             params,
                                         }: {
     params: Promise<{ token: string }>;
 }) {
-    const {token: rawToken} = await params;
+    const { token: rawToken } = await params;
     const token = decodeURIComponent(rawToken || "");
-
     const base = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-    const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-    if (!base || !anon) {
-        return (
-            <main className="bg-background text-foreground">
-                <section className="mx-auto max-w-3xl px-4 py-14 text-center">
-                    <h1 className="text-xl font-semibold">Configuration error</h1>
-                    <p className="mt-2 text-sm text-muted-foreground">
-                        Missing <code>NEXT_PUBLIC_SUPABASE_URL</code> or{" "}
-                        <code>NEXT_PUBLIC_SUPABASE_ANON_KEY</code>.
-                    </p>
-                </section>
-            </main>
-        );
-    }
 
-    /* ============ 1) Order by tracking token ============ */
     const orderUrl = new URL(`${base}/rest/v1/orders`);
     orderUrl.searchParams.set("select", "*");
     orderUrl.searchParams.set("tracking_token", `eq.${token}`);
@@ -176,500 +218,336 @@ export default async function TrackPage({
     try {
         const rows = await fetchJson<Order[]>(orderUrl.toString());
         order = rows?.[0] ?? null;
-    } catch {
-        order = null;
-    }
+    } catch { order = null; }
 
     if (!order) {
         return (
-            <main className="bg-background text-foreground">
-                <section className="mx-auto max-w-3xl px-4 py-14 text-center">
-                    <h1 className="text-xl font-semibold">We couldn’t find that order</h1>
-                    <p className="mt-2 text-sm text-muted-foreground">
-                        Check the link or ask your tailor for a new tracking link.
-                    </p>
-                </section>
-            </main>
+            <div className="min-h-screen flex flex-col items-center justify-center bg-background p-4 text-center">
+                <div className="w-16 h-16 bg-muted rounded-2xl flex items-center justify-center mb-4">
+                    <AlertCircle className="w-8 h-8 text-muted-foreground" />
+                </div>
+                <h1 className="text-xl font-semibold mb-2">Order Not Found</h1>
+                <p className="text-sm text-muted-foreground">The tracking link may be invalid or expired.</p>
+            </div>
         );
     }
 
-    /* ============ 2) Totals ============ */
-    const totalsUrl = new URL(`${base}/rest/v1/order_totals`);
-    totalsUrl.searchParams.set("select", "*");
-    totalsUrl.searchParams.set("order_id", `eq.${order.id}`);
-    totalsUrl.searchParams.set("limit", "1");
+    const [totalsData, paymentsData] = await Promise.allSettled([
+        fetchJson<Totals[]>(`${base}/rest/v1/order_totals?select=*&order_id=eq.${order.id}&limit=1`),
+        fetchJson<Payment[]>(`${base}/rest/v1/payments?select=*&order_id=eq.${order.id}&order=created_at.desc`)
+    ]);
 
-    let totals: Totals = null;
-    try {
-        const rows = await fetchJson<Totals[]>(totalsUrl.toString());
-        totals = rows?.[0] ?? null;
-    } catch {
-        totals = null;
-    }
-
-    let finalBalance = 0;
-    if (totals?.computed_total != null) {
-        finalBalance = totals.computed_total - (totals.paid_total ?? 0);
-    }
-
+    const totals = (totalsData.status === 'fulfilled' ? totalsData.value[0] : null);
+    const payments = (paymentsData.status === 'fulfilled' ? paymentsData.value : []);
     const currency = totals?.currency_code ?? order.currency;
 
-    /* ============ 3) Payments ============ */
-    const paymentsUrl = new URL(`${base}/rest/v1/payments`);
-    paymentsUrl.searchParams.set("select", "*");
-    paymentsUrl.searchParams.set("order_id", `eq.${order.id}`);
-    paymentsUrl.searchParams.set("order", "created_at.desc");
-
-    let payments: Payment[] = [];
-    try {
-        payments = await fetchJson<Payment[]>(paymentsUrl.toString());
-    } catch {
-        payments = [];
-    }
-
-    /* ============ 4) Attachments ============ */
-    /* ============ 4) Attachments ============ */
     const sb = await createClientServer();
 
     let attachments: Attachment[] = [];
-    try {
-        const {data, error} = await sb
-            .schema("knitted") // remove if table is in public
-            .from("attachments")
-            .select("id,order_id,file_type,file_path,created_at")
-            .eq("order_id", order.id)
-            .order("created_at", {ascending: false});
-
-        if (error) {
-            console.error("Fetch attachments failed:", error);
-        }
-
-        const rows = (data ?? []) as DbAttachment[];
-        // Map DB rows to UI shape
-        attachments = rows
-            .filter((r) => !!r.file_path) // ensure we have a path
-            .map((r) => ({
-                id: r.id,
-                order_id: r.order_id,
-                kind: normalizeKind(r.file_type),
-                file_path: r.file_path as string,
-                created_at: r.created_at,
-                signed_url: null, // to be populated below
-            }));
-    } catch (e) {
-        console.error("Unexpected attachments error:", e);
-        attachments = [];
+    const { data: attData } = await sb.schema("knitted").from("attachments").select("id,order_id,file_type,file_path,created_at").eq("order_id", order.id).order("created_at", { ascending: false });
+    if (attData) {
+        const rows = attData as DbAttachment[];
+        const mapped = rows.filter(r => r.file_path).map(r => ({
+            id: r.id, order_id: r.order_id, kind: normalizeKind(r.file_type), file_path: r.file_path!, created_at: r.created_at, signed_url: null
+        }));
+        attachments = await Promise.all(mapped.map(async (a) => {
+            const { data } = await sb.storage.from("knitted").createSignedUrl(a.file_path, 3600);
+            return { ...a, signed_url: data?.signedUrl ?? null };
+        }));
     }
-
-// Generate signed URLs (1 hour validity)
-    if (attachments.length) {
-        attachments = await Promise.all(
-            attachments.map(async (a) => {
-                try {
-                    const {data, error} = await sb.storage
-                        .from("knitted") // your bucket name
-                        .createSignedUrl(a.file_path, 3600);
-                    return {...a, signed_url: error ? null : data?.signedUrl ?? null};
-                } catch {
-                    return {...a, signed_url: null};
-                }
-            })
-        );
-    }
-
-    function normalizeKind(t: string | null | undefined): Attachment["kind"] {
-        const v = (t || "").toLowerCase();
-        if (v.startsWith("image/")) return "image";
-        if (v.includes("pdf")) return "pdf";
-        if (v.length) return "file";
-        return "other";
-    }
-
-
-    // 2) Fetch with proper nullability and schema
-    // const sb = await createClientServer();
 
     let customer: Customer | null = null;
-
     if (order.customer_id) {
-        const {data, error} = await sb
-            .schema("knitted")               // remove this if your table is in public
-            .from("customers")
-            .select(
-                "id,name,phone,email,address,city,country_code,created_at"
-            )
-            .eq("id", order.customer_id)
-            .maybeSingle<Customer>();     // 👈 type the row shape here
-
-        if (error) {
-            // Optional: log server-side
-            console.error("Fetch customer failed:", error);
-        }
-        customer = data ?? null;           // `maybeSingle` returns `null` when not found
-    } else {
-        customer = null;
+        const { data } = await sb.schema("knitted").from("customers").select("id,name,phone,email,address,city,country_code").eq("id", order.customer_id).maybeSingle();
+        customer = data;
     }
-
-
-    /* ============ 6) Order Items (NEW) ============ */
 
     let items: OrderItem[] = [];
+    const { data: itemData } = await sb.schema("knitted").from("order_items").select("*").eq("order_id", order.id).order("created_at");
+    items = itemData || [];
 
-    try {
-        const {data, error} = await sb
-            .schema("knitted") // remove if the table is public
-            .from("order_items")
-            .select(
-                "id,order_id,description,quantity,unit_price,currency_code,line_total,created_at"
-            )
-            .eq("order_id", order.id)
-            .order("created_at", {ascending: true});
-
-        if (error) {
-            console.error("Fetch order items failed:", error);
-        }
-
-        items = data ?? [];
-    } catch (e) {
-        console.error("Unexpected error fetching items:", e);
-        items = [];
-    }
-
-
-    let signed: typeof attachments = attachments ?? [];
-
-    // Generate signed URLs (1 hour validity)
-    if (signed?.length) {
-        signed = await Promise.all(
-            signed.map(async (a) => {
-                try {
-                    const {data, error} = await sb.storage
-                        .from("knitted")
-                        .createSignedUrl(a.file_path, 3600);
-                    return {
-                        ...a,
-                        signed_url: !error ? data?.signedUrl ?? null : null,
-                    };
-                } catch {
-                    return {...a, signed_url: null};
-                }
-            })
-        );
-    }
+    const finalBalance = (totals?.computed_total ?? 0) - (totals?.paid_total ?? 0);
 
     return (
-        <main className="bg-background text-foreground">
-            {/* soft halo */}
-            <div aria-hidden className="pointer-events-none fixed inset-0 -z-10">
-                <div
-                    className="absolute -top-24 -left-24 h-80 w-80 rounded-full bg-gradient-to-br from-primary/20 via-indigo-500/15 to-purple-500/15 blur-3xl"/>
-            </div>
+        <main className="min-h-screen bg-[#FAFAFA] dark:bg-[#09090b] text-foreground flex flex-col">
 
-            <section className="mx-auto max-w-3xl px-4 py-10 md:py-14">
-                {/* header */}
-                <div className="mb-6 flex items-center justify-center">
-                    <div className="flex items-center gap-3">
-                        <Image src="/knitted-logo.svg" alt="Knitted" width={28} height={28}/>
-                        <span className="text-sm font-semibold">Knitted</span>
+            {/* Navigation / Brand */}
+            <header className="bg-background border-b sticky top-0 z-20 flex-none">
+                <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                        <Image src="/knitted-logo.svg" alt="Knitted" width={24} height={24} />
+                        <span className="font-bold text-sm tracking-tight">Knitted</span>
                     </div>
-                </div>
-
-                {/* SUMMARY */}
-                <div className="rounded-xl border bg-card/70 p-5 backdrop-blur">
-                    <div className="flex flex-row justify-between gap-2 sm:flex-row sm:items-center sm:justify-between">
-                        <div>
-                            <h1 className="text-xl font-semibold">{order.order_code}</h1>
-                            <p className="text-xs text-muted-foreground">
-                                {new Date(order.created_at).toLocaleString()}
-                            </p>
-                        </div>
-                        <div className="flex items-center gap-3">
-                            <StatusBadge status={order.status}/>
-                        </div>
-                    </div>
-
-                    <div className={'flex flex-col lg:flex-row md:flex-row justify-between mt-5'}>
-                        <div className={'flex items-center gap-3 my-2 lg:my-0 md:my-0 xl:my-0'}>
-                            {!!order.ready_at && (
-                                <span className="text-sm">
-                                  Ready by {new Date(order.ready_at).toLocaleString()}
-                                </span>
-                            )}
-                        </div>
-                        <div className={'flex items-center gap-3'}>
+                    {/* Top header action - visible on larger screens */}
+                    {order.ready_at && (
+                        <div className="hidden sm:block text-xs font-medium text-primary hover:underline cursor-pointer">
                             <AddToCalendarButton
-                                title={`Pickup: ${order.order_code}`}
-                                start={order.ready_at!}               // ISO string, ensure not null
-                                durationMinutes={30}                  // adjust as needed
-                                location={"Your Atelier Address"}     // optional
-                                description={`Your order ${order.order_code} will be ready for pickup.`}
-                                filename={`${order.order_code}-pickup.ics`}
+                                title={`Pickup Order ${order.order_code}`}
+                                start={order.ready_at}
+                                durationMinutes={60}
                             />
                         </div>
-                    </div>
+                    )}
+                </div>
+            </header>
 
-                    {/* ITEMS (NEW) */}
-                    <div className="mt-6 rounded-md border bg-background p-4">
-                        <div className="mb-2 text-sm font-semibold">Items</div>
+            <div className="flex-grow max-w-5xl mx-auto px-4 py-8 w-full">
 
-                        {items.length === 0 ? (
-                            <p className="text-sm text-muted-foreground">No items recorded.</p>
-                        ) : (
-                            <>
-                                {/* Mobile: stacked cards */}
-                                <ul className="md:hidden space-y-3">
-                                    {items.map((it) => {
-                                        const lineCurrency = it.currency_code || currency;
-                                        const unit = it.unit_price ?? 0;
-                                        const line = it.line_total ?? unit * (it.quantity || 0);
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
 
-                                        return (
-                                            <li
-                                                key={it.id}
-                                                className="bg-card/50"
-                                            >
-                                                <div className="flex items-start justify-between gap-3">
-                                                    <div className="min-w-0">
-                                                        <div className="font-medium truncate">
-                                                            {it.description || "Item"}
-                                                        </div>
-                                                        <div className="mt-1 grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-muted-foreground">
-                                                            <span>Qty</span>
-                                                            <span className="text-right">{it.quantity ?? 0}</span>
-                                                            <span>Unit</span>
-                                                            <span className="text-right">
-                      <Money amount={unit} currency={lineCurrency} />
-                    </span>
-                                                        </div>
-                                                    </div>
+                    {/* LEFT COLUMN: Order Details */}
+                    <div className="lg:col-span-8 space-y-8">
 
-                                                    <div className="text-right">
-                                                        <div className="text-xs text-muted-foreground">Line total</div>
-                                                        <div className="font-semibold">
-                                                            <Money amount={line} currency={lineCurrency} />
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </li>
-                                        );
-                                    })}
-                                </ul>
-
-                                {/* Desktop/tablet: traditional table */}
-                                <div className="hidden md:block overflow-x-auto">
-                                    <table className="w-full text-sm">
-                                        <thead className="bg-muted/50 text-muted-foreground">
-                                        <tr>
-                                            <th className="px-3 py-2 text-left font-medium">Item</th>
-                                            <th className="px-3 py-2 text-right font-medium">Qty</th>
-                                            <th className="px-3 py-2 text-right font-medium">Unit</th>
-                                            <th className="px-3 py-2 text-right font-medium">Line total</th>
-                                        </tr>
-                                        </thead>
-                                        <tbody className="divide-y">
-                                        {items.map((it) => {
-                                            const lineCurrency = it.currency_code || currency;
-                                            const unit = it.unit_price ?? 0;
-                                            const line = it.line_total ?? unit * (it.quantity || 0);
-
-                                            return (
-                                                <tr key={it.id} className="bg-background">
-                                                    <td className="px-3 py-2 align-top">
-                                                        <div className="font-medium">{it.description || "Item"}</div>
-                                                    </td>
-                                                    <td className="px-3 py-2 align-top text-right">{it.quantity ?? 0}</td>
-                                                    <td className="px-3 py-2 align-top text-right">
-                                                        <Money amount={unit} currency={lineCurrency} />
-                                                    </td>
-                                                    <td className="px-3 py-2 align-top text-right font-medium">
-                                                        <Money amount={line} currency={lineCurrency} />
-                                                    </td>
-                                                </tr>
-                                            );
-                                        })}
-                                        </tbody>
-                                    </table>
+                        {/* Header & Progress */}
+                        <div className="bg-background rounded-xl border p-6">
+                            <div className="flex justify-between items-start mb-6">
+                                <div>
+                                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">Order Number</p>
+                                    <h1 className="text-3xl font-bold font-mono tracking-tight">{order.order_code}</h1>
                                 </div>
-                            </>
+                                <div className="text-right">
+                                    <div className={cn(
+                                        "inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border",
+                                        order.status === 'ready' ? "bg-green-50 text-green-700 border-green-200" :
+                                            order.status === 'delivered' ? "bg-zinc-100 text-zinc-700 border-zinc-200" :
+                                                "bg-blue-50 text-blue-700 border-blue-200"
+                                    )}>
+                                        {order.status.replace('_', ' ')}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <OrderTimeline status={order.status} created_at={order.created_at} />
+
+                            {order.ready_at && (
+                                <div className="mt-6 bg-secondary/30 rounded-lg p-4 flex items-start gap-3 border border-secondary/50">
+                                    <Clock className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+                                    <div className="flex-1">
+                                        <p className="text-sm font-medium text-foreground">Estimated Completion</p>
+                                        <p className="text-xs text-muted-foreground">
+                                            This order is scheduled to be ready by <span className="font-semibold text-foreground">{new Date(order.ready_at).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })}</span>.
+                                        </p>
+                                        {/* ADDED: Add to Calendar Action */}
+                                        <div className="mt-2">
+                                            <div className="inline-flex items-center text-xs font-medium text-primary hover:text-primary/80 transition-colors cursor-pointer">
+                                                <AddToCalendarButton
+                                                    title={`Pickup: ${order.order_code}`}
+                                                    start={order.ready_at}
+                                                    durationMinutes={60}
+                                                    description={`Pickup for order ${order.order_code} at Knitted.`}
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Order Items */}
+                        <div className="bg-background rounded-xl border overflow-hidden">
+                            <div className="px-6 py-4 border-b bg-muted/20 flex items-center justify-between">
+                                <h2 className="font-semibold text-sm flex items-center gap-2">
+                                    <Package className="w-4 h-4" /> Items Ordered
+                                </h2>
+                                <span className="text-xs text-muted-foreground">{items.length} items</span>
+                            </div>
+                            <div className="divide-y">
+                                {items.map((item) => {
+                                    const lineTotal = item.line_total ?? (item.unit_price ?? 0) * item.quantity;
+                                    return (
+                                        <div key={item.id} className="px-6 py-4 flex items-start gap-4 hover:bg-muted/10 transition-colors">
+                                            <div className="h-12 w-12 rounded-md bg-muted flex items-center justify-center shrink-0">
+                                                <Scissors className="w-5 h-5 text-muted-foreground/50" />
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <p className="text-sm font-medium truncate">{item.description}</p>
+                                                <p className="text-xs text-muted-foreground mt-0.5">Qty: {item.quantity}</p>
+                                            </div>
+                                            <div className="text-right">
+                                                <p className="text-sm font-medium"><Money amount={lineTotal} currency={item.currency_code || currency} /></p>
+                                                {item.quantity > 1 && (
+                                                    <p className="text-[10px] text-muted-foreground">
+                                                        <Money amount={item.unit_price ?? 0} currency={item.currency_code || currency} /> ea
+                                                    </p>
+                                                )}
+                                            </div>
+                                        </div>
+                                    )
+                                })}
+                            </div>
+                        </div>
+
+                        {/* Attachments */}
+                        {attachments.length > 0 && (
+                            <div className="space-y-3">
+                                <h3 className="text-sm font-medium text-muted-foreground px-1">Documents & Designs</h3>
+                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                                    {attachments.map((att) => (
+                                        <a
+                                            href={att.signed_url || "#"}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            key={att.id}
+                                            className="group relative block aspect-[4/3] bg-white rounded-xl border overflow-hidden transition-all hover:border-primary/50"
+                                        >
+                                            {att.kind === 'image' ? (
+                                                // eslint-disable-next-line @next/next/no-img-element
+                                                <img src={att.signed_url || ""} alt="Design" className="w-full h-full object-cover" />
+                                            ) : (
+                                                <div className="w-full h-full flex flex-col items-center justify-center text-muted-foreground bg-muted/10">
+                                                    <FileText className="w-8 h-8 mb-2 opacity-50" />
+                                                    <span className="text-[10px] font-medium uppercase">Document</span>
+                                                </div>
+                                            )}
+                                            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white gap-2">
+                                                <Download className="w-4 h-4" /> <span className="text-xs font-medium">View</span>
+                                            </div>
+                                        </a>
+                                    ))}
+                                </div>
+                            </div>
                         )}
                     </div>
 
+                    {/* RIGHT COLUMN: Sticky Sidebar */}
+                    <div className="lg:col-span-4 space-y-6">
 
+                        {/* Receipt Block */}
+                        <div className="bg-white dark:bg-card rounded-xl border p-0 overflow-hidden sticky top-24">
+                            <div className="p-5 border-b border-dashed">
+                                <h3 className="text-sm font-semibold flex items-center gap-2 mb-4">
+                                    <CreditCard className="w-4 h-4" /> Summary
+                                </h3>
+                                <div className="space-y-3 text-sm">
+                                    <div className="flex justify-between text-muted-foreground">
+                                        <span>Subtotal</span>
+                                        <Money amount={totals?.items_subtotal ?? 0} currency={currency} />
+                                    </div>
+                                    {!!totals?.tax_total && (
+                                        <div className="flex justify-between text-muted-foreground">
+                                            <span>Tax</span>
+                                            <Money amount={totals.tax_total} currency={currency} />
+                                        </div>
+                                    )}
+                                    {!!totals?.discount_total && (
+                                        <div className="flex justify-between text-emerald-600">
+                                            <span>Discount</span>
+                                            <span>-<Money amount={totals.discount_total} currency={currency} /></span>
+                                        </div>
+                                    )}
 
-                    {/* TOTALS */}
-                    <div className="mt-6 grid gap-3 sm:grid-cols-3">
-                        <div className="rounded-md border bg-background p-4">
-                            <div className="text-xs text-muted-foreground">Subtotal</div>
-                            <div className="mt-1 text-base font-medium">
-                                <Money amount={totals?.items_subtotal ?? 0} currency={currency}/>
-                            </div>
-                        </div>
-                        <div className="rounded-md border bg-background p-4">
-                            <div className="text-xs text-muted-foreground">Total</div>
-                            <div className="mt-1 text-base font-medium">
-                                <Money amount={totals?.computed_total ?? 0} currency={currency}/>
-                            </div>
-                        </div>
-                        <div className="rounded-md border bg-background p-4">
-                            <div className="text-xs text-muted-foreground">Paid</div>
-                            <div className="mt-1 text-base font-medium">
-                                <Money amount={totals?.paid_total ?? 0} currency={currency}/>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* BALANCE */}
-                    <div className="mt-3 flex items-center justify-between rounded-md border bg-background px-4 py-3">
-                        <span className="text-sm text-muted-foreground">Balance</span>
-                        <span className="text-base font-semibold">
-              <Money amount={finalBalance ?? 0} currency={currency}/>
-            </span>
-                    </div>
-                </div>
-
-                {/* CUSTOMER */}
-
-                <div className="mt-8">
-                    <Card
-                        className="rounded-2xl border border-border/50 bg-card/70 backdrop-blur-md p-5 shadow-sm hover:shadow-md transition-all duration-300">
-                        <div className="flex items-center gap-3 border-b border-border/50 pb-3 mb-3">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted">
-                                <User className="h-5 w-5 text-muted-foreground"/>
-                            </div>
-                            <div>
-                                <div className="text-sm font-semibold tracking-tight text-foreground">Customer</div>
-                                <p className="text-xs text-muted-foreground">Order contact details</p>
-                            </div>
-                        </div>
-
-                        {customer ? (
-                            <div className="space-y-2 text-sm">
-                                <div className="text-base font-medium leading-tight text-foreground">
-                                    {customer.name || order.customer_name || "Customer"}
+                                    <div className="border-t border-dashed my-2 pt-2 flex justify-between items-center">
+                                        <span className="font-medium">Total</span>
+                                        <Money amount={totals?.computed_total ?? 0} currency={currency} className="text-lg font-bold" />
+                                    </div>
                                 </div>
+                            </div>
 
-                                {(customer.phone || customer.email) && (
-                                    <div className="flex flex-col gap-1 text-muted-foreground">
+                            <div className="p-5 bg-muted/30">
+                                <div className="flex justify-between text-sm mb-2">
+                                    <span className="text-muted-foreground">Amount Paid</span>
+                                    <Money amount={totals?.paid_total ?? 0} currency={currency} className="font-medium" />
+                                </div>
+                                <div className={cn(
+                                    "flex justify-between items-center p-3 rounded-lg border",
+                                    finalBalance > 0 ? "bg-amber-50 border-amber-200 text-amber-800" : "bg-emerald-50 border-emerald-200 text-emerald-800"
+                                )}>
+                                    <span className="text-xs font-bold uppercase">{finalBalance > 0 ? "Due" : "Settled"}</span>
+                                    <Money amount={finalBalance} currency={currency} className="font-bold" />
+                                </div>
+                            </div>
+
+                            {/* Payments History */}
+                            {payments.length > 0 && (
+                                <div className="border-t px-5 py-4">
+                                    <p className="text-xs font-medium text-muted-foreground mb-3 uppercase tracking-wide">Payment History</p>
+                                    <ul className="space-y-3">
+                                        {payments.map((p) => (
+                                            <li key={p.id} className="flex justify-between items-center text-xs">
+                                                <div className="flex items-center gap-2">
+                                                    <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/40" />
+                                                    <span className="capitalize text-foreground">{p.method || "Payment"}</span>
+                                                </div>
+                                                <span className="text-muted-foreground tabular-nums">
+                          {new Date(p.created_at).toLocaleDateString()}
+                        </span>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Customer Details Card */}
+                        <div className="bg-white dark:bg-card rounded-xl border p-5 overflow-hidden">
+                            <h3 className="text-sm font-semibold flex items-center gap-2 mb-4 text-muted-foreground">
+                                <User className="w-4 h-4" /> Customer Details
+                            </h3>
+                            {customer ? (
+                                <div className="space-y-3 text-sm">
+                                    <div className="font-medium text-foreground text-base">{customer.name || order.customer_name}</div>
+
+                                    <div className="space-y-2 text-muted-foreground">
                                         {customer.phone && (
                                             <div className="flex items-center gap-2">
-                                                <Phone className="h-3.5 w-3.5"/>
+                                                <Phone className="w-3.5 h-3.5" />
                                                 <span>{customer.phone}</span>
                                             </div>
                                         )}
                                         {customer.email && (
-                                            <div className="flex items-center gap-2">
-                                                <Mail className="h-3.5 w-3.5"/>
-                                                <span>{customer.email}</span>
+                                            <div className="flex items-center gap-2 truncate">
+                                                <Mail className="w-3.5 h-3.5" />
+                                                <span className="truncate">{customer.email}</span>
+                                            </div>
+                                        )}
+                                        {(customer.address || customer.city) && (
+                                            <div className="flex items-start gap-2">
+                                                <MapPin className="w-3.5 h-3.5 mt-0.5" />
+                                                <span>{[customer.address, customer.city, customer.country_code].filter(Boolean).join(", ")}</span>
                                             </div>
                                         )}
                                     </div>
-                                )}
-
-                                {(customer.address || customer.city || customer.country_code) && (
-                                    <div className="flex items-start gap-2 text-muted-foreground mt-2">
-                                        <MapPin className="h-3.5 w-3.5 mt-0.5"/>
-                                        <span>
-              {[customer.address, customer.city, customer.country_code]
-                  .filter(Boolean)
-                  .join(", ")}
-            </span>
-                                    </div>
-                                )}
-                            </div>
-                        ) : (
-                            <div className="text-sm text-muted-foreground">
-                                <div className="text-base font-medium text-foreground">
-                                    {order.customer_name || "Customer"}
                                 </div>
-                                <p className="mt-1 italic opacity-75">Details not available.</p>
-                            </div>
-                        )}
-                    </Card>
+                            ) : (
+                                <div className="text-sm text-muted-foreground italic">
+                                    {order.customer_name || "Guest Customer"}
+                                </div>
+                            )}
+                        </div>
+
+                    </div>
                 </div>
-                {/* PAYMENTS */}
-                <div className="mt-8 rounded-xl border bg-card/70 p-5 backdrop-blur">
-                    <h2 className="text-sm font-semibold">Payments</h2>
-                    {payments.length === 0 ? (
-                        <p className="mt-2 text-sm text-muted-foreground">No payments recorded yet.</p>
-                    ) : (
-                        <ul className="mt-2 divide-y">
-                            {payments.map((p) => (
-                                <li key={p.id} className="py-3">
-                                    <div className="text-sm font-medium">
-                                        <Money amount={p.amount} currency={p.currency_code}/>
-                                    </div>
-                                    <div className="text-xs text-muted-foreground">
-                                        {(p.method ?? "payment")} • {new Date(p.created_at).toLocaleString()}
-                                    </div>
-                                </li>
-                            ))}
-                        </ul>
-                    )}
-                </div>
+            </div>
 
-
-                {/* ATTACHMENTS */}
-
-
-                {/* ATTACHMENTS */}
-                <div className="mt-8 rounded-xl border bg-card/70 p-5 backdrop-blur-md transition-all hover:shadow-md">
-                    <h2 className="text-sm font-semibold tracking-tight text-foreground flex items-center gap-2">
-                        <FileText className="h-4 w-4 text-muted-foreground"/> Attachments
-                    </h2>
-
-                    {!attachments?.length ? (
-                        <p className="mt-3 text-sm text-muted-foreground italic">
-                            No attachments yet.
+            {/* Footer */}
+            <footer className="mt-12 border-t bg-muted/20 flex-none">
+                <div className="py-12 px-4 text-center">
+                    <div className="max-w-md mx-auto space-y-4">
+                        <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-primary/10 mb-2">
+                            <Scissors className="w-6 h-6 text-primary" />
+                        </div>
+                        <h3 className="text-xl font-bold tracking-tight">Run your own tailoring business?</h3>
+                        <p className="text-sm text-muted-foreground leading-relaxed">
+                            Use Knitted to track orders, manage measurements, and send professional tracking links like this one to your clients.
                         </p>
-                    ) : (
-                        <ul className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-                            {attachments.map((a) => {
-                                const isImage = a.kind === "image";
-                                const url = a.signed_url ?? "#";
-
-                                return (
-                                    <li
-                                        key={a.id}
-                                        className="group relative overflow-hidden rounded-lg border bg-muted/30 hover:bg-muted/50 transition"
-                                    >
-                                        <Link href={url} target="_blank" rel="noreferrer">
-                                            {isImage ? (
-                                                // eslint-disable-next-line @next/next/no-img-element
-                                                <img
-                                                    src={url}
-                                                    alt={a.file_path ?? "Attachment"}
-                                                    className="h-40 w-full object-cover transition group-hover:opacity-90"
-                                                />
-                                            ) : (
-                                                <div
-                                                    className="flex h-40 items-center justify-center text-muted-foreground">
-                                                    <FileText className="h-8 w-8"/>
-                                                </div>
-                                            )}
-
-                                            <div
-                                                className="absolute inset-x-0 bottom-0 flex items-center justify-between bg-gradient-to-t from-black/60 px-2 py-1 text-xs text-white opacity-0 group-hover:opacity-100 transition">
-                                                <span className="truncate">{a.file_path}</span>
-                                            </div>
-                                        </Link>
-                                    </li>
-                                );
-                            })}
-                        </ul>
-                    )}
+                        <div className="pt-2">
+                            <Link
+                                href="https://knitted.app"
+                                target="_blank"
+                                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors"
+                            >
+                                Get Started for Free
+                                <ArrowUpRight className="w-4 h-4" />
+                            </Link>
+                        </div>
+                    </div>
                 </div>
-
-                <p className="mt-8 text-center text-xs text-muted-foreground">
-                    This page updates as your tailor records progress and payments.
-                </p>
-
-                <footer
-                    className="mt-10 border-t border-border border-t-gray-200 dark:border-t-gray-600 pt-6 text-center text-xs text-muted-foreground">
-  <span className="inline-block opacity-80 transition hover:opacity-100"> &copy;2025 | Knitted.
-    Made in <span className="text-foreground font-medium"> Accra</span> with <span className="text-rose-500">❤️</span>
-  </span>
-                </footer>
-            </section>
+                <div className="border-t py-6 text-center">
+                    <p className="text-xs text-muted-foreground">
+                        &copy; {new Date().getFullYear()} Knitted. Made in <span className="text-foreground font-medium">Accra</span>.
+                    </p>
+                </div>
+            </footer>
         </main>
     );
 }

@@ -349,7 +349,9 @@ export default function LandingPage() {
             </header>
 
             {/* ============================ Hero ============================ */}
+            {/* ============================ Hero ============================ */}
             <section className="relative overflow-hidden pt-32 pb-20 md:pt-40 md:pb-32">
+                {/* Ambient Background */}
                 <div className="absolute inset-0 -z-10 h-full w-full bg-background">
                     <div
                         className="absolute top-0 -left-4 w-72 h-72 bg-primary/20 rounded-full blur-[128px] opacity-50"/>
@@ -358,15 +360,17 @@ export default function LandingPage() {
                     <GridPattern/>
                 </div>
 
-                <div className="mx-auto grid max-w-7xl items-center gap-16 px-4 md:grid-cols-2 md:px-8">
+                <div className="mx-auto grid max-w-7xl items-center gap-12 px-4 md:grid-cols-2 md:gap-16 md:px-8">
+                    {/* Left Content */}
                     <motion.div
                         variants={stagger}
                         initial="hidden"
                         whileInView="show"
                         viewport={{once: true, amount: 0.4}}
-                        className="flex flex-col justify-center space-y-8"
+                        className="flex flex-col justify-center space-y-6 md:space-y-8 text-center md:text-left"
                     >
-                        <motion.div variants={fadeUp} className="w-fit">
+                        {/* Announcement Pill */}
+                        <motion.div variants={fadeUp} className="w-full md:w-fit flex justify-center md:justify-start">
                             <div
                                 className="inline-flex items-center rounded-full border border-primary/20 bg-primary/5 px-3 py-1 text-sm font-medium text-primary backdrop-blur-md transition-colors hover:bg-primary/10">
                                 <span className="flex h-2 w-2 rounded-full bg-primary mr-2 animate-pulse"/>
@@ -377,15 +381,16 @@ export default function LandingPage() {
 
                         <motion.h1
                             variants={fadeUp}
-                            className="text-5xl font-extrabold tracking-tight md:text-6xl lg:text-7xl leading-[1.1]"
+                            className="text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl leading-[1.1]"
                         >
                             Tailoring,{' '}
-                            <span className="relative whitespace-nowrap">
+                            <span className="relative whitespace-nowrap block md:inline">
                                 <span
                                     className="bg-gradient-to-r from-primary via-purple-500 to-secondary bg-clip-text text-transparent">
                                     beautifully organized
                                 </span>
-                                <svg className="absolute -bottom-2 left-0 w-full h-3 text-primary/40 -z-10"
+                                {/* Scribble underline decoration */}
+                                <svg className="absolute -bottom-2 left-0 w-full h-2 md:h-3 text-primary/40 -z-10"
                                      viewBox="0 0 100 10" preserveAspectRatio="none">
                                     <path d="M0 5 Q 50 10 100 5" stroke="currentColor" strokeWidth="2" fill="none"/>
                                 </svg>
@@ -393,12 +398,12 @@ export default function LandingPage() {
                             .
                         </motion.h1>
 
-                        <motion.p variants={fadeUp} className="max-w-xl text-lg text-muted-foreground leading-relaxed">
+                        <motion.p variants={fadeUp} className="max-w-xl mx-auto md:mx-0 text-lg text-muted-foreground leading-relaxed">
                             Knitted is your modern atelier operating system. Manage clients, measurements, and orders
                             with quiet precision. Stop drowning in paper and spreadsheets.
                         </motion.p>
 
-                        <motion.div variants={fadeUp} className="flex flex-wrap gap-4">
+                        <motion.div variants={fadeUp} className="flex flex-col sm:flex-row flex-wrap gap-4 justify-center md:justify-start">
                             <Link
                                 href="/signup"
                                 className="relative inline-flex h-12 items-center justify-center rounded-xl bg-primary px-8 text-base font-semibold text-primary-foreground shadow-lg shadow-primary/20 transition-all hover:scale-105 hover:shadow-primary/40 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2"
@@ -407,7 +412,7 @@ export default function LandingPage() {
                             </Link>
                             <DemoDialog
                                 videoUrl="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
-                                triggerClassName="group inline-flex h-12 items-center gap-2 rounded-xl border border-input bg-background/50 px-6 text-base font-semibold transition-all hover:bg-accent hover:text-accent-foreground backdrop-blur-sm"
+                                triggerClassName="group inline-flex h-12 items-center justify-center gap-2 rounded-xl border border-input bg-background/50 px-6 text-base font-semibold transition-all hover:bg-accent hover:text-accent-foreground backdrop-blur-sm"
                             >
                                 <>
                                     <div
@@ -425,13 +430,17 @@ export default function LandingPage() {
                         </motion.p>
                     </motion.div>
 
+                    {/* Right Visual - Carousel */}
                     <motion.div
                         initial="hidden"
                         whileInView="animate"
                         viewport={{once: true}}
-                        className="relative flex justify-center items-center perspective-1000"
+                        className="relative flex justify-center items-center perspective-1000 mt-8 md:mt-0"
                     >
-                        <motion.div variants={float} className="relative z-10 w-full max-w-[320px] md:max-w-[360px]">
+                        {/* Levitating Container */}
+                        <motion.div variants={float} className="relative z-10 w-full max-w-[280px] sm:max-w-[320px] md:max-w-[360px]">
+
+                            {/* Carousel */}
                             <Carousel
                                 plugins={[plugin.current]}
                                 className="w-full"
@@ -449,20 +458,22 @@ export default function LandingPage() {
                                         <CarouselItem key={index} className="pl-0">
                                             <div className="p-1">
                                                 <div className="relative overflow-hidden">
+                                                    {/* Light mode image */}
                                                     <Image
                                                         src={url + 'light.png'}
                                                         alt="Knitted app mockup"
                                                         width={350}
                                                         height={700}
-                                                        className="h-auto w-full rounded-[2.5rem] dark:hidden bg-white"
+                                                        className="h-auto w-full rounded-[2.5rem] dark:hidden bg-white shadow-2xl"
                                                         priority={index === 0}
                                                     />
+                                                    {/* Dark mode image */}
                                                     <Image
                                                         src={url + 'dark.png'}
                                                         alt="Knitted app mockup"
                                                         width={350}
                                                         height={700}
-                                                        className="hidden h-auto w-full rounded-[2.5rem] dark:block bg-neutral-900"
+                                                        className="hidden h-auto w-full rounded-[2.5rem] dark:block bg-neutral-900 shadow-2xl"
                                                         priority={index === 0}
                                                     />
                                                 </div>
@@ -472,39 +483,42 @@ export default function LandingPage() {
                                 </CarouselContent>
                             </Carousel>
 
+                            {/* Floating Notification Card 1 - Left (Hidden on mobile) */}
                             <motion.div
                                 initial={{opacity: 0, x: -50}}
                                 animate={{opacity: 1, x: 0}}
                                 transition={{delay: 0.5, duration: 0.8}}
-                                className="absolute -left-12 top-1/4 hidden md:flex items-center gap-3 rounded-2xl border border-white/20 bg-white/10 p-4 shadow-xl backdrop-blur-lg dark:bg-black/40"
+                                className="absolute -left-4 lg:-left-12 top-1/4 hidden md:flex items-center gap-3 rounded-2xl border border-white/20 bg-white/10 p-3 lg:p-4 shadow-xl backdrop-blur-lg dark:bg-black/40"
                             >
                                 <div
-                                    className="flex h-10 w-10 items-center justify-center rounded-full bg-green-500/20 text-green-600 dark:text-green-400">
-                                    <Check className="h-5 w-5"/>
+                                    className="flex h-8 w-8 lg:h-10 lg:w-10 items-center justify-center rounded-full bg-green-500/20 text-green-600 dark:text-green-400">
+                                    <Check className="h-4 w-4 lg:h-5 lg:w-5"/>
                                 </div>
                                 <div>
-                                    <p className="text-xs font-medium text-muted-foreground">Order #204</p>
-                                    <p className="text-sm font-bold text-foreground">Deposit Paid</p>
+                                    <p className="text-[10px] lg:text-xs font-medium text-muted-foreground">Order #204</p>
+                                    <p className="text-xs lg:text-sm font-bold text-foreground">Deposit Paid</p>
                                 </div>
                             </motion.div>
 
+                            {/* Floating Notification Card 2 - Right (Hidden on mobile) */}
                             <motion.div
                                 initial={{opacity: 0, x: 50}}
                                 animate={{opacity: 1, x: 0}}
                                 transition={{delay: 0.8, duration: 0.8}}
-                                className="absolute -right-8 bottom-1/4 hidden md:flex items-center gap-3 rounded-2xl border border-white/20 bg-white/10 p-4 shadow-xl backdrop-blur-lg dark:bg-black/40"
+                                className="absolute -right-4 lg:-right-8 bottom-1/4 hidden md:flex items-center gap-3 rounded-2xl border border-white/20 bg-white/10 p-3 lg:p-4 shadow-xl backdrop-blur-lg dark:bg-black/40"
                             >
                                 <div className="flex -space-x-3">
                                     {[1, 2, 3].map(i => (
                                         <div key={i}
-                                             className="h-8 w-8 rounded-full border-2 border-background bg-muted"/>
+                                             className="h-6 w-6 lg:h-8 lg:w-8 rounded-full border-2 border-background bg-muted"/>
                                     ))}
                                 </div>
                                 <div>
-                                    <p className="text-xs font-medium text-muted-foreground">New Clients</p>
-                                    <p className="text-sm font-bold text-foreground">+12 this week</p>
+                                    <p className="text-[10px] lg:text-xs font-medium text-muted-foreground">New Clients</p>
+                                    <p className="text-xs lg:text-sm font-bold text-foreground">+12 this week</p>
                                 </div>
                             </motion.div>
+
                         </motion.div>
                     </motion.div>
                 </div>
