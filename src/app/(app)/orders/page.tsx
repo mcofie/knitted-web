@@ -6,12 +6,11 @@ import {
     Package,
     Calendar,
     ChevronRight,
-    CreditCard,
     Filter
 } from "lucide-react";
 
 import Pager from "./pager";
-import {Card} from "@/components/ui/card";
+// Removed unused Card import
 import {Badge} from "@/components/ui/badge";
 import {Button} from "@/components/ui/button";
 import {cn} from "@/lib/utils";
@@ -229,7 +228,7 @@ function EmptyState() {
             </div>
             <h3 className="text-lg font-semibold">No orders yet</h3>
             <p className="mb-6 mt-2 max-w-sm text-sm text-muted-foreground">
-                Get started by creating your first order from a client's profile.
+                Get started by creating your first order from a client&apos;s profile.
             </p>
             <Button variant="outline" asChild>
                 <Link href="/clients">Go to Clients</Link>

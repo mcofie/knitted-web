@@ -14,9 +14,9 @@ import {
     Sparkles,
     Wallet,
     Package,
-    ArrowUpRight
+    // ArrowUpRight removed (unused)
 } from "lucide-react";
-import {cn} from "@/lib/utils"; // Assuming you have a utils file
+import {cn} from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -120,18 +120,22 @@ export default async function DashboardPage() {
                                 {greeting}, Tailor.
                             </h1>
                             <p className="text-muted-foreground md:text-lg max-w-lg">
-                                "{quote}"
+                                &quot;{quote}&quot;
                             </p>
                         </div>
 
                         <div className="flex flex-wrap gap-2">
-                            <Badge variant="secondary"
-                                   className="px-3 py-1.5 text-sm font-normal bg-background/50 backdrop-blur border shadow-sm">
+                            <Badge
+                                variant="secondary"
+                                className="px-3 py-1.5 text-sm font-normal bg-background/50 backdrop-blur border shadow-sm"
+                            >
                                 <MapPin className="mr-1.5 h-3.5 w-3.5 text-muted-foreground"/>
                                 {settings?.city || "Location not set"}
                             </Badge>
-                            <Badge variant="secondary"
-                                   className="px-3 py-1.5 text-sm font-normal bg-background/50 backdrop-blur border shadow-sm">
+                            <Badge
+                                variant="secondary"
+                                className="px-3 py-1.5 text-sm font-normal bg-background/50 backdrop-blur border shadow-sm"
+                            >
                                 <Wallet className="mr-1.5 h-3.5 w-3.5 text-muted-foreground"/>
                                 {currency}
                             </Badge>
@@ -170,7 +174,6 @@ export default async function DashboardPage() {
 
             {/* Main Content Area */}
             <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-
                 {/* Left Column: Charts */}
                 <div className="lg:col-span-2 space-y-6">
                     <Card className="shadow-sm border-border/60">
@@ -199,7 +202,6 @@ export default async function DashboardPage() {
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="grid gap-6">
-
                             <div className="space-y-4">
                                 <SummaryRow
                                     label="Total Orders"
@@ -220,14 +222,17 @@ export default async function DashboardPage() {
 
                             <div className="rounded-xl bg-muted/50 p-4">
                                 <div className="flex items-center justify-between mb-2">
-                                    <span className="text-sm font-medium text-muted-foreground">Total Revenue</span>
-                                    <Badge variant="outline" className="bg-background text-[10px]">Lifetime</Badge>
+                  <span className="text-sm font-medium text-muted-foreground">
+                    Total Revenue
+                  </span>
+                                    <Badge variant="outline" className="bg-background text-[10px]">
+                                        Lifetime
+                                    </Badge>
                                 </div>
                                 <div className="text-2xl font-bold tracking-tight text-foreground">
                                     {money(currency, stats?.total_revenue)}
                                 </div>
                             </div>
-
                         </CardContent>
                     </Card>
                 </div>
@@ -264,7 +269,15 @@ function StatCard({
     );
 }
 
-function SummaryRow({label, value, icon}: { label: string; value: string; icon: React.ReactNode }) {
+function SummaryRow({
+                        label,
+                        value,
+                        icon,
+                    }: {
+    label: string;
+    value: string;
+    icon: React.ReactNode;
+}) {
     return (
         <div className="flex items-center justify-between group">
             <div

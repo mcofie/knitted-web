@@ -166,7 +166,7 @@ export default async function ClientDetailPage({params}: { params: RouteParams }
                                         src={`https://api.dicebear.com/9.x/glass/svg?seed=${encodeURIComponent(client.name || "Guest")}`}
                                         alt={displayName}
                                         fill
-                                        className="object-cover"
+                                        className="object-cover rounded-full"
                                         unoptimized
                                     />
                                 </div>
@@ -250,11 +250,11 @@ export default async function ClientDetailPage({params}: { params: RouteParams }
 
                     {/* Measurements */}
                     <div className="space-y-4">
-                        <div className="flex items-center justify-between px-1">
-                            <h3 className="text-lg font-semibold flex items-center gap-2">
-                                <Ruler className="h-5 w-5 text-primary"/> Measurements
-                            </h3>
-                        </div>
+                        {/*<div className="flex items-center justify-between px-1">*/}
+                        {/*    <h3 className="text-lg font-semibold flex items-center gap-2">*/}
+                        {/*        <Ruler className="h-5 w-5 text-primary"/> Measurements*/}
+                        {/*    </h3>*/}
+                        {/*</div>*/}
                         {/* MeasurementsSection handles its own card UI internally */}
                         <MeasurementsSection customerId={client.id}/>
                     </div>

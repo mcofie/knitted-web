@@ -2,7 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import {Suspense} from "react";
 import {createClientServer} from "@/lib/supabase/server";
-import {MapPin, Phone, Users, SearchX} from "lucide-react";
+import {MapPin, Phone, Users} from "lucide-react"; // Removed unused SearchX
 
 import ClientsPageActions from "./ClientsPageActions";
 import ClientsPager from "@/app/(app)/clients/pager";
@@ -18,7 +18,6 @@ export default async function ClientsPage({searchParams}: { searchParams: Search
     // Auth Check
     const {data: {user}} = await sb.auth.getUser();
 
-    // A modern "Not Signed In" state (optional: could be a redirect)
     if (!user) {
         return (
             <div className="flex h-[50vh] items-center justify-center">
@@ -149,15 +148,11 @@ function EmptyState() {
             </div>
             <h3 className="text-lg font-semibold">No clients found</h3>
             <p className="mb-6 mt-2 max-w-sm text-sm text-muted-foreground">
-                You haven't added any clients yet. Start building your directory to track measurements and orders.
+                You haven&apos;t added any clients yet. Start building your directory to track measurements and orders.
             </p>
 
-            {/* Ideally, this button triggers the same action as ClientsPageActions.
-        If ClientsPageActions is a client component opening a modal, render it here too,
-        or pass a prop to trigger it.
-      */}
             <div className="opacity-50 pointer-events-none">
-                <Button variant="outline">Use the 'Add Client' button above</Button>
+                <Button variant="outline">Use the &apos;Add Client&apos; button above</Button>
             </div>
         </div>
     );
