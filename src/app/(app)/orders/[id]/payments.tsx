@@ -1,20 +1,44 @@
-// src/app/(app)/orders/[id]/payments.tsx
 "use client";
 
-import {useEffect, useState} from "react";
-import {useRouter} from "next/navigation";
-import {createClientBrowser} from "@/lib/supabase/browser";
-import {Card, CardHeader, CardTitle, CardContent} from "@/components/ui/card";
-import {Table, TableHeader, TableRow, TableHead, TableBody, TableCell} from "@/components/ui/table";
-import {Button} from "@/components/ui/button";
-import {Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter} from "@/components/ui/dialog";
-import {Input} from "@/components/ui/input";
-import {Label} from "@/components/ui/label";
-import {Select, SelectTrigger, SelectContent, SelectItem, SelectValue} from "@/components/ui/select";
-import {toast} from "sonner";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { createClientBrowser } from "@/lib/supabase/browser";
+import { toast } from "sonner";
 import ClientTime from "@/components/ClientTime";
 
-type PaymentMethod = "cash" | "momo" | "card";
+// UI Components
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogFooter,
+    DialogDescription,
+} from "@/components/ui/dialog";
+import {
+    Select,
+    SelectTrigger,
+    SelectContent,
+    SelectItem,
+    SelectValue,
+} from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+
+// Icons
+import {
+    Plus,
+    Banknote,
+    CreditCard,
+    Smartphone,
+    FileText,
+    Loader2,
+    Wallet
+} from "lucide-react";
+
+type PaymentMethod = "cash" | "momo" | "card" | "bank";
 
 type Payment = {
     id: string;
@@ -22,159 +46,230 @@ type Payment = {
     currency_code: string;
     method: PaymentMethod;
     reference: string | null;
-    // make note optional if your table doesn't have it (or include it in SELECT)
-    note?: string | null;
     created_at: string;
 };
 
-
-export default function PaymentsSection({orderId, currency}: { orderId: string; currency: string }) {
+export default function PaymentsSection({
+                                            orderId,
+                                            currency,
+                                        }: {
+    orderId: string;
+    currency: string;
+}) {
     const sb = createClientBrowser();
     const router = useRouter();
     const [rows, setRows] = useState<Payment[]>([]);
+    const [loading, setLoading] = useState(true);
     const [open, setOpen] = useState(false);
+    const [submitting, setSubmitting] = useState(false);
 
-    // form state
-    const [amount, setAmount] = useState<number>(0);
-    const [method, setMethod] = useState<"cash" | "momo" | "card">("cash");
+    // Form State
+    const [amount, setAmount] = useState<string>(""); // Using string for input handling
+    const [method, setMethod] = useState<PaymentMethod>("cash");
     const [note, setNote] = useState<string>("");
 
     async function load() {
-        const {data, error} = await sb
+        setLoading(true);
+        const { data, error } = await sb
             .schema("knitted")
             .from("payments")
-            .select("id, amount, reference,currency_code, method, created_at")
+            .select("id, amount, reference, currency_code, method, created_at")
             .eq("order_id", orderId)
-            .order("created_at", {ascending: false});
+            .order("created_at", { ascending: false });
+
+        setLoading(false);
+
         if (error) {
-            toast.error("Failed to load payments", {description: error.message});
+            toast.error("Failed to load payments", { description: error.message });
             setRows([]);
             return;
         }
         setRows((data ?? []) as Payment[]);
     }
 
-
     useEffect(() => {
-        load(); /* eslint-disable-next-line */
+        load();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [orderId]);
 
     async function addPayment() {
-        // validate whole number
-        if (!Number.isInteger(amount) || amount <= 0) {
-            toast.error("Enter a valid whole number amount (> 0)");
+        const val = parseFloat(amount);
+        if (isNaN(val) || val <= 0) {
+            toast.error("Please enter a valid amount greater than 0");
             return;
         }
-        const {error} = await sb
-            .schema("knitted")
-            .from("payments")
-            .insert({
-                order_id: orderId,
-                amount,                         // integer
-                currency_code: currency,
-                method,                         // "cash" | "momo" | "card"
-                reference: note?.trim() || null,
-            });
+
+        setSubmitting(true);
+        const { error } = await sb.schema("knitted").from("payments").insert({
+            order_id: orderId,
+            amount: val,
+            currency_code: currency,
+            method,
+            reference: note?.trim() || null,
+        });
+
+        setSubmitting(false);
 
         if (error) {
-            toast.error("Failed to add payment", {description: error.message});
+            toast.error("Failed to add payment", { description: error.message });
             return;
         }
-        toast.success("Payment added");
 
-        // reset & refresh
+        toast.success("Payment recorded successfully");
         setOpen(false);
-        setAmount(0);
+        setAmount("");
         setMethod("cash");
         setNote("");
         await load();
-        router.refresh(); // refresh server-rendered totals
+        router.refresh();
     }
 
+    const getMethodIcon = (m: string) => {
+        switch (m) {
+            case "cash": return <Banknote className="h-4 w-4" />;
+            case "card": return <CreditCard className="h-4 w-4" />;
+            case "momo": return <Smartphone className="h-4 w-4" />;
+            default: return <Wallet className="h-4 w-4" />;
+        }
+    };
+
     return (
-        <div className="">
-            <div className="pb-2 flex items-center justify-between">
-                <CardTitle className="text-base">Payments</CardTitle>
-                <Button size="sm" onClick={() => setOpen(true)}>Add payment</Button>
-            </div>
-            <div className="w-full group relative rounded-2xl border border-border bg-card/70 p-2">
-                <div className="overflow-x-auto">
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>When</TableHead>
-                                <TableHead>Method</TableHead>
-                                <TableHead>Note</TableHead>
-                                <TableHead className="text-right">Amount</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {rows.map((p) => (
-                                <TableRow key={p.id}>
-                                    <TableCell className="text-sm"><ClientTime iso={p.created_at}/></TableCell>
-                                    <TableCell className="text-sm">{p.method ?? "—"}</TableCell>
-                                    <TableCell className="text-sm">{p.reference ?? "—"}</TableCell>
-                                    <TableCell
-                                        className="text-right">{p.currency_code} {(Number(p.amount) || 0).toFixed(0)}</TableCell>
-                                </TableRow>
-                            ))}
-                            {rows.length === 0 && (
-                                <TableRow>
-                                    <TableCell colSpan={4} className="py-8 text-center text-muted-foreground">No
-                                        payments yet</TableCell>
-                                </TableRow>
-                            )}
-                        </TableBody>
-                    </Table>
+        <div className="flex flex-col h-full">
+            {/* Header */}
+            <div className="flex items-center justify-between mb-4">
+                <div className="space-y-1">
+                    {/* <h3 className="text-sm font-semibold">Payment History</h3> */}
+                    {/* <p className="text-xs text-muted-foreground">Track all transactions for this order</p> */}
                 </div>
+                <Button size="sm" onClick={() => setOpen(true)} className="gap-2">
+                    <Plus className="h-3.5 w-3.5" /> Add Payment
+                </Button>
             </div>
 
-            {/* Add payment dialog */}
+            {/* List */}
+            <div className="flex-1">
+                {loading ? (
+                    <div className="space-y-3">
+                        {[1, 2].map((i) => (
+                            <div key={i} className="h-16 rounded-lg bg-muted/40 animate-pulse" />
+                        ))}
+                    </div>
+                ) : rows.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-8 text-center border-2 border-dashed rounded-xl border-muted bg-muted/5">
+                        <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center mb-3">
+                            <CreditCard className="h-5 w-5 text-muted-foreground" />
+                        </div>
+                        <p className="text-sm font-medium">No payments yet</p>
+                        <p className="text-xs text-muted-foreground mt-1">Record the first payment to update the balance.</p>
+                    </div>
+                ) : (
+                    <div className="space-y-3">
+                        {rows.map((p) => (
+                            <div
+                                key={p.id}
+                                className="group flex items-center justify-between p-3 rounded-lg border bg-card hover:bg-muted/20 transition-colors"
+                            >
+                                <div className="flex items-center gap-3">
+                                    <div className="h-9 w-9 rounded-full bg-secondary flex items-center justify-center text-foreground">
+                                        {getMethodIcon(p.method)}
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-medium capitalize">
+                                            {p.method.replace("_", " ")}
+                                        </p>
+                                        <div className="text-xs text-muted-foreground flex items-center gap-2">
+                                            <ClientTime iso={p.created_at} />
+                                            {p.reference && (
+                                                <>
+                                                    <span>•</span>
+                                                    <span className="italic max-w-[120px] truncate" title={p.reference}>
+                            {p.reference}
+                          </span>
+                                                </>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="text-right">
+                  <span className="text-sm font-bold tabular-nums">
+                    {p.currency_code} {p.amount.toFixed(2)}
+                  </span>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </div>
+
+            {/* Add Payment Dialog */}
             <Dialog open={open} onOpenChange={setOpen}>
-                <DialogContent>
-                    <DialogHeader><DialogTitle>Add payment</DialogTitle></DialogHeader>
-                    <div className="space-y-4">
-                        {/* Amount (whole number stepper) */}
-                        <div className="space-y-1">
-                            <Label>Amount</Label>
-                            <Input
-                                type="number"
-                                inputMode="numeric"
-                                pattern="\d*"
-                                step={1}
-                                min={1}
-                                value={Number.isFinite(amount) ? amount : 0}
-                                onChange={(e) => setAmount(Number(e.target.value))}
-                            />
-                            <p className="text-xs text-muted-foreground">Whole numbers only</p>
+                <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                        <DialogTitle>Record Payment</DialogTitle>
+                        <DialogDescription>
+                            Enter the payment details below. This will update the order balance immediately.
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    <div className="grid gap-5 py-4">
+                        {/* Amount */}
+                        <div className="space-y-2">
+                            <Label htmlFor="amount">Amount</Label>
+                            <div className="relative">
+                                <div className="absolute left-3 top-2.5 text-muted-foreground text-sm font-medium">
+                                    {currency}
+                                </div>
+                                <Input
+                                    id="amount"
+                                    type="number"
+                                    inputMode="decimal"
+                                    placeholder="0.00"
+                                    className="pl-12 text-lg font-semibold"
+                                    value={amount}
+                                    onChange={(e) => setAmount(e.target.value)}
+                                    autoFocus
+                                />
+                            </div>
                         </div>
 
-                        {/* Method select */}
-                        <div className="space-y-1">
-                            <Label>Method</Label>
-                            <Select value={method} onValueChange={(v) => setMethod(v as PaymentMethod)}>
-                                <SelectTrigger><SelectValue placeholder="Select method"/></SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="cash">Cash</SelectItem>
-                                    <SelectItem value="momo">MoMo</SelectItem>
-                                    <SelectItem value="card">Card</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                            {/* Method */}
+                            <div className="space-y-2">
+                                <Label>Payment Method</Label>
+                                <Select value={method} onValueChange={(v) => setMethod(v as PaymentMethod)}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select method" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="cash">Cash</SelectItem>
+                                        <SelectItem value="momo">Mobile Money</SelectItem>
+                                        <SelectItem value="card">Card</SelectItem>
+                                        <SelectItem value="bank">Bank Transfer</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
 
-                        {/* Note */}
-                        <div className="space-y-1">
-                            <Label>Note</Label>
-                            <Input
-                                placeholder="optional"
-                                value={note}
-                                onChange={(e) => setNote(e.target.value)}
-                            />
+                            {/* Reference / Note */}
+                            <div className="space-y-2">
+                                <Label htmlFor="note">Reference (Optional)</Label>
+                                <Input
+                                    id="note"
+                                    placeholder="e.g. Receipt #123"
+                                    value={note}
+                                    onChange={(e) => setNote(e.target.value)}
+                                />
+                            </div>
                         </div>
                     </div>
-                    <DialogFooter className="pt-2">
-                        <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
-                        <Button onClick={addPayment} disabled={!Number.isInteger(amount) || amount <= 0}>Save</Button>
+
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setOpen(false)} disabled={submitting}>
+                            Cancel
+                        </Button>
+                        <Button onClick={addPayment} disabled={!amount || parseFloat(amount) <= 0 || submitting}>
+                            {submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                            Confirm Payment
+                        </Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
