@@ -1,87 +1,78 @@
 @import "tailwindcss";
 @custom-variant dark (&:where(.dark *));
 
-/* ---------- BRAND + SURFACES FROM YOUR FLUTTER THEME ---------- */
-/* Hex → HSL (computed) for precision:
-   _brand      #3D5A80 → hsl(214 35% 37%)
-   _accent     #E07A5F → hsl( 13 68% 63%)
-   _danger     #B00020 → hsl(349 100% 35%)
-   darkSurface #0F0F10 → hsl(240  3%  6%)
-   darkHigh    #141416 → hsl(240  5%  8%)
-   lightHigh   #F7F7F8 → hsl(240  7% 97%)
-   lightCard   #FDFDFE → hsl(240 33% 99%)
-   inputDark   #151618 → hsl(220  7%  9%)
-   inputLight  #F6F7F9 → hsl(220 20% 97%)
-   chipDark    #17181A → hsl(220  6% 10%)
-   chipLight   #F4F5F7 → hsl(220 16% 96%)
-   snackDark   #1B1C1E → hsl(220  5% 11%)
+/* ---------- BRAND + SURFACES ---------- */
+/* 
+   Refined Palette for Modern/Premium Feel
+   Primary: Vibrant Blue/Indigo
+   Secondary: Soft Coral/Salmon
+   Dark Surface: Deep Blue-Black
 */
 
 :root {
     /* Surfaces */
-    --surface: 0 0% 100%;                 /* Flutter: Colors.white */
-    --surface-container-highest: 240 7% 97%;  /* #F7F7F8 */
+    --surface: 0 0% 100%;                 /* Pure White */
+    --surface-container-highest: 210 20% 98%;  /* Very light cool gray */
 
-    --chart-1: 222 84% 56%;      /* primary-ish (orders) */
-    --chart-2: 240 5.3% 26.1%;   /* foreground-ish (revenue line) */
-    --chart-grid: 240 3.8% 46.1%;/* muted-foreground */
+    --chart-1: 226 70% 55%;      /* Vibrant Indigo */
+    --chart-2: 220 10% 20%;      
+    --chart-grid: 220 10% 90%;
 
     /* Foregrounds */
-    --on-surface: 222 47% 11%;            /* deep ink */
-    --on-surface-variant: 215 16% 47%;
+    --on-surface: 222 47% 11%;            /* Deep Navy */
+    --on-surface-variant: 215 20% 45%;    /* Cool Gray */
 
     /* Outline/borders */
-    --outline-variant: 215 16% 90%;
+    --outline-variant: 215 20% 92%;
 
-    /* Brand (primary/secondary/tertiary) */
-    --primary: 214 35% 37%;               /* _brand #3D5A80 */
+    /* Brand */
+    --primary: 226 70% 55%;               /* Vibrant Indigo */
     --primary-foreground: 0 0% 100%;
-    --secondary: 13 68% 63%;              /* _accent #E07A5F */
+    --secondary: 13 80% 65%;              /* Soft Coral */
     --secondary-foreground: 0 0% 100%;
-    --tertiary: 190 90% 39%;              /* for accents if needed */
+    --tertiary: 180 50% 40%;              /* Teal */
 
     /* Status */
-    --success: 123 46% 34%;               /* #2E7D32 (not default shadcn, we map below) */
-    --warning: 27 98% 47%;                /* #ED6C02 (optional) */
-    --error: 349 100% 35%;                /* _danger #B00020 */
+    --success: 142 70% 45%;
+    --warning: 35 90% 50%;
+    --error: 349 85% 55%;
 
     /* Component tones */
-    --card-light: 240 33% 99%;            /* #FDFDFE */
-    --input-light: 220 20% 97%;           /* #F6F7F9 */
-    --chip-light: 220 16% 96%;            /* #F4F5F7 */
+    --card-light: 0 0% 100%;
+    --input-light: 210 20% 98%;
+    --chip-light: 210 15% 96%;
 
-    /* Radius from Flutter (12px ≈ 0.75rem, 16px ≈ 1rem) */
     --radius: 0.75rem;
     --radius-lg: 1rem;
 }
 
 .dark {
-    --surface: 240 3% 6%;                 /* #0F0F10 */
-    --surface-container-highest: 240 5% 8%;   /* #141416 */
+    --surface: 224 25% 8%;                /* Deep Blue-Black */
+    --surface-container-highest: 224 20% 12%;
 
-    --on-surface: 0 0% 98%;
-    --on-surface-variant: 220 12% 65%;
+    --on-surface: 210 20% 98%;
+    --on-surface-variant: 215 15% 70%;
 
-    --outline-variant: 220 12% 22%;
+    --outline-variant: 224 15% 20%;
 
-    --chart-1: 217 91% 60%;
-    --chart-2: 210 40% 98%;
-    --chart-grid: 215 20% 65%;
+    --chart-1: 226 80% 65%;
+    --chart-2: 210 20% 90%;
+    --chart-grid: 224 15% 25%;
 
-    /* Brand slightly brighter in dark, but same hue family */
-    --primary: 214 35% 43%;               /* brighten a touch if desired */
-    --primary-foreground: 214 15% 12%;
-    --secondary: 13 68% 63%;
+    /* Brand */
+    --primary: 226 80% 65%;               /* Brighter Indigo for dark mode */
+    --primary-foreground: 224 25% 8%;
+    --secondary: 13 80% 65%;
     --secondary-foreground: 13 20% 12%;
-    --tertiary: 190 90% 51%;
+    --tertiary: 180 50% 60%;
 
-    --success: 123 46% 40%;
-    --warning: 27 98% 52%;
-    --error: 349 100% 40%;
+    --success: 142 70% 55%;
+    --warning: 35 90% 60%;
+    --error: 349 85% 65%;
 
-    --card-light: 240 5% 11%;             /* snack-like tone in dark */
-    --input-light: 220 7% 9%;
-    --chip-light: 220 6% 10%;
+    --card-light: 224 20% 10%;
+    --input-light: 224 20% 12%;
+    --chip-light: 224 20% 14%;
 }
 
 /* ---------- MAP TO shadcn SEMANTIC TOKENS ---------- */
@@ -90,7 +81,7 @@
     --color-background: hsl(var(--surface));
     --color-foreground: hsl(var(--on-surface));
 
-    --color-card: hsl(var(--card-light));                 /* Card surfaces */
+    --color-card: hsl(var(--card-light));
     --color-card-foreground: hsl(var(--on-surface));
 
     --color-popover: hsl(var(--surface));
@@ -102,10 +93,10 @@
     --color-secondary: hsl(var(--secondary));
     --color-secondary-foreground: hsl(var(--secondary-foreground));
 
-    --color-muted: hsl(var(--surface-container-highest)); /* subtle blocks */
+    --color-muted: hsl(var(--surface-container-highest));
     --color-muted-foreground: hsl(var(--on-surface-variant));
 
-    --color-accent: hsl(var(--tertiary));                 /* optional accent */
+    --color-accent: hsl(var(--tertiary));
     --color-accent-foreground: hsl(0 0% 100%);
 
     --color-destructive: hsl(var(--error));
@@ -118,18 +109,22 @@
     --radius: var(--radius);
 }
 
-/* ---------- BASE: match Flutter scaffold + typography weight ---------- */
+/* ---------- BASE ---------- */
 @layer base {
     html, body, :host { height: 100%; }
     body { @apply bg-background text-foreground; }
     * { @apply border-border; }
 }
 
-/* ---------- OPTIONAL: convenience utility hooks for success/warning ---------- */
-/* shadcn doesn't define success/warning by default; add small helpers */
+/* ---------- UTILITIES ---------- */
 @layer utilities {
     .bg-success { background-color: hsl(var(--success)); }
     .text-success { color: hsl(var(--success)); }
     .bg-warning { background-color: hsl(var(--warning)); }
     .text-warning { color: hsl(var(--warning)); }
+    
+    /* Text Gradients */
+    .text-gradient-primary {
+        @apply bg-gradient-to-r from-primary to-purple-500 bg-clip-text text-transparent;
+    }
 }

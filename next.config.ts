@@ -37,6 +37,13 @@ const nextConfig = {
                 port: "",
                 pathname: "/**",
             },
+            {
+                protocol: "https",
+                hostname: "i.pravatar.cc",
+                port: "",
+                pathname: "/**",
+            },
+            // i.pravatar.cc
         ],
         domains: [
             'play.google.com',
