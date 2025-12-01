@@ -19,6 +19,7 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
+import { updateSettings } from "@/app/(app)/settings/actions";
 
 const Schema = z.object({
     business_name: z.string().min(2, "Enter a business name").trim(),
@@ -49,9 +50,9 @@ type AccountSettingsRow = {
 };
 
 export default function SettingsForm({
-                                         initial,
-                                         version,
-                                     }: {
+    initial,
+    version,
+}: {
     initial: Partial<AccountSettingsRow>;
     version: string;
 }) {
@@ -93,27 +94,11 @@ export default function SettingsForm({
     const onSubmit = async (values: FormValues) => {
         try {
             setSaving(true);
+            const result = await updateSettings(values);
 
-            const {
-                data: { user },
-                error: userErr,
-            } = await sb.auth.getUser();
-            if (userErr || !user) throw new Error("Not signed in");
-
-            const { error } = await sb
-                .schema("knitted")
-                .from("account_settings")
-                .update({
-                    business_name: values.business_name,
-                    city: values.city ?? null,
-                    country_code: values.country_code,
-                    measurement_system: values.measurement_system,
-                    currency_code: values.currency_code,
-                    theme_pref: values.theme,
-                })
-                .eq("owner", user.id);
-
-            if (error) throw error;
+            if (result.error) {
+                throw new Error(result.error);
+            }
 
             // Apply theme immediately & reset dirty state
             setTheme(values.theme);

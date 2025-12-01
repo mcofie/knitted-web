@@ -58,7 +58,7 @@ export default function Navbar() {
                         Log in
                     </Link>
                     <Link
-                        href="/signup"
+                        href="/login"
                         className="w-full text-center rounded-xl bg-primary py-3 text-base font-semibold text-primary-foreground transition hover:opacity-90"
                         onClick={() => setIsMenuOpen(false)}
                     >
@@ -149,7 +149,7 @@ export default function Navbar() {
                             </Link>
 
                             <Link
-                                href="/signup"
+                                href="/login"
                                 className="group relative inline-flex items-center justify-center overflow-hidden rounded-full bg-primary px-6 py-2 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/20 transition-all hover:scale-105 hover:shadow-primary/40"
                             >
                                 <span className="relative z-10">Start Free Trial</span>

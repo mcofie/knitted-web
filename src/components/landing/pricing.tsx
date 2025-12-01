@@ -150,7 +150,7 @@ export default function Pricing() {
                             </ul>
 
                             <Link
-                                href="/signup"
+                                href="/login"
                                 className={`inline-flex w-full items-center justify-center rounded-xl py-3.5 text-sm font-bold transition-all ${plan.highlight
                                     ? 'bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/25'
                                     : 'bg-muted text-foreground hover:bg-muted/80 border border-border'

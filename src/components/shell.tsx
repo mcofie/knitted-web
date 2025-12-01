@@ -1,11 +1,11 @@
 'use client';
 
 import Link from 'next/link';
-import {usePathname} from 'next/navigation';
-import {useTheme} from 'next-themes';
-import {useEffect, useState} from 'react';
-import {Button} from '@/components/ui/button';
-import {createClientBrowser} from '@/lib/supabase/browser';
+import { usePathname } from 'next/navigation';
+import { useTheme } from 'next-themes';
+import { useEffect, useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { createClientBrowser } from '@/lib/supabase/browser';
 import {
     LayoutDashboard,
     Users,
@@ -16,19 +16,19 @@ import {
     Sun,
     Scissors,
 } from 'lucide-react';
-import {cn} from '@/lib/utils'; // Ensure you have a utility for class merging
+import { cn } from '@/lib/utils'; // Ensure you have a utility for class merging
 
 const links = [
-    {href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard},
-    {href: '/clients', label: 'Clients', icon: Users},
-    {href: '/orders', label: 'Orders', icon: ReceiptText},
-    {href: '/settings', label: 'Settings', icon: Settings},
+    { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { href: '/clients', label: 'Clients', icon: Users },
+    { href: '/orders', label: 'Orders', icon: ReceiptText },
+    { href: '/settings', label: 'Settings', icon: Settings },
 ];
 
-export default function Shell({children}: { children: React.ReactNode }) {
+export default function Shell({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
     const sb = createClientBrowser();
-    const {theme, setTheme} = useTheme();
+    const { theme, setTheme } = useTheme();
     const [mounted, setMounted] = useState(false);
 
     useEffect(() => setMounted(true), []);
@@ -52,11 +52,11 @@ export default function Shell({children}: { children: React.ReactNode }) {
                         <Link href="/dashboard" className="flex items-center gap-2 group">
                             <div
                                 className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground transition-transform group-hover:scale-105">
-                                <Scissors className="h-4 w-4"/>
+                                <Scissors className="h-4 w-4" />
                             </div>
                             <span className="font-bold text-lg tracking-tight hidden sm:inline-block">
-                Knitted
-              </span>
+                                Knitted
+                            </span>
                         </Link>
                     </div>
 
@@ -77,7 +77,7 @@ export default function Shell({children}: { children: React.ReactNode }) {
                                             : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                                     )}
                                 >
-                                    <Icon className={cn("h-4 w-4", isActive ? "stroke-[2.5px]" : "stroke-2")}/>
+                                    <Icon className={cn("h-4 w-4", isActive ? "stroke-[2.5px]" : "stroke-2")} />
                                     <span>{l.label}</span>
                                 </Link>
                             );
@@ -95,13 +95,13 @@ export default function Shell({children}: { children: React.ReactNode }) {
                                 aria-label="Toggle theme"
                             >
                                 <Sun
-                                    className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0"/>
+                                    className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
                                 <Moon
-                                    className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100"/>
+                                    className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
                             </Button>
                         )}
 
-                        <div className="h-6 w-px bg-border mx-1 hidden sm:block"/>
+                        <div className="h-6 w-px bg-border mx-1 hidden sm:block" />
 
                         <Button
                             variant="ghost"
@@ -109,7 +109,7 @@ export default function Shell({children}: { children: React.ReactNode }) {
                             onClick={signOut}
                             className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 gap-2"
                         >
-                            <LogOut className="h-4 w-4"/>
+                            <LogOut className="h-4 w-4" />
                             <span className="hidden sm:inline">Sign out</span>
                         </Button>
                     </div>
@@ -123,22 +123,22 @@ export default function Shell({children}: { children: React.ReactNode }) {
             </main>
 
             {/* Minimal Footer */}
-            <footer className="border-t bg-muted/20">
+            <footer className="border-t border-white/10 bg-white/40 dark:bg-black/40 backdrop-blur-md">
                 <div
-                    className="container mx-auto max-w-7xl flex flex-col md:flex-row items-center justify-between gap-4 px-6 py-8 text-sm text-muted-foreground">
+                    className="container mx-auto max-w-7xl flex flex-col md:flex-row items-center justify-between gap-4 px-6 py-6 text-xs text-muted-foreground/80">
                     <div className="flex items-center gap-2">
-                        <span className="font-semibold text-foreground">Knitted</span>
-                        <span className="hidden md:inline">•</span>
+                        <span className="font-medium text-foreground/90">Knitted</span>
+                        <span className="hidden md:inline text-muted-foreground/40">•</span>
                         <span>&copy; {new Date().getFullYear()} All rights reserved.</span>
                     </div>
 
                     <div className="flex items-center gap-6">
                         <Link href="/privacy"
-                              className="hover:text-foreground hover:underline underline-offset-4 transition-colors">
+                            className="hover:text-foreground transition-colors">
                             Privacy Policy
                         </Link>
                         <Link href="/terms"
-                              className="hover:text-foreground hover:underline underline-offset-4 transition-colors">
+                            className="hover:text-foreground transition-colors">
                             Terms of Service
                         </Link>
                     </div>

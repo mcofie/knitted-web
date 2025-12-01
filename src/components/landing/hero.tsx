@@ -220,7 +220,7 @@ export default function Hero() {
                     <motion.div variants={fadeUp}
                         className="flex flex-col sm:flex-row flex-wrap gap-4 justify-center md:justify-start">
                         <Link
-                            href="/signup"
+                            href="/login"
                             className="relative inline-flex h-12 items-center justify-center rounded-xl bg-primary px-8 text-base font-semibold text-primary-foreground shadow-lg shadow-primary/20 transition-all hover:scale-105 hover:shadow-primary/40 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2"
                         >
                             Start free trial <ArrowRight className="ml-2 h-4 w-4" />

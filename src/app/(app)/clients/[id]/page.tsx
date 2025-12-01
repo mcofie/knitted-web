@@ -274,18 +274,18 @@ export default async function ClientDetailPage({params}: { params: RouteParams }
                             <div className="overflow-x-auto px-2">
                                 <OrdersListItems orders={orders} totalsByOrder={totalsByOrder}/>
                             </div>
-                            {(!orders || orders.length === 0) && (
-                                <div className="p-12 text-center">
-                                    <div
-                                        className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-muted mb-4">
-                                        <ShoppingBag className="h-6 w-6 text-muted-foreground"/>
-                                    </div>
-                                    <h3 className="text-sm font-semibold">No orders yet</h3>
-                                    <p className="text-sm text-muted-foreground mt-1">
-                                        Create a new order to start tracking history.
-                                    </p>
-                                </div>
-                            )}
+                            {/*{(!orders || orders.length === 0) && (*/}
+                            {/*    <div className="p-12 text-center">*/}
+                            {/*        <div*/}
+                            {/*            className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-muted mb-4">*/}
+                            {/*            <ShoppingBag className="h-6 w-6 text-muted-foreground"/>*/}
+                            {/*        </div>*/}
+                            {/*        <h3 className="text-sm font-semibold">No orders yet</h3>*/}
+                            {/*        <p className="text-sm text-muted-foreground mt-1">*/}
+                            {/*            Create a new order to start tracking history.*/}
+                            {/*        </p>*/}
+                            {/*    </div>*/}
+                            {/*)}*/}
                         </Card>
                     </div>
 

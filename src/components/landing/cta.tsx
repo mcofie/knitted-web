@@ -39,7 +39,7 @@ export default function CTA() {
 
                         <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
                             <Link
-                                href="/signup"
+                                href="/login"
                                 className="inline-flex h-12 items-center justify-center rounded-xl bg-white text-primary px-8 text-base font-bold shadow-lg transition-transform hover:scale-105 active:scale-95"
                             >
                                 Get Started Now

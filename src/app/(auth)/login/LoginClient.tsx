@@ -1,13 +1,14 @@
 "use client";
 
-import {useState} from "react";
-import {createClientBrowser} from "@/lib/supabase/browser";
-import {Button} from "@/components/ui/button";
-import {Input} from "@/components/ui/input";
-import {Label} from "@/components/ui/label";
+import { useState } from "react";
+import { toast } from "sonner";
+import { createClientBrowser } from "@/lib/supabase/browser";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import Link from "next/link";
-import {Eye, EyeOff, Loader2, Scissors} from "lucide-react";
-import {cn} from "@/lib/utils";
+import { Eye, EyeOff, Loader2, Scissors } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export default function LoginClient() {
     const sb = createClientBrowser();
@@ -21,28 +22,33 @@ export default function LoginClient() {
         e.preventDefault();
         setErr(null);
         setLoading(true);
-        const {error} = await sb.auth.signInWithPassword({email, password: pwd});
+        const { error } = await sb.auth.signInWithPassword({ email, password: pwd });
         setLoading(false);
         if (error) {
             setErr(error.message);
+            toast.error("Login failed", { description: error.message });
         } else {
+            toast.success("Login successful");
             window.location.href = "/dashboard";
         }
     }
 
     async function signInGoogle() {
         setErr(null);
-        const {error} = await sb.auth.signInWithOAuth({
+        const { error } = await sb.auth.signInWithOAuth({
             provider: "google",
             options: {
                 redirectTo:
                     typeof window !== "undefined"
                         ? `${window.location.origin}/auth/callback`
                         : undefined,
-                queryParams: {access_type: "offline", prompt: "consent"},
+                queryParams: { access_type: "offline", prompt: "consent" },
             },
         });
-        if (error) setErr(error.message);
+        if (error) {
+            setErr(error.message);
+            toast.error("Google login failed", { description: error.message });
+        }
     }
 
     return (
@@ -54,16 +60,16 @@ export default function LoginClient() {
                 <div
                     className="absolute inset-0 bg-cover bg-center"
                     style={{
-                        backgroundImage: "url('https://images.unsplash.com/photo-1611930022073-b7a4ba5fcccd?q=80&w=2574&auto=format&fit=crop')",
+                        backgroundImage: "url('/login-bg.png')",
                     }}
                 />
 
                 {/* Dark Overlay Gradient */}
-                <div className="absolute inset-0 bg-zinc-900/70 mix-blend-multiply"/>
+                <div className="absolute inset-0 bg-zinc-900/70 mix-blend-multiply" />
 
                 {/* Logo */}
                 <div className="relative z-20 flex items-center text-lg font-medium">
-                    <Scissors className="mr-2 h-6 w-6"/>
+                    <Scissors className="mr-2 h-6 w-6" />
                     Knitted
                 </div>
 
@@ -88,7 +94,7 @@ export default function LoginClient() {
                         <div className="lg:hidden flex justify-center mb-4">
                             <div
                                 className="h-10 w-10 bg-primary rounded-lg flex items-center justify-center text-primary-foreground">
-                                <Scissors className="h-6 w-6"/>
+                                <Scissors className="h-6 w-6" />
                             </div>
                         </div>
                         <h1 className="text-2xl font-semibold tracking-tight">
@@ -145,9 +151,9 @@ export default function LoginClient() {
                                             tabIndex={-1}
                                         >
                                             {showPwd ? (
-                                                <EyeOff className="h-4 w-4"/>
+                                                <EyeOff className="h-4 w-4" />
                                             ) : (
-                                                <Eye className="h-4 w-4"/>
+                                                <Eye className="h-4 w-4" />
                                             )}
                                         </button>
                                     </div>
@@ -162,7 +168,7 @@ export default function LoginClient() {
                                 </div>
                                 <Button disabled={loading} className="h-11 mt-2">
                                     {loading && (
-                                        <Loader2 className="mr-2 h-4 w-4 animate-spin"/>
+                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                     )}
                                     Sign In with Email
                                 </Button>
@@ -171,12 +177,12 @@ export default function LoginClient() {
 
                         <div className="relative">
                             <div className="absolute inset-0 flex items-center">
-                                <span className="w-full border-t"/>
+                                <span className="w-full border-t" />
                             </div>
                             <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-2 text-muted-foreground">
-                  Or continue with
-                </span>
+                                <span className="bg-background px-2 text-muted-foreground">
+                                    Or continue with
+                                </span>
                             </div>
                         </div>
 
@@ -188,7 +194,7 @@ export default function LoginClient() {
                             className="h-11 bg-background"
                         >
                             {loading ? (
-                                <Loader2 className="mr-2 h-4 w-4 animate-spin"/>
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                             ) : (
                                 <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
                                     <path
@@ -213,14 +219,7 @@ export default function LoginClient() {
                         </Button>
                     </div>
 
-                    <p className="px-8 text-center text-sm text-muted-foreground">
-                        <Link
-                            href="/signup"
-                            className="hover:text-brand underline underline-offset-4"
-                        >
-                            Don&apos;t have an account? Sign Up
-                        </Link>
-                    </p>
+
                 </div>
             </div>
         </div>

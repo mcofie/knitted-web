@@ -46,7 +46,7 @@ export default function AttachmentsSection({ orderId }: { orderId: string }) {
                         .from(bucket)
                         .createSignedUrl(r.file_path, 60 * 60);
                     if (data?.signedUrl) out[r.id] = data.signedUrl;
-                } catch {}
+                } catch { }
             })
         );
         setUrls(out);
@@ -91,12 +91,13 @@ export default function AttachmentsSection({ orderId }: { orderId: string }) {
                         toast.error("Save failed", { description: dbErr.message });
                 }
                 setUploading(false);
+                toast.success("Attachments uploaded");
                 await load();
             };
         } catch (e: unknown) {
             const message =
                 e instanceof Error ? e.message : "Something went wrong";
-            toast.error("Upload error", { description: message  });
+            toast.error("Upload error", { description: message });
         }
     }
 

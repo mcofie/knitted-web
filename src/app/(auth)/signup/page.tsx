@@ -1,17 +1,5 @@
-import { Suspense } from "react";
-import SignClient from "./SignClient";
+import { redirect } from "next/navigation";
 
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
-
-export const metadata = {
-    title: 'Sign Up',
-};
-
-export default function Page() {
-    return (
-        <Suspense fallback={<div className="p-6">Loading…</div>}>
-            <SignClient />
-        </Suspense>
-    );
+export default function SignupPage() {
+    redirect("/login");
 }
