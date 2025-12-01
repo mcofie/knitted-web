@@ -17,12 +17,12 @@ const withPWA = require('next-pwa')({
         {
             urlPattern: /^https:\/\/.*\.(?:png|jpg|jpeg|svg|webp|ico)/,
             handler: 'CacheFirst',
-            options: {cacheName: 'images', expiration: {maxEntries: 100, maxAgeSeconds: 60 * 60 * 24 * 30}},
+            options: { cacheName: 'images', expiration: { maxEntries: 100, maxAgeSeconds: 60 * 60 * 24 * 30 } },
         },
         {
             urlPattern: /^https:\/\/.*supabase\.co\/storage\/v1\/object\/sign\/.*$/,
             handler: 'StaleWhileRevalidate',
-            options: {cacheName: 'supabase-signed'},
+            options: { cacheName: 'supabase-signed' },
         },
     ],
 });
@@ -30,7 +30,7 @@ const withPWA = require('next-pwa')({
 const nextConfig = {
     images: {
         remotePatterns: [
-            {protocol: "https", hostname: SUPABASE_HOST, pathname: "/storage/v1/object/**"},
+            { protocol: "https", hostname: SUPABASE_HOST, pathname: "/storage/v1/object/**" },
             {
                 protocol: "https",
                 hostname: "api.dicebear.com",
@@ -43,19 +43,14 @@ const nextConfig = {
                 port: "",
                 pathname: "/**",
             },
-            // i.pravatar.cc
         ],
         domains: [
             'play.google.com',
             'developer.apple.com',
         ],
     },
+    reactStrictMode: true,
+    experimental: { typedRoutes: false },
 };
 
-
-module.exports = withPWA({
-    reactStrictMode: true,
-    experimental: {typedRoutes: true},
-});
-
-module.exports = nextConfig;
+module.exports = withPWA(nextConfig);

@@ -1,22 +1,15 @@
-'use client';
+import { Metadata } from 'next';
 
-import Head from 'next/head';
-import Link from 'next/link';
-import { useMemo } from 'react';
+export const metadata: Metadata = {
+    title: 'Privacy Policy',
+    description: 'How Knitted collects, uses, and protects your data across web, iOS, and Android.',
+};
 
 export default function PrivacyPage() {
-    const lastUpdated = useMemo(() => '28 Oct 2025', []);
+    const lastUpdated = '28 Oct 2025';
 
     return (
         <main className="min-h-screen bg-background text-foreground">
-            <Head>
-                <title>Privacy Policy • Knitted</title>
-                <meta
-                    name="description"
-                    content="How Knitted collects, uses, and protects your data across web, iOS, and Android."
-                />
-            </Head>
-
             {/* Decorative halo background */}
             <div aria-hidden className="pointer-events-none fixed inset-0 -z-10">
                 <div className="absolute -top-24 -left-24 h-96 w-96 rounded-full bg-gradient-to-br from-indigo-500/20 via-purple-500/15 to-blue-500/10 blur-3xl dark:from-indigo-400/25 dark:via-purple-400/20 dark:to-blue-400/15" />

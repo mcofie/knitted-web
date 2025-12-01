@@ -1,22 +1,26 @@
 import Link from "next/link";
 import Image from "next/image";
-import {Suspense} from "react";
-import {createClientServer} from "@/lib/supabase/server";
-import {MapPin, Phone, Users} from "lucide-react"; // Removed unused SearchX
+import { Suspense } from "react";
+import { createClientServer } from "@/lib/supabase/server";
+import { MapPin, Phone, Users } from "lucide-react"; // Removed unused SearchX
 
 import ClientsPageActions from "./ClientsPageActions";
 import ClientsPager from "@/app/(app)/clients/pager";
-import {Button} from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 
 export const dynamic = "force-dynamic";
 
+export const metadata = {
+    title: 'Clients',
+};
+
 type SearchParams = Promise<{ page?: string; pageSize?: string }>;
 
-export default async function ClientsPage({searchParams}: { searchParams: SearchParams }) {
+export default async function ClientsPage({ searchParams }: { searchParams: SearchParams }) {
     const sb = await createClientServer();
 
     // Auth Check
-    const {data: {user}} = await sb.auth.getUser();
+    const { data: { user } } = await sb.auth.getUser();
 
     if (!user) {
         return (
@@ -39,10 +43,10 @@ export default async function ClientsPage({searchParams}: { searchParams: Search
     const to = from + pageSize - 1;
 
     // Data Fetching
-    const {data: clients, error, count} = await sb
+    const { data: clients, error, count } = await sb
         .schema("knitted")
         .from("customers")
-        .select("id, full_name, name, phone, email, city, country_code", {count: "exact"})
+        .select("id, full_name, name, phone, email, city, country_code", { count: "exact" })
         .eq("owner", uid)
         .order("full_name")
         .range(from, to);
@@ -59,7 +63,7 @@ export default async function ClientsPage({searchParams}: { searchParams: Search
     const hasClients = clients && clients.length > 0;
 
     return (
-        <Suspense fallback={<ClientsLoadingSkeleton/>}>
+        <Suspense fallback={<ClientsLoadingSkeleton />}>
             <div className="space-y-8 pb-10">
 
                 {/* Header Section */}
@@ -70,12 +74,12 @@ export default async function ClientsPage({searchParams}: { searchParams: Search
                             Manage your customer directory and details.
                         </p>
                     </div>
-                    <ClientsPageActions/>
+                    <ClientsPageActions />
                 </div>
 
                 {/* Content Section */}
                 {!hasClients ? (
-                    <EmptyState/>
+                    <EmptyState />
                 ) : (
                     <>
                         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -107,19 +111,19 @@ export default async function ClientsPage({searchParams}: { searchParams: Search
                                         </div>
                                     </div>
 
-                                    <hr className="my-4 border-border/50"/>
+                                    <hr className="my-4 border-border/50" />
 
                                     {/* Details */}
                                     <div className="mt-auto space-y-2 text-sm text-muted-foreground">
                                         <div className="flex items-center gap-2">
-                                            <Phone className="h-3.5 w-3.5 opacity-70"/>
+                                            <Phone className="h-3.5 w-3.5 opacity-70" />
                                             <span className="truncate">{c.phone || "No phone number"}</span>
                                         </div>
                                         <div className="flex items-center gap-2">
-                                            <MapPin className="h-3.5 w-3.5 opacity-70"/>
+                                            <MapPin className="h-3.5 w-3.5 opacity-70" />
                                             <span className="truncate">
-                        {[c.city, c.country_code].filter(Boolean).join(", ") || "No location"}
-                      </span>
+                                                {[c.city, c.country_code].filter(Boolean).join(", ") || "No location"}
+                                            </span>
                                         </div>
                                     </div>
                                 </Link>
@@ -128,7 +132,7 @@ export default async function ClientsPage({searchParams}: { searchParams: Search
 
                         {/* Pagination */}
                         <div className="pt-4">
-                            <ClientsPager page={page} pageSize={pageSize} total={total}/>
+                            <ClientsPager page={page} pageSize={pageSize} total={total} />
                         </div>
                     </>
                 )}
@@ -144,7 +148,7 @@ function EmptyState() {
         <div
             className="flex min-h-[400px] flex-col items-center justify-center rounded-2xl border-2 border-dashed border-muted bg-muted/5 p-8 text-center animate-in fade-in-50">
             <div className="flex h-20 w-20 items-center justify-center rounded-full bg-muted shadow-sm mb-4">
-                <Users className="h-10 w-10 text-muted-foreground"/>
+                <Users className="h-10 w-10 text-muted-foreground" />
             </div>
             <h3 className="text-lg font-semibold">No clients found</h3>
             <p className="mb-6 mt-2 max-w-sm text-sm text-muted-foreground">
@@ -163,14 +167,14 @@ function ClientsLoadingSkeleton() {
         <div className="space-y-8">
             <div className="flex items-center justify-between">
                 <div className="space-y-2">
-                    <div className="h-8 w-32 animate-pulse rounded-md bg-muted"/>
-                    <div className="h-4 w-64 animate-pulse rounded-md bg-muted"/>
+                    <div className="h-8 w-32 animate-pulse rounded-md bg-muted" />
+                    <div className="h-4 w-64 animate-pulse rounded-md bg-muted" />
                 </div>
-                <div className="h-10 w-28 animate-pulse rounded-md bg-muted"/>
+                <div className="h-10 w-28 animate-pulse rounded-md bg-muted" />
             </div>
             <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
                 {[...Array(8)].map((_, i) => (
-                    <div key={i} className="h-48 animate-pulse rounded-xl border bg-muted/30"/>
+                    <div key={i} className="h-48 animate-pulse rounded-xl border bg-muted/30" />
                 ))}
             </div>
         </div>

@@ -1,7 +1,4 @@
-'use client';
-
 import Link from 'next/link';
-import { motion } from 'framer-motion';
 import { Twitter, Instagram, Linkedin, Github, Heart } from 'lucide-react';
 
 export default function Footer() {
@@ -78,7 +75,7 @@ export default function Footer() {
                             <ul className="space-y-3">
                                 {column.links.map((link) => (
                                     <li key={link.label}>
-                                        <Link 
+                                        <Link
                                             href={link.href}
                                             className="text-sm text-muted-foreground hover:text-primary transition-colors"
                                         >

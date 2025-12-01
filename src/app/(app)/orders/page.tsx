@@ -1,6 +1,6 @@
 import Link from "next/link";
-import {Suspense} from "react";
-import {createClientServer} from "@/lib/supabase/server";
+import { Suspense } from "react";
+import { createClientServer } from "@/lib/supabase/server";
 import {
     ShoppingBag,
     Package,
@@ -11,11 +11,15 @@ import {
 
 import Pager from "./pager";
 // Removed unused Card import
-import {Badge} from "@/components/ui/badge";
-import {Button} from "@/components/ui/button";
-import {cn} from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
+
+export const metadata = {
+    title: 'Orders',
+};
 
 type SearchParams = Promise<{ page?: string; pageSize?: string }>;
 
@@ -40,17 +44,17 @@ function getStatusStyles(status: string) {
 }
 
 /* --- Page Component --- */
-export default async function OrdersPage({searchParams}: { searchParams: SearchParams }) {
+export default async function OrdersPage({ searchParams }: { searchParams: SearchParams }) {
     const sb = await createClientServer();
 
     // 1. Auth Check
-    const {data: {user}} = await sb.auth.getUser();
+    const { data: { user } } = await sb.auth.getUser();
 
     if (!user) {
         return (
             <div className="flex h-[50vh] flex-col items-center justify-center gap-4 text-center">
                 <div className="h-16 w-16 rounded-full bg-muted/50 flex items-center justify-center">
-                    <ShoppingBag className="h-8 w-8 text-muted-foreground"/>
+                    <ShoppingBag className="h-8 w-8 text-muted-foreground" />
                 </div>
                 <div>
                     <h2 className="text-lg font-semibold">Access Restricted</h2>
@@ -68,19 +72,19 @@ export default async function OrdersPage({searchParams}: { searchParams: SearchP
     const to = from + pageSize - 1;
 
     // 3. Fetch Data
-    const {data: ordersRows, error, count} = await sb
+    const { data: ordersRows, error, count } = await sb
         .schema("knitted")
         .from("orders")
-        .select("id, status, order_code, currency_code, created_at", {count: "exact"})
+        .select("id, status, order_code, currency_code, created_at", { count: "exact" })
         .eq("owner", user.id)
-        .order("created_at", {ascending: false})
+        .order("created_at", { ascending: false })
         .range(from, to);
 
     if (error) {
         return (
             <div
                 className="rounded-lg border border-destructive/50 bg-destructive/10 p-6 text-destructive flex items-center gap-3">
-                <div className="h-2 w-2 rounded-full bg-destructive"/>
+                <div className="h-2 w-2 rounded-full bg-destructive" />
                 Error loading orders: {error.message}
             </div>
         );
@@ -94,7 +98,7 @@ export default async function OrdersPage({searchParams}: { searchParams: SearchP
     let totalByOrder: Record<string, number> = {};
     if (hasOrders) {
         const orderIds = orders.map((o) => o.id);
-        const {data: totalsRows} = await sb
+        const { data: totalsRows } = await sb
             .schema("knitted")
             .from("order_totals")
             .select("order_id, computed_total")
@@ -107,7 +111,7 @@ export default async function OrdersPage({searchParams}: { searchParams: SearchP
     }
 
     return (
-        <Suspense fallback={<OrdersLoadingSkeleton/>}>
+        <Suspense fallback={<OrdersLoadingSkeleton />}>
             <div className="space-y-8 pb-20 max-w-7xl mx-auto">
 
                 {/* Header Section */}
@@ -123,8 +127,8 @@ export default async function OrdersPage({searchParams}: { searchParams: SearchP
                         <div className="flex items-center gap-2">
                             {/* Optional Filter Button Placeholder */}
                             <Button variant="outline" size="sm"
-                                    className="h-9 gap-2 text-muted-foreground hidden sm:flex">
-                                <Filter className="h-3.5 w-3.5"/> Filter
+                                className="h-9 gap-2 text-muted-foreground hidden sm:flex">
+                                <Filter className="h-3.5 w-3.5" /> Filter
                             </Button>
                         </div>
                     )}
@@ -132,7 +136,7 @@ export default async function OrdersPage({searchParams}: { searchParams: SearchP
 
                 {/* Content Section */}
                 {!hasOrders ? (
-                    <EmptyState/>
+                    <EmptyState />
                 ) : (
                     <div className="space-y-6">
 
@@ -165,7 +169,7 @@ export default async function OrdersPage({searchParams}: { searchParams: SearchP
                                             <div className="flex items-start gap-3">
                                                 <div
                                                     className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-secondary text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary transition-colors">
-                                                    <Package className="h-5 w-5"/>
+                                                    <Package className="h-5 w-5" />
                                                 </div>
                                                 <div>
                                                     <h3 className="font-mono text-sm font-bold text-foreground tracking-tight group-hover:text-primary transition-colors">
@@ -173,14 +177,14 @@ export default async function OrdersPage({searchParams}: { searchParams: SearchP
                                                     </h3>
                                                     <div
                                                         className="flex items-center gap-1.5 text-xs text-muted-foreground mt-1">
-                                                        <Calendar className="h-3 w-3 opacity-70"/>
+                                                        <Calendar className="h-3 w-3 opacity-70" />
                                                         <span>{dateStr}</span>
                                                     </div>
                                                 </div>
                                             </div>
 
                                             <ChevronRight
-                                                className="h-4 w-4 text-muted-foreground/30 group-hover:text-primary group-hover:translate-x-0.5 transition-all"/>
+                                                className="h-4 w-4 text-muted-foreground/30 group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
                                         </div>
 
                                         <div
@@ -193,8 +197,8 @@ export default async function OrdersPage({searchParams}: { searchParams: SearchP
                                             </Badge>
 
                                             <span className="text-sm font-bold tabular-nums tracking-tight">
-                        {moneyStr}
-                      </span>
+                                                {moneyStr}
+                                            </span>
                                         </div>
                                     </Link>
                                 );
@@ -208,7 +212,7 @@ export default async function OrdersPage({searchParams}: { searchParams: SearchP
                                 <span className="font-medium text-foreground">{Math.min(to + 1, total)}</span> of{" "}
                                 <span className="font-medium text-foreground">{total}</span> orders
                             </p>
-                            <Pager page={page} pageSize={pageSize} total={total}/>
+                            <Pager page={page} pageSize={pageSize} total={total} />
                         </div>
                     </div>
                 )}
@@ -224,7 +228,7 @@ function EmptyState() {
         <div
             className="flex min-h-[400px] flex-col items-center justify-center rounded-2xl border-2 border-dashed border-muted bg-muted/5 p-8 text-center animate-in fade-in-50">
             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted shadow-sm mb-4">
-                <ShoppingBag className="h-8 w-8 text-muted-foreground"/>
+                <ShoppingBag className="h-8 w-8 text-muted-foreground" />
             </div>
             <h3 className="text-lg font-semibold">No orders yet</h3>
             <p className="mb-6 mt-2 max-w-sm text-sm text-muted-foreground">
@@ -242,13 +246,13 @@ function OrdersLoadingSkeleton() {
         <div className="space-y-8 max-w-7xl mx-auto">
             <div className="flex items-center justify-between">
                 <div className="space-y-2">
-                    <div className="h-8 w-32 animate-pulse rounded-md bg-muted"/>
-                    <div className="h-4 w-64 animate-pulse rounded-md bg-muted"/>
+                    <div className="h-8 w-32 animate-pulse rounded-md bg-muted" />
+                    <div className="h-4 w-64 animate-pulse rounded-md bg-muted" />
                 </div>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {[...Array(6)].map((_, i) => (
-                    <div key={i} className="h-40 animate-pulse rounded-xl border bg-muted/30"/>
+                    <div key={i} className="h-40 animate-pulse rounded-xl border bg-muted/30" />
                 ))}
             </div>
         </div>

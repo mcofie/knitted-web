@@ -2,9 +2,9 @@
 "use client";
 
 import Image from "next/image";
-import {useRef} from "react";
+import { useRef } from "react";
 import Autoplay from "embla-carousel-autoplay";
-import {motion} from "framer-motion";
+import { motion } from "framer-motion";
 import {
     Carousel,
     CarouselContent,
@@ -12,20 +12,24 @@ import {
     CarouselNext,
     CarouselPrevious,
 } from "@/components/ui/carousel"; // shadcn/ui carousel wrapper (Embla)
-import {cn} from "@/lib/utils"; // optional helper
+import { cn } from "@/lib/utils"; // optional helper
 
 // Swap these with your actual web screenshots (no device frames)
-const SCREENS: string[] = [
-    "/MacBook_Pro_14_dark.png",
-    "/MacBook_Pro_14_dark_1.png",
-    "/MacBook_Pro_14_light.png",
-    "/MacBook_Pro_14_light_1.png",
+const SCREENS = [
+    {
+        light: "/MacBook_Pro_14_light.png",
+        dark: "/MacBook_Pro_14_dark.png",
+    },
+    {
+        light: "/MacBook_Pro_14_light_1.png",
+        dark: "/MacBook_Pro_14_dark_1.png",
+    },
 ];
 
 export default function WebAppScreens() {
     // Autoplay (pause on hover, resume on mouse leave)
     const autoplay = useRef(
-        Autoplay({delay: 3500, stopOnInteraction: true})
+        Autoplay({ delay: 3500, stopOnInteraction: true })
     );
 
     return (
@@ -39,19 +43,19 @@ export default function WebAppScreens() {
             {/* Title container (centered, constrained) */}
             <div className="mx-auto max-w-6xl px-4 pt-16 md:px-6">
                 <motion.h2
-                    initial={{y: 14, opacity: 0}}
-                    whileInView={{y: 0, opacity: 1}}
-                    viewport={{once: true, amount: 0.5}}
-                    transition={{duration: 0.35, ease: "easeOut"}}
+                    initial={{ y: 14, opacity: 0 }}
+                    whileInView={{ y: 0, opacity: 1 }}
+                    viewport={{ once: true, amount: 0.5 }}
+                    transition={{ duration: 0.35, ease: "easeOut" }}
                     className="text-center text-3xl font-bold tracking-tight md:text-4xl"
                 >
                     The Knitted Studio
                 </motion.h2>
                 <motion.p
-                    initial={{y: 12, opacity: 0}}
-                    whileInView={{y: 0, opacity: 1}}
-                    viewport={{once: true, amount: 0.5}}
-                    transition={{duration: 0.35, ease: "easeOut", delay: 0.05}}
+                    initial={{ y: 12, opacity: 0 }}
+                    whileInView={{ y: 0, opacity: 1 }}
+                    viewport={{ once: true, amount: 0.5 }}
+                    transition={{ duration: 0.35, ease: "easeOut", delay: 0.05 }}
                     className="mx-auto mt-2 max-w-2xl text-center text-muted-foreground"
                 >
                     See how every stitch of your business comes together — clients, orders, and creativity, perfectly
@@ -63,20 +67,20 @@ export default function WebAppScreens() {
             <div
                 className={cn(
                     // pull container to the edges
-                    "mx-[calc(50%-50vw)] w-screen",
+                    "relative left-[50%] right-[50%] ml-[-50vw] mr-[-50vw] w-screen",
                     // spacing above/below carousel
                     "mt-8 md:mt-10"
                 )}
             >
                 <Carousel
-                    opts={{loop: true, align: "center"}}
+                    opts={{ loop: true, align: "center" }}
                     plugins={[autoplay.current]}
                     className="w-full py-10"
                     onMouseEnter={autoplay.current.stop}
                     onMouseLeave={autoplay.current.reset}
                 >
                     <CarouselContent>
-                        {SCREENS.map((base, i) => (
+                        {SCREENS.map((screen, i) => (
                             <CarouselItem key={i} className="basis-full flex justify-center">
                                 <figure className="w-[90%] md:w-[80%] lg:w-[80%] xl:w-[50%] mx-auto">
                                     {/* Frame for the screenshot */}
@@ -86,7 +90,7 @@ export default function WebAppScreens() {
                                         <div className="relative aspect-[16/9] w-full">
                                             {/* Light screenshot */}
                                             <Image
-                                                src={`${base}`}
+                                                src={screen.light}
                                                 alt={`Knitted web screen ${i + 1} (light)`}
                                                 fill
                                                 priority={i === 0}
@@ -95,7 +99,7 @@ export default function WebAppScreens() {
                                             />
                                             {/* Dark screenshot */}
                                             <Image
-                                                src={`${base}`}
+                                                src={screen.dark}
                                                 alt={`Knitted web screen ${i + 1} (dark)`}
                                                 fill
                                                 priority={i === 0}
@@ -112,8 +116,8 @@ export default function WebAppScreens() {
                     {/* Navigation controls */}
                     <div
                         className="pointer-events-none absolute inset-0 flex items-center justify-between px-2 md:px-4">
-                        <CarouselPrevious className="pointer-events-auto border bg-background/80 backdrop-blur"/>
-                        <CarouselNext className="pointer-events-auto border bg-background/80 backdrop-blur"/>
+                        <CarouselPrevious className="pointer-events-auto border bg-background/80 backdrop-blur" />
+                        <CarouselNext className="pointer-events-auto border bg-background/80 backdrop-blur" />
                     </div>
                 </Carousel>
             </div>

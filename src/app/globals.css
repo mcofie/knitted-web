@@ -4,33 +4,42 @@
 /* ---------- BRAND + SURFACES ---------- */
 /* 
    Refined Palette for Modern/Premium Feel
-   Primary: Vibrant Blue/Indigo
-   Secondary: Soft Coral/Salmon
-   Dark Surface: Deep Blue-Black
+   Primary: #9400D3 (Dark Violet)
+   Secondary: #6F2DA8 (Grape)
+   Background: #FFF0F5 (Lavender Blush)
+   Dark Surface: Deep Violet-Black
 */
 
 :root {
     /* Surfaces */
-    --surface: 0 0% 100%;                 /* Pure White */
-    --surface-container-highest: 210 20% 98%;  /* Very light cool gray */
+    --surface: 340 100% 97%;
+    /* Lavender Blush */
+    --surface-container-highest: 280 20% 95%;
+    /* Very light violet gray */
 
-    --chart-1: 226 70% 55%;      /* Vibrant Indigo */
-    --chart-2: 220 10% 20%;      
-    --chart-grid: 220 10% 90%;
+    --chart-1: 282 100% 41%;
+    /* Dark Violet */
+    --chart-2: 272 58% 42%;
+    --chart-grid: 280 10% 90%;
 
     /* Foregrounds */
-    --on-surface: 222 47% 11%;            /* Deep Navy */
-    --on-surface-variant: 215 20% 45%;    /* Cool Gray */
+    --on-surface: 270 50% 10%;
+    /* Deep Violet-Black */
+    --on-surface-variant: 270 20% 40%;
+    /* Muted Violet Gray */
 
     /* Outline/borders */
-    --outline-variant: 215 20% 92%;
+    --outline-variant: 280 20% 90%;
 
     /* Brand */
-    --primary: 226 70% 55%;               /* Vibrant Indigo */
+    --primary: 282 100% 41%;
+    /* Dark Violet */
     --primary-foreground: 0 0% 100%;
-    --secondary: 13 80% 65%;              /* Soft Coral */
+    --secondary: 272 58% 42%;
+    /* Grape */
     --secondary-foreground: 0 0% 100%;
-    --tertiary: 180 50% 40%;              /* Teal */
+    --tertiary: 320 60% 50%;
+    /* Magenta/Pink accent */
 
     /* Status */
     --success: 142 70% 45%;
@@ -39,40 +48,43 @@
 
     /* Component tones */
     --card-light: 0 0% 100%;
-    --input-light: 210 20% 98%;
-    --chip-light: 210 15% 96%;
+    --input-light: 280 20% 96%;
+    --chip-light: 280 15% 94%;
 
     --radius: 0.75rem;
     --radius-lg: 1rem;
 }
 
 .dark {
-    --surface: 224 25% 8%;                /* Deep Blue-Black */
-    --surface-container-highest: 224 20% 12%;
+    --surface: 270 40% 5%;
+    /* Deep Violet-Black */
+    --surface-container-highest: 270 30% 10%;
 
-    --on-surface: 210 20% 98%;
-    --on-surface-variant: 215 15% 70%;
+    --on-surface: 280 20% 98%;
+    --on-surface-variant: 270 15% 70%;
 
-    --outline-variant: 224 15% 20%;
+    --outline-variant: 270 20% 20%;
 
-    --chart-1: 226 80% 65%;
-    --chart-2: 210 20% 90%;
-    --chart-grid: 224 15% 25%;
+    --chart-1: 282 80% 65%;
+    --chart-2: 272 50% 60%;
+    --chart-grid: 270 20% 20%;
 
     /* Brand */
-    --primary: 226 80% 65%;               /* Brighter Indigo for dark mode */
-    --primary-foreground: 224 25% 8%;
-    --secondary: 13 80% 65%;
-    --secondary-foreground: 13 20% 12%;
-    --tertiary: 180 50% 60%;
+    --primary: 282 90% 65%;
+    /* Lighter Violet for dark mode */
+    --primary-foreground: 270 40% 5%;
+    --secondary: 272 70% 65%;
+    /* Lighter Grape */
+    --secondary-foreground: 270 40% 5%;
+    --tertiary: 320 70% 60%;
 
     --success: 142 70% 55%;
     --warning: 35 90% 60%;
     --error: 349 85% 65%;
 
-    --card-light: 224 20% 10%;
-    --input-light: 224 20% 12%;
-    --chip-light: 224 20% 14%;
+    --card-light: 270 30% 8%;
+    --input-light: 270 30% 10%;
+    --chip-light: 270 30% 12%;
 }
 
 /* ---------- MAP TO shadcn SEMANTIC TOKENS ---------- */
@@ -111,20 +123,42 @@
 
 /* ---------- BASE ---------- */
 @layer base {
-    html, body, :host { height: 100%; }
-    body { @apply bg-background text-foreground; }
-    * { @apply border-border; }
+
+    html,
+    body,
+    :host {
+        height: 100%;
+    }
+
+    body {
+        @apply bg-background text-foreground;
+    }
+
+    * {
+        @apply border-border;
+    }
 }
 
 /* ---------- UTILITIES ---------- */
 @layer utilities {
-    .bg-success { background-color: hsl(var(--success)); }
-    .text-success { color: hsl(var(--success)); }
-    .bg-warning { background-color: hsl(var(--warning)); }
-    .text-warning { color: hsl(var(--warning)); }
-    
+    .bg-success {
+        background-color: hsl(var(--success));
+    }
+
+    .text-success {
+        color: hsl(var(--success));
+    }
+
+    .bg-warning {
+        background-color: hsl(var(--warning));
+    }
+
+    .text-warning {
+        color: hsl(var(--warning));
+    }
+
     /* Text Gradients */
     .text-gradient-primary {
-        @apply bg-gradient-to-r from-primary to-purple-500 bg-clip-text text-transparent;
+        @apply bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent;
     }
 }
