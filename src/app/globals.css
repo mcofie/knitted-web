@@ -51,8 +51,8 @@
     --input-light: 280 20% 96%;
     --chip-light: 280 15% 94%;
 
-    --radius: 0.75rem;
-    --radius-lg: 1rem;
+    --radius: 1rem;
+    --radius-lg: 1.25rem;
 }
 
 .dark {
