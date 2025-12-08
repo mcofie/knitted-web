@@ -9,7 +9,7 @@ if (!SUPABASE_URL) {
 }
 const SUPABASE_HOST = new URL(SUPABASE_URL).hostname;
 
-const nextConfig = {
+const nextConfig: NextConfig = {
     images: {
         remotePatterns: [
             { protocol: "https" as const, hostname: SUPABASE_HOST, pathname: "/storage/v1/object/**" },
@@ -37,6 +37,20 @@ const nextConfig = {
     },
     reactStrictMode: true,
     typedRoutes: false,
+    async rewrites() {
+        return [
+            {
+                source: '/ingest/static/:path*',
+                destination: 'https://us-assets.i.posthog.com/static/:path*',
+            },
+            {
+                source: '/ingest/:path*',
+                destination: 'https://us.i.posthog.com/:path*',
+            },
+        ];
+    },
+    // This is required to support PostHog trailing slash API requests
+    skipTrailingSlashRedirect: true,
 };
 
 export default withPWA({
