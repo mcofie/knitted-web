@@ -29,7 +29,8 @@ export default function Navbar() {
     const links = [
         { href: '/features', label: 'Features' },
         { href: '/pricing', label: 'Pricing' },
-        { href: '/blog', label: 'Blog' }
+        { href: '/blog', label: 'Blog' },
+        { href: '/about', label: 'About' }
     ];
 
     // Helper component for mobile navigation
@@ -73,11 +74,15 @@ export default function Navbar() {
         <>
             <MobileNav />
             <header
-                className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-in-out ${scrolled
-                    ? 'border-b border-border/40 bg-background/80 backdrop-blur-md shadow-sm supports-[backdrop-filter]:bg-background/60'
+                className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-in-out ${scrolled
+                    ? 'border-b border-border/60 bg-background/95 backdrop-blur-xl shadow-lg shadow-black/5 supports-[backdrop-filter]:bg-background/80'
                     : 'border-transparent bg-transparent'
                     }`}
             >
+                {/* Subtle gradient overlay when scrolled */}
+                {scrolled && (
+                    <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-purple-500/5 opacity-50" />
+                )}
                 <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 md:px-8">
                     {/* Logo Section */}
                     <Link href="/" className="flex items-center gap-3 z-50">
@@ -101,7 +106,7 @@ export default function Navbar() {
                             <Link
                                 key={link.href}
                                 href={link.href}
-                                className={`relative rounded-full px-4 py-2 text-sm font-medium transition-colors ${pathname === link.href
+                                className={`group relative rounded-full px-4 py-2 text-sm font-medium transition-colors ${pathname === link.href
                                     ? 'text-foreground'
                                     : 'text-muted-foreground hover:text-foreground'
                                     }`}
@@ -109,11 +114,14 @@ export default function Navbar() {
                                 {pathname === link.href && (
                                     <motion.span
                                         layoutId="nav-pill"
-                                        className="absolute inset-0 -z-10 rounded-full bg-muted"
+                                        className="absolute inset-0 -z-10 rounded-full bg-gradient-to-r from-muted/80 via-muted to-muted/80"
                                         transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                                     />
                                 )}
-                                {link.label}
+                                {pathname !== link.href && (
+                                    <span className="absolute bottom-1 left-1/2 h-0.5 w-0 -translate-x-1/2 rounded-full bg-gradient-to-r from-primary/0 via-primary to-primary/0 transition-all duration-300 group-hover:w-3/4" />
+                                )}
+                                <span className="relative z-10">{link.label}</span>
                             </Link>
                         ))}
                     </nav>
@@ -150,11 +158,10 @@ export default function Navbar() {
 
                             <Link
                                 href="/login"
-                                className="group relative inline-flex items-center justify-center overflow-hidden rounded-full bg-primary px-6 py-2 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/20 transition-all hover:scale-105 hover:shadow-primary/40"
+                                className="group relative inline-flex items-center justify-center overflow-hidden rounded-full bg-gradient-to-r from-primary via-purple-600 to-indigo-600 px-6 py-2 text-sm font-semibold text-white shadow-lg shadow-primary/30 transition-all hover:scale-105 hover:shadow-xl hover:shadow-primary/50"
                             >
+                                <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
                                 <span className="relative z-10">Start Free Trial</span>
-                                <div
-                                    className="absolute inset-0 -z-10 bg-gradient-to-r from-primary via-indigo-500 to-primary opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
                             </Link>
                         </div>
 

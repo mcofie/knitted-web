@@ -25,7 +25,7 @@ import {
     SelectItem,
     SelectValue,
 } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
+
 
 // Icons
 import {
@@ -33,7 +33,6 @@ import {
     Banknote,
     CreditCard,
     Smartphone,
-    FileText,
     Loader2,
     Wallet
 } from "lucide-react";
@@ -50,9 +49,9 @@ type Payment = {
 };
 
 export default function PaymentsSection({
-                                            orderId,
-                                            currency,
-                                        }: {
+    orderId,
+    currency,
+}: {
     orderId: string;
     currency: string;
 }) {
@@ -183,17 +182,17 @@ export default function PaymentsSection({
                                                 <>
                                                     <span>•</span>
                                                     <span className="italic max-w-[120px] truncate" title={p.reference}>
-                            {p.reference}
-                          </span>
+                                                        {p.reference}
+                                                    </span>
                                                 </>
                                             )}
                                         </div>
                                     </div>
                                 </div>
                                 <div className="text-right">
-                  <span className="text-sm font-bold tabular-nums">
-                    {p.currency_code} {p.amount.toFixed(2)}
-                  </span>
+                                    <span className="text-sm font-bold tabular-nums">
+                                        {p.currency_code} {p.amount.toFixed(2)}
+                                    </span>
                                 </div>
                             </div>
                         ))}

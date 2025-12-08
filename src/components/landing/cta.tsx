@@ -7,21 +7,32 @@ import { ArrowRight, Sparkles } from 'lucide-react';
 export default function CTA() {
     return (
         <section className="py-24 relative overflow-hidden">
-            <div className="absolute inset-0 bg-primary/5 -z-20" />
+            {/* Enhanced gradient background */}
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-purple-500/5 to-background -z-20" />
+            <div className="absolute top-0 left-1/4 w-96 h-96 bg-gradient-to-br from-primary/30 to-purple-500/20 rounded-full blur-[120px] opacity-40 animate-pulse -z-10" />
+            <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-gradient-to-tl from-indigo-500/30 to-primary/20 rounded-full blur-[120px] opacity-40 -z-10" style={{ animationDelay: '1s' }} />
 
             <div className="max-w-4xl mx-auto px-4 text-center">
                 <motion.div
                     initial={{ opacity: 0, scale: 0.95 }}
                     whileInView={{ opacity: 1, scale: 1 }}
                     viewport={{ once: true }}
-                    className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-primary to-secondary p-12 md:p-20 text-white shadow-2xl"
+                    className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-primary via-purple-600 to-indigo-600 p-12 md:p-20 text-white shadow-2xl shadow-primary/30"
                 >
                     {/* Background Texture */}
                     <div className="absolute inset-0 opacity-10 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] mix-blend-overlay" />
 
-                    {/* Floating shapes */}
-                    <div className="absolute top-0 left-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" />
-                    <div className="absolute bottom-0 right-0 w-64 h-64 bg-black/10 rounded-full blur-3xl translate-x-1/2 translate-y-1/2" />
+                    {/* Enhanced floating shapes with animation */}
+                    <motion.div
+                        animate={{ x: [0, 20, 0], y: [0, -20, 0] }}
+                        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+                        className="absolute top-0 left-0 w-80 h-80 bg-white/10 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"
+                    />
+                    <motion.div
+                        animate={{ x: [0, -30, 0], y: [0, 30, 0] }}
+                        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+                        className="absolute bottom-0 right-0 w-80 h-80 bg-black/10 rounded-full blur-3xl translate-x-1/2 -translate-y-1/2"
+                    />
 
                     <div className="relative z-10 space-y-8">
                         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-sm font-medium text-white/90">

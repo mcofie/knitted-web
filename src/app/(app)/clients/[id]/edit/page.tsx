@@ -1,5 +1,5 @@
 import { createClientServer } from "@/lib/supabase/server";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import EditClientForm from "./edit-client-form";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";

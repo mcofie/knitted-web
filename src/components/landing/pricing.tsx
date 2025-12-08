@@ -111,16 +111,21 @@ export default function Pricing() {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ delay: i * 0.1 }}
-                            className={`relative flex flex-col rounded-[2rem] p-8 transition-all duration-300 ${plan.highlight
-                                ? 'bg-background border-2 border-primary shadow-2xl shadow-primary/10 md:-mt-8 md:mb-8 z-10'
-                                : 'bg-background/60 border border-border hover:border-primary/30 hover:bg-background'
+                            whileHover={{ y: -8, transition: { duration: 0.3 } }}
+                            className={`group relative flex flex-col rounded-[2rem] p-8 transition-all duration-500 ${plan.highlight
+                                ? 'bg-gradient-to-br from-background via-background to-primary/5 border-2 border-primary shadow-2xl shadow-primary/20 md:-mt-8 md:mb-8 z-10'
+                                : 'bg-background/60 border border-border hover:border-primary/40 hover:bg-background hover:shadow-xl'
                                 }`}
                         >
                             {plan.highlight && (
-                                <div
-                                    className="absolute -top-5 left-0 right-0 mx-auto w-fit rounded-full bg-primary px-4 py-1 text-sm font-bold text-white shadow-lg">
-                                    Most Popular
-                                </div>
+                                <>
+                                    {/* Animated gradient border glow */}
+                                    <div className="absolute inset-0 rounded-[2rem] bg-gradient-to-r from-primary via-purple-600 to-indigo-600 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-500 -z-10" />
+                                    {/* Popular badge */}
+                                    <div className="absolute -top-5 left-0 right-0 mx-auto w-fit rounded-full bg-gradient-to-r from-primary via-purple-600 to-indigo-600 px-5 py-1.5 text-sm font-bold text-white shadow-lg">
+                                        <span className="relative z-10">Most Popular</span>
+                                    </div>
+                                </>
                             )}
 
                             <div className="mb-8">

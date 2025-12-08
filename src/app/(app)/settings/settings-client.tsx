@@ -5,7 +5,6 @@ import { motion, type Variants } from 'framer-motion';
 import Image from 'next/image';
 import { Settings2 } from 'lucide-react';
 import SettingsForm from '@/components/settings/SettingsForm';
-import { cn } from '@/lib/utils';
 
 interface SettingsClientProps {
     settings: {

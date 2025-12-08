@@ -3,8 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { createClientBrowser } from "@/lib/supabase/browser";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { toast } from "sonner";
 
@@ -18,7 +17,7 @@ type Row = {
 export default function AttachmentsSection({ orderId }: { orderId: string }) {
     const sb = createClientBrowser();
     const [rows, setRows] = useState<Row[]>([]);
-    const [uploading, setUploading] = useState(false);
+
     const [urls, setUrls] = useState<Record<string, string>>({});
     const [selectedUrl, setSelectedUrl] = useState<string | null>(null);
 
@@ -54,52 +53,15 @@ export default function AttachmentsSection({ orderId }: { orderId: string }) {
 
     useEffect(() => {
         load();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [orderId]);
 
     useEffect(() => {
         if (rows.length > 0) resolveUrls(rows);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [rows]);
 
-    async function upload() {
-        try {
-            const picker = document.createElement("input");
-            picker.type = "file";
-            picker.accept = "image/*";
-            picker.multiple = true;
-            picker.click();
-            picker.onchange = async () => {
-                if (!picker.files || picker.files.length === 0) return;
-                setUploading(true);
-                const bucket = "knitted-attachments";
-                for (const file of Array.from(picker.files)) {
-                    const ext = file.name.split(".").pop();
-                    const path = `orders/${orderId}/${Date.now()}_${Math.random()
-                        .toString(36)
-                        .slice(2)}.${ext}`;
-                    const { error: upErr } = await sb.storage
-                        .from(bucket)
-                        .upload(path, file);
-                    if (upErr) {
-                        toast.error("Upload failed", { description: upErr.message });
-                        continue;
-                    }
-                    const { error: dbErr } = await sb
-                        .schema("knitted")
-                        .from("attachments")
-                        .insert({ order_id: orderId, file_path: path, caption: null });
-                    if (dbErr)
-                        toast.error("Save failed", { description: dbErr.message });
-                }
-                setUploading(false);
-                toast.success("Attachments uploaded");
-                await load();
-            };
-        } catch (e: unknown) {
-            const message =
-                e instanceof Error ? e.message : "Something went wrong";
-            toast.error("Upload error", { description: message });
-        }
-    }
+
 
     return (
         <div>

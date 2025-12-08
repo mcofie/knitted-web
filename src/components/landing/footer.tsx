@@ -10,8 +10,6 @@ export default function Footer() {
             links: [
                 { label: 'Features', href: '/features' },
                 { label: 'Pricing', href: '/pricing' },
-                { label: 'Changelog', href: '/changelog' },
-                { label: 'Docs', href: '/docs' },
             ]
         },
         {
@@ -19,8 +17,6 @@ export default function Footer() {
             links: [
                 { label: 'About', href: '/about' },
                 { label: 'Blog', href: '/blog' },
-                { label: 'Careers', href: '/careers' },
-                { label: 'Contact', href: '/contact' },
             ]
         },
         {
@@ -28,7 +24,6 @@ export default function Footer() {
             links: [
                 { label: 'Privacy', href: '/privacy' },
                 { label: 'Terms', href: '/terms' },
-                { label: 'Security', href: '/security' },
             ]
         }
     ];

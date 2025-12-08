@@ -163,12 +163,13 @@ export default function Hero() {
 
     return (
         <section className="relative overflow-hidden pt-24 pb-16 md:pt-40 md:pb-32">
+            {/* Enhanced Ambient Background with Mesh Gradient */}
             {/* Ambient Background */}
-            <div className="absolute inset-0 -z-10 h-full w-full bg-background">
-                <div
-                    className="absolute top-0 -left-4 w-96 h-96 bg-primary/30 rounded-full blur-[128px] opacity-50 animate-pulse" />
-                <div
-                    className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-secondary/20 rounded-full blur-[128px] opacity-50" />
+            <div className="absolute inset-0 -z-10 h-full w-full bg-background overflow-hidden">
+                <div className="absolute top-0 -left-4 w-96 h-96 bg-primary/20 rounded-full blur-[128px] opacity-40 animate-pulse" />
+                <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-secondary/10 rounded-full blur-[128px] opacity-30" />
+                {/* Additional subtle blob for complexity without noise */}
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-purple-500/5 rounded-full blur-[120px] opacity-30 animate-pulse" style={{ animationDelay: '2s' }} />
                 <GridPattern />
             </div>
 
@@ -181,15 +182,7 @@ export default function Hero() {
                     viewport={{ once: true, amount: 0.4 }}
                     className="flex flex-col justify-center space-y-8 text-center md:text-left"
                 >
-                    {/* Announcement Pill */}
-                    <motion.div variants={fadeUp} className="w-full md:w-fit flex justify-center md:justify-start">
-                        <div
-                            className="inline-flex items-center rounded-full border border-primary/20 bg-primary/5 px-3 py-1 text-sm font-medium text-primary backdrop-blur-md transition-colors hover:bg-primary/10 cursor-pointer">
-                            <span className="flex h-2 w-2 rounded-full bg-primary mr-2 animate-pulse" />
-                            <span className="mr-1">New:</span>
-                            <span className="text-muted-foreground">Client Portal 2.0 &rarr;</span>
-                        </div>
-                    </motion.div>
+
 
                     <motion.h1
                         variants={fadeUp}
@@ -197,14 +190,20 @@ export default function Hero() {
                     >
                         Tailoring,{' '}
                         <span className="relative whitespace-nowrap block md:inline">
-                            <span
-                                className="text-gradient-primary">
+                            <span className="bg-gradient-to-r from-primary via-purple-600 to-indigo-600 bg-clip-text text-transparent [text-shadow:0_0_40px_rgba(124,58,237,0.3)]">
                                 reimagined
                             </span>
-                            {/* Scribble underline decoration */}
-                            <svg className="absolute -bottom-2 left-0 w-full h-2 md:h-3 text-primary/40 -z-10"
+                            {/* Enhanced scribble underline decoration */}
+                            <svg className="absolute -bottom-2 left-0 w-full h-2 md:h-3 text-primary/50 -z-10 animate-pulse"
                                 viewBox="0 0 100 10" preserveAspectRatio="none">
-                                <path d="M0 5 Q 50 10 100 5" stroke="currentColor" strokeWidth="2" fill="none" />
+                                <defs>
+                                    <linearGradient id="underline-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                        <stop offset="0%" stopColor="currentColor" stopOpacity="0.3" />
+                                        <stop offset="50%" stopColor="currentColor" stopOpacity="0.6" />
+                                        <stop offset="100%" stopColor="currentColor" stopOpacity="0.3" />
+                                    </linearGradient>
+                                </defs>
+                                <path d="M0 5 Q 50 10 100 5" stroke="url(#underline-gradient)" strokeWidth="2.5" fill="none" />
                             </svg>
                         </span>
                         .
@@ -221,37 +220,29 @@ export default function Hero() {
                         className="flex flex-col sm:flex-row flex-wrap gap-4 justify-center md:justify-start">
                         <Link
                             href="/login"
-                            className="relative inline-flex h-12 items-center justify-center rounded-xl bg-primary px-8 text-base font-semibold text-primary-foreground shadow-lg shadow-primary/20 transition-all hover:scale-105 hover:shadow-primary/40 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2"
+                            className="group relative inline-flex h-12 items-center justify-center rounded-xl bg-gradient-to-r from-primary via-purple-600 to-indigo-600 px-8 text-base font-semibold text-white shadow-lg shadow-primary/30 transition-all hover:scale-105 hover:shadow-xl hover:shadow-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2 overflow-hidden"
                         >
-                            Start free trial <ArrowRight className="ml-2 h-4 w-4" />
+                            <span className="absolute inset-0 bg-gradient-to-r from-primary/0 via-white/20 to-primary/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
+                            <span className="relative z-10 flex items-center gap-2">
+                                Start free trial
+                                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                            </span>
                         </Link>
                         <DemoDialog
                             videoUrl="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
-                            triggerClassName="group inline-flex h-12 items-center justify-center gap-2 rounded-xl border border-input bg-background/50 px-6 text-base font-semibold transition-all hover:bg-accent hover:text-accent-foreground backdrop-blur-sm"
+                            triggerClassName="group relative inline-flex h-12 items-center justify-center gap-2 rounded-xl border-2 border-border/50 bg-background/80 px-6 text-base font-semibold transition-all hover:bg-accent/10 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/10 backdrop-blur-sm overflow-hidden"
                         >
                             <>
-                                <div
-                                    className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-white">
-                                    <Play className="h-3 w-3 fill-current ml-0.5" />
+                                <span className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/5 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+                                <div className="relative z-10 flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-primary/20 to-purple-500/20 text-primary transition-all group-hover:from-primary group-hover:to-purple-600 group-hover:text-white group-hover:scale-110">
+                                    <Play className="h-3.5 w-3.5 fill-current ml-0.5" />
                                 </div>
-                                Watch demo
+                                <span className="relative z-10">Watch demo</span>
                             </>
                         </DemoDialog>
                     </motion.div>
 
-                    <motion.div variants={fadeUp}
-                        className="flex items-center justify-center md:justify-start gap-4 text-sm text-muted-foreground">
-                        <div className="flex -space-x-2">
-                            {[1, 2, 3, 4].map((i) => (
-                                <div key={i}
-                                    className="h-8 w-8 rounded-full border-2 border-background bg-muted overflow-hidden">
-                                    <Image src={`https://i.pravatar.cc/100?img=${i + 10}`} alt="User" width={32}
-                                        height={32} />
-                                </div>
-                            ))}
-                        </div>
-                        <p>Trusted by <span className="font-semibold text-foreground">500+</span> ateliers</p>
-                    </motion.div>
+
                 </motion.div>
 
                 {/* Right Visual - Carousel */}
@@ -309,45 +300,45 @@ export default function Hero() {
                             </CarouselContent>
                         </Carousel>
 
-                        {/* Floating Notification Card 1 - Left */}
+                        {/* Enhanced Floating Notification Card 1 - Left */}
                         <motion.div
                             initial={{ opacity: 0, x: -50 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: 0.5, duration: 0.8 }}
-                            className="absolute -left-4 lg:-left-16 top-1/4 hidden md:flex items-center gap-3 rounded-2xl border border-white/20 bg-white/10 p-3 lg:p-4 shadow-xl backdrop-blur-lg dark:bg-black/40"
+                            className="absolute -left-4 lg:-left-16 top-1/4 hidden md:flex items-center gap-3 rounded-2xl border border-white/40 dark:border-white/20 bg-white/80 dark:bg-black/60 p-3 lg:p-4 shadow-2xl backdrop-blur-xl hover:scale-105 transition-transform duration-300"
                         >
-                            <div
-                                className="flex h-10 w-10 items-center justify-center rounded-full bg-green-500/20 text-green-600 dark:text-green-400">
-                                <Check className="h-5 w-5" />
+                            <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-white/20 via-transparent to-transparent dark:from-white/5" />
+                            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-green-500/20 to-emerald-500/20 text-green-600 dark:text-green-400 relative z-10 shadow-inner">
+                                <Check className="h-5 w-5" strokeWidth={2.5} />
                             </div>
-                            <div>
-                                <p className="text-xs font-medium text-muted-foreground">Order #204</p>
+                            <div className="relative z-10">
+                                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Order #204</p>
                                 <p className="text-sm font-bold text-foreground">Deposit Paid</p>
                             </div>
                         </motion.div>
 
-                        {/* Floating Notification Card 2 - Right */}
+                        {/* Enhanced Floating Notification Card 2 - Right */}
                         <motion.div
                             initial={{ opacity: 0, x: 50 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: 0.8, duration: 0.8 }}
-                            className="absolute -right-4 lg:-right-12 bottom-1/4 hidden md:flex items-center gap-3 rounded-2xl border border-white/20 bg-white/10 p-3 lg:p-4 shadow-xl backdrop-blur-lg dark:bg-black/40"
+                            className="absolute -right-4 lg:-right-12 bottom-1/4 hidden md:flex items-center gap-3 rounded-2xl border border-white/40 dark:border-white/20 bg-white/80 dark:bg-black/60 p-3 lg:p-4 shadow-2xl backdrop-blur-xl hover:scale-105 transition-transform duration-300"
                         >
-                            <div className="flex -space-x-3">
+                            <div className="absolute inset-0 rounded-2xl bg-gradient-to-bl from-white/20 via-transparent to-transparent dark:from-white/5" />
+                            <div className="flex -space-x-2 relative z-10">
                                 {[1, 2, 3].map(i => (
-                                    <div key={i}
-                                        className="h-8 w-8 rounded-full border-2 border-background bg-muted" />
+                                    <div key={i} className="h-9 w-9 rounded-full border-2 border-background bg-gradient-to-br from-primary/30 to-purple-500/30 shadow-md" />
                                 ))}
                             </div>
-                            <div>
-                                <p className="text-xs font-medium text-muted-foreground">New Clients</p>
+                            <div className="relative z-10">
+                                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">New Clients</p>
                                 <p className="text-sm font-bold text-foreground">+12 this week</p>
                             </div>
                         </motion.div>
-
                     </motion.div>
+
                 </motion.div>
             </div>
-        </section>
+        </section >
     );
 }

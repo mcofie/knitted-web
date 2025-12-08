@@ -40,7 +40,7 @@ export default function EditClientForm({ clientId, initialValues }: EditClientFo
             }
             toast.success("Client updated");
             router.push(`/clients/${clientId}`);
-        } catch (e) {
+        } catch (_e) {
             toast.error("Something went wrong");
         } finally {
             setIsSaving(false);
@@ -58,7 +58,7 @@ export default function EditClientForm({ clientId, initialValues }: EditClientFo
             }
             toast.success("Client deleted");
             // Redirect handled in server action
-        } catch (e) {
+        } catch (_e) {
             toast.error("Something went wrong");
             setIsDeleting(false);
         }

@@ -1,6 +1,7 @@
-/** @type {import('next').NextConfig} */
+import withPWA from 'next-pwa';
+import type { NextConfig } from 'next';
+
 const isProd = process.env.NODE_ENV === 'production';
-// const SUPABASE_HOST = new URL(process.env.NEXT_PUBLIC_SUPABASE_URL).hostname;
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
 if (!SUPABASE_URL) {
@@ -8,7 +9,34 @@ if (!SUPABASE_URL) {
 }
 const SUPABASE_HOST = new URL(SUPABASE_URL).hostname;
 
-const withPWA = require('next-pwa')({
+const nextConfig = {
+    images: {
+        remotePatterns: [
+            { protocol: "https" as const, hostname: SUPABASE_HOST, pathname: "/storage/v1/object/**" },
+            {
+                protocol: "https" as const,
+                hostname: "api.dicebear.com",
+                port: "",
+                pathname: "/**",
+            },
+            {
+                protocol: "https" as const,
+                hostname: "i.pravatar.cc",
+                port: "",
+                pathname: "/**",
+            },
+        ],
+        domains: [
+            'developer.apple.com',
+        ],
+        dangerouslyAllowSVG: true,
+        contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+    },
+    reactStrictMode: true,
+    typedRoutes: false,
+};
+
+export default withPWA({
     dest: 'public',
     disable: !isProd,
     register: true,
@@ -25,32 +53,4 @@ const withPWA = require('next-pwa')({
             options: { cacheName: 'supabase-signed' },
         },
     ],
-});
-
-const nextConfig = {
-    images: {
-        remotePatterns: [
-            { protocol: "https", hostname: SUPABASE_HOST, pathname: "/storage/v1/object/**" },
-            {
-                protocol: "https",
-                hostname: "api.dicebear.com",
-                port: "",
-                pathname: "/**",
-            },
-            {
-                protocol: "https",
-                hostname: "i.pravatar.cc",
-                port: "",
-                pathname: "/**",
-            },
-        ],
-        domains: [
-            'play.google.com',
-            'developer.apple.com',
-        ],
-    },
-    reactStrictMode: true,
-    experimental: { typedRoutes: false },
-};
-
-module.exports = withPWA(nextConfig);
+})(nextConfig);

@@ -5,7 +5,7 @@ import { useTheme } from "next-themes";
 import { z } from "zod";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { createClientBrowser } from "@/lib/supabase/browser";
+
 import { countries } from "@/lib/countries";
 import { currencies } from "@/lib/currencies";
 import { Button } from "@/components/ui/button";
@@ -56,7 +56,6 @@ export default function SettingsForm({
     initial: Partial<AccountSettingsRow>;
     version: string;
 }) {
-    const sb = createClientBrowser();
     const { setTheme, theme: currentTheme } = useTheme();
     const [saving, setSaving] = useState(false);
 

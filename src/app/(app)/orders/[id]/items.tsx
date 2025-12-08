@@ -1,11 +1,11 @@
 'use client';
 
-import {useEffect, useState} from 'react';
-import {createClientBrowser} from '@/lib/supabase/browser';
-import {Table, TableHeader, TableRow, TableHead, TableBody, TableCell} from '@/components/ui/table';
-import {Button} from '@/components/ui/button';
-import {Separator} from '@/components/ui/separator';
-import {toast} from 'sonner';
+import { useEffect, useState } from 'react';
+import { createClientBrowser } from '@/lib/supabase/browser';
+import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
+import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
+import { toast } from 'sonner';
 // import ItemDialog from './item-dialog';
 
 type Item = {
@@ -16,16 +16,15 @@ type Item = {
     currency_code: string;
 };
 
-export default function OrderItems({orderId, currency}: { orderId: string; currency: string }) {
+export default function OrderItems({ orderId, currency }: { orderId: string; currency: string }) {
     const sb = createClientBrowser();
     const [items, setItems] = useState<Item[]>([]);
-    const [open, setOpen] = useState(false);
-    const [editItem, setEditItem] = useState<Item | null>(null);
+
     const [loading, setLoading] = useState(true);
 
     async function load() {
         setLoading(true);
-        const {data, error} = await sb
+        const { data, error } = await sb
             .schema('knitted').from('order_items')
             .select('id, description, quantity, unit_price, currency_code')
             .eq('order_id', orderId)
@@ -37,7 +36,7 @@ export default function OrderItems({orderId, currency}: { orderId: string; curre
 
     async function remove(id: string) {
         if (!confirm('Remove this item?')) return;
-        const {error} = await sb.schema('knitted').from('order_items').delete().eq('id', id);
+        const { error } = await sb.schema('knitted').from('order_items').delete().eq('id', id);
         if (error) return toast.error("Delete error");
         await load();
     }
@@ -52,10 +51,8 @@ export default function OrderItems({orderId, currency}: { orderId: string; curre
         <div className="space-y-3">
             <div className="flex items-center justify-between">
                 <h2 className="text-base font-semibold">Items</h2>
-                <Button size="sm" onClick={() => {
-                    setEditItem(null);
-                    setOpen(true);
-                }}>Add item</Button>
+                {/* TODO: Re-enable ItemDialog */}
+                <Button size="sm" onClick={() => { }} disabled>Add item</Button>
             </div>
 
             <div className="rounded-md border overflow-x-auto">
@@ -72,7 +69,7 @@ export default function OrderItems({orderId, currency}: { orderId: string; curre
                     <TableBody>
                         {loading && (
                             <TableRow><TableCell colSpan={5}
-                                                 className="py-6 text-center text-muted-foreground">Loading…</TableCell></TableRow>
+                                className="py-6 text-center text-muted-foreground">Loading…</TableCell></TableRow>
                         )}
                         {!loading && items.length === 0 && (
                             <TableRow><TableCell colSpan={5} className="py-6 text-center text-muted-foreground">No items
@@ -87,13 +84,13 @@ export default function OrderItems({orderId, currency}: { orderId: string; curre
                                     {it.currency_code} {(Number(it.unit_price) * Number(it.quantity)).toFixed(2)}
                                 </TableCell>
                                 <TableCell className="text-right">
+                                    {/* TODO: Re-enable ItemDialog */}
                                     <Button variant="outline" size="sm" className="mr-2"
-                                            onClick={() => {
-                                                setEditItem(it);
-                                                setOpen(true);
-                                            }}>Edit</Button>
+                                        onClick={() => {
+                                            // setEditItem(it); setOpen(true);
+                                        }} disabled>Edit</Button>
                                     <Button variant="destructive" size="sm"
-                                            onClick={() => remove(it.id)}>Delete</Button>
+                                        onClick={() => remove(it.id)}>Delete</Button>
                                 </TableCell>
                             </TableRow>
                         ))}
@@ -101,7 +98,7 @@ export default function OrderItems({orderId, currency}: { orderId: string; curre
                 </Table>
             </div>
 
-            <Separator/>
+            <Separator />
             <div className="flex justify-end text-sm">
                 <div className="w-64 flex items-center justify-between">
                     <span className="text-muted-foreground">Subtotal</span>
@@ -117,6 +114,6 @@ export default function OrderItems({orderId, currency}: { orderId: string; curre
             {/*    editItem={editItem}*/}
             {/*    onSaved={load}*/}
             {/*/>*/}
-        </div>
+        </div >
     );
 }

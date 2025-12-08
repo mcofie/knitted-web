@@ -29,16 +29,16 @@ const stagger: Variants = {
 
 export default function Features() {
     return (
-        <section className="relative overflow-hidden bg-secondary/5 py-16 md:py-32">
-            <div
-                className="absolute inset-0 -z-10 h-full w-full bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:24px_24px]" />
+        <section className="relative overflow-hidden bg-background py-24 md:py-32">
+            {/* Subtle grid pattern for texture */}
+            <div className="absolute inset-0 -z-10 h-full w-full bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:40px_40px] opacity-70" />
 
             <div className="mx-auto max-w-7xl px-4 md:px-8">
                 <motion.div
                     initial="hidden"
                     whileInView="show"
                     viewport={{ once: true, amount: 0.4 }}
-                    className="mb-24 text-center md:mb-32"
+                    className="mb-20 text-center"
                 >
                     <motion.h2 variants={fadeUp}
                         className="text-4xl font-bold tracking-tight md:text-5xl lg:text-6xl">
@@ -46,98 +46,142 @@ export default function Features() {
                     </motion.h2>
                     <motion.p variants={fadeUp}
                         className="mt-6 text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-                        From first fitting to final stitch, Knitted provides the tools for quiet, organized, and
-                        profitable work.
+                        From first fitting to final stitch, Knitted provides the tools for quiet, organized, and visible work.
                     </motion.p>
                 </motion.div>
 
-                <div className="space-y-32">
-                    {[
-                        {
-                            id: '01',
-                            label: 'ORGANIZATION',
-                            title: 'Clients & Measurements',
-                            desc: 'Keep every client’s details, measurements, and preferences in one elegant profile. Never ask for the same size twice.',
-                            points: ['Measure once, reuse always', 'Notes & preferences storage', 'Client history & attachments'],
-                            img_light: '/iphone_mockup_two_light.png',
-                            img_dark: '/iphone_mockup_two_dark.png',
-                            icon: <Sparkles className="h-6 w-6" />
-                        },
-                        {
-                            id: '02',
-                            label: 'FINANCE',
-                            title: 'Orders & Invoices',
-                            desc: 'Track every order from sketch to pickup. Create branded, professional PDF invoices in a single click.',
-                            points: ['Order stages & due dates', 'Automated PDF invoices', 'Payments tracking & receipts'],
-                            img_light: '/iphone_mockup_three_light.png',
-                            img_dark: '/iphone_mockup_three_dark.png',
-                            icon: <Zap className="h-6 w-6" />
-                        },
-                        {
-                            id: '03',
-                            label: 'GROWTH',
-                            title: 'Reminders & Reports',
-                            desc: 'Stay ahead of deadlines and gain visibility into what drives your atelier’s growth. Data made beautiful and actionable.',
-                            points: ['Smart due date reminders', 'Monthly revenue & trends reports', 'Top clients & best-selling items'],
-                            img_light: '/iphone_mockup_one_light.png',
-                            img_dark: '/iphone_mockup_one_dark.png',
-                            icon: <Shield className="h-6 w-6" />
-                        }
-                    ].map((f, i) => (
-                        <motion.div
-                            key={f.title}
-                            initial="hidden"
-                            whileInView="show"
-                            viewport={{ once: true, margin: "-100px" }}
-                            className={`flex flex-col gap-12 md:flex-row md:items-center md:gap-24 ${i % 2 === 1 ? 'md:flex-row-reverse' : ''}`}
-                        >
-                            <motion.div variants={stagger} className="flex-1 space-y-8">
-                                <motion.div variants={fadeUp} className="flex items-center gap-4">
-                                    <span
-                                        className="flex h-12 w-12 items-center justify-center rounded-xl border border-primary/20 bg-primary/5 text-primary shadow-sm">
-                                        {f.icon}
-                                    </span>
-                                    <span className="text-sm font-bold tracking-widest text-primary/60">
-                                        {f.label}
-                                    </span>
-                                </motion.div>
-                                <motion.h3 variants={fadeUp}
-                                    className="text-3xl font-bold tracking-tight md:text-4xl">
-                                    {f.title}
-                                </motion.h3>
-                                <motion.p variants={fadeUp}
-                                    className="text-lg text-muted-foreground leading-relaxed">
-                                    {f.desc}
-                                </motion.p>
-                                <motion.ul variants={stagger} className="space-y-4 pt-4">
-                                    {f.points.map((p) => (
-                                        <motion.li variants={fadeUp} key={p}
-                                            className="flex items-start gap-3 text-base">
-                                            <div
-                                                className="mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                {/* Bento Grid Layout */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+                    {/* Feature 1: Organization */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: 0.1 }}
+                        className="group relative md:col-span-2 overflow-hidden rounded-[2.5rem] border border-border/40 bg-secondary/5 p-8 transition-all hover:border-primary/20 hover:shadow-lg hover:shadow-primary/5"
+                    >
+                        <div className="relative z-10 flex flex-col h-full justify-between">
+                            <div className="space-y-4">
+                                <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                                    <Sparkles className="h-6 w-6" />
+                                </div>
+                                <h3 className="text-2xl font-bold tracking-tight">Clients & Measurements</h3>
+                                <p className="text-muted-foreground leading-relaxed max-w-md">
+                                    Keep every client’s details, measurements, and preferences in one elegant profile. Never ask for the same size twice.
+                                </p>
+                            </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-8">
+                                {['Measure once, reuse always', 'Notes & preferences storage'].map((p) => (
+                                    <div key={p} className="flex items-center gap-2 text-sm font-medium text-foreground/80">
+                                        <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                                            <Check className="h-3 w-3" />
+                                        </div>
+                                        {p}
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Visual for Feature 1 - Abstract representation or part of UI */}
+                        <div className="absolute top-1/2 -right-12 md:-right-24 w-[350px] lg:w-[450px] -translate-y-1/2 rotate-[-5deg] opacity-80 transition-transform group-hover:rotate-0 group-hover:scale-105 duration-500 hidden sm:block">
+                            <div className="relative aspect-[4/5] rounded-[2rem] overflow-hidden border border-border/20 shadow-2xl bg-background/50 backdrop-blur-sm">
+                                <Image
+                                    src="/iphone_mockup_two_light.png"
+                                    alt="Client Profile"
+                                    fill
+                                    className="object-cover dark:hidden"
+                                />
+                                <Image
+                                    src="/iphone_mockup_two_dark.png"
+                                    alt="Client Profile"
+                                    fill
+                                    className="object-cover hidden dark:block"
+                                />
+                            </div>
+                        </div>
+                    </motion.div>
+
+                    {/* Feature 2: Finance - Vertical Card */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: 0.2 }}
+                        className="group relative overflow-hidden rounded-[2.5rem] border border-border/40 bg-secondary/5 p-8 transition-all hover:border-primary/20 hover:shadow-lg hover:shadow-primary/5"
+                    >
+                        <div className="relative z-10 flex flex-col h-full">
+                            <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary mb-6">
+                                <Zap className="h-6 w-6" />
+                            </div>
+                            <h3 className="text-2xl font-bold tracking-tight mb-3">Orders & Invoices</h3>
+                            <p className="text-muted-foreground leading-relaxed mb-6">
+                                Create branded, professional PDF invoices in a single click.
+                            </p>
+
+                            {/* Visual specific to vertical card */}
+                            <div className="mt-auto relative w-full aspect-square rounded-2xl overflow-hidden border border-border/20 shadow-xl group-hover:scale-105 transition-transform duration-500">
+                                <Image
+                                    src="/iphone_mockup_three_light.png"
+                                    alt="Invoicing"
+                                    fill
+                                    className="object-cover object-top dark:hidden"
+                                />
+                                <Image
+                                    src="/iphone_mockup_three_dark.png"
+                                    alt="Invoicing"
+                                    fill
+                                    className="object-cover object-top hidden dark:block"
+                                />
+                            </div>
+                        </div>
+                    </motion.div>
+
+                    {/* Feature 3: Growth - Full Width or Third Card */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: 0.3 }}
+                        className="group relative md:col-span-3 overflow-hidden rounded-[2.5rem] border border-border/40 bg-secondary/5 p-8 md:p-12 transition-all hover:border-primary/20 hover:shadow-lg hover:shadow-primary/5"
+                    >
+                        <div className="grid md:grid-cols-2 gap-12 items-center">
+                            <div className="order-2 md:order-1 relative h-[300px] md:h-[400px] w-full rounded-2xl overflow-hidden border border-border/20 shadow-2xl group-hover:scale-[1.02] transition-transform duration-500">
+                                <Image
+                                    src="/iphone_mockup_one_light.png" // Using existing image for now, ideally wide aspect
+                                    alt="Analytics"
+                                    fill
+                                    className="object-cover object-center dark:hidden"
+                                />
+                                <Image
+                                    src="/iphone_mockup_one_dark.png"
+                                    alt="Analytics"
+                                    fill
+                                    className="object-cover object-center hidden dark:block"
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-t from-background/20 to-transparent" />
+                            </div>
+
+                            <div className="order-1 md:order-2 space-y-6">
+                                <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                                    <Shield className="h-6 w-6" />
+                                </div>
+                                <h3 className="text-3xl font-bold tracking-tight">Reminders & Growth</h3>
+                                <p className="text-lg text-muted-foreground leading-relaxed">
+                                    Stay ahead of deadlines and gain visibility into what drives your atelier’s growth. With smart reminders and beautiful data visualization, you&apos;ll never miss a beat.
+                                </p>
+                                <ul className="grid grid-cols-1 gap-3">
+                                    {['Smart due date reminders', 'Monthly revenue & trends reports', 'Top clients & best-selling items'].map((p) => (
+                                        <li key={p} className="flex items-center gap-3 text-base font-medium">
+                                            <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
                                                 <Check className="h-3 w-3" />
                                             </div>
-                                            <span className="text-foreground/80">{p}</span>
-                                        </motion.li>
+                                            {p}
+                                        </li>
                                     ))}
-                                </motion.ul>
-                            </motion.div>
-                            <motion.div variants={fadeUp} className="flex-1 relative">
-                                <div
-                                    className="relative mx-auto max-w-[350px] rounded-[3rem] border border-border/50 bg-white/50 p-4 shadow-2xl backdrop-blur-sm dark:bg-black/20">
-                                    <div
-                                        className="absolute -inset-4 -z-10 rounded-[3.5rem] bg-gradient-to-br from-primary/20 to-purple-500/20 opacity-50 blur-2xl" />
-                                    <div
-                                        className="relative overflow-hidden rounded-[2.5rem] bg-background border border-border/50">
-                                        <Image src={f.img_light} alt={f.title} width={320} height={640}
-                                            className="h-auto w-full dark:hidden" />
-                                        <Image src={f.img_dark} alt={f.title} width={320} height={640}
-                                            className="hidden h-auto w-full dark:block" />
-                                    </div>
-                                </div>
-                            </motion.div>
-                        </motion.div>
-                    ))}
+                                </ul>
+                            </div>
+                        </div>
+                    </motion.div>
                 </div>
             </div>
         </section>

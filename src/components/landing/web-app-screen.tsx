@@ -34,10 +34,10 @@ export default function WebAppScreens() {
 
     return (
         <section className="relative overflow-hidden">
-            {/* Gentle background wash */}
+            {/* Gentle background wash - cleaner opacity */}
             <div
                 aria-hidden
-                className="absolute inset-0 -z-10 bg-gradient-to-br from-primary/10 via-indigo-500/10 to-purple-500/10 dark:from-primary/20 dark:via-indigo-400/15 dark:to-purple-400/15"
+                className="absolute inset-0 -z-10 bg-gradient-to-br from-primary/5 via-indigo-500/5 to-purple-500/5 dark:from-primary/10 dark:via-indigo-400/5 dark:to-purple-400/5"
             />
 
             {/* Title container (centered, constrained) */}

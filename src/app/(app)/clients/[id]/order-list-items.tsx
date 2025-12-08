@@ -1,14 +1,13 @@
 import Link from "next/link";
-import {Badge} from "@/components/ui/badge";
+import { Badge } from "@/components/ui/badge";
 import ClientTime from "@/components/ClientTime";
 import {
     Package,
     ChevronRight,
     ShoppingBag,
-    Calendar,
-    CreditCard
+    Calendar
 } from "lucide-react";
-import {cn} from "@/lib/utils"; // Assuming you have a utils file
+import { cn } from "@/lib/utils"; // Assuming you have a utils file
 
 type OrderRow = {
     id: string;
@@ -29,7 +28,7 @@ function formatMoney(code: string, amount: number) {
             maximumFractionDigits: 2,
         }).format(amount);
     } catch {
-        return `${code} ${amount.toFixed(2)}`;
+        return `${code} ${amount.toFixed(2)} `;
     }
 }
 
@@ -55,9 +54,9 @@ function getStatusStyles(status: string) {
 /* --- Component --- */
 
 export default function OrdersListFlex({
-                                           orders,
-                                           totalsByOrder,
-                                       }: {
+    orders,
+    totalsByOrder,
+}: {
     orders: OrderRow[] | null | undefined;
     totalsByOrder: Record<string, number>;
 }) {
@@ -67,7 +66,7 @@ export default function OrdersListFlex({
             <div
                 className="flex flex-col items-center justify-center rounded-xl border border-dashed border-muted-foreground/25 bg-muted/5 py-12 text-center">
                 <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted mb-3">
-                    <ShoppingBag className="h-6 w-6 text-muted-foreground"/>
+                    <ShoppingBag className="h-6 w-6 text-muted-foreground" />
                 </div>
                 <h3 className="text-sm font-semibold text-foreground">No orders found</h3>
                 <p className="text-sm text-muted-foreground mt-1 mb-4 max-w-xs mx-auto">
@@ -82,13 +81,13 @@ export default function OrdersListFlex({
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {orders.map((o) => {
                 const total = totalsByOrder[o.id] ?? 0;
-                const code = o.order_code ?? `#${o.id.slice(0, 8).toUpperCase()}`;
+                const code = o.order_code ?? `#${o.id.slice(0, 8).toUpperCase()} `;
                 const statusStyle = getStatusStyles(o.status);
 
                 return (
                     <Link
                         key={o.id}
-                        href={`/orders/${o.id}`}
+                        href={`/ orders / ${o.id} `}
                         className="group relative flex flex-col justify-between rounded-xl border border-border bg-card p-4 transition-all duration-200 hover:border-primary/50 hover:shadow-md"
                     >
                         <div className="flex justify-between items-start mb-3">
@@ -96,25 +95,25 @@ export default function OrdersListFlex({
                             <div className="flex items-start gap-3">
                                 <div
                                     className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-secondary/50 text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary transition-colors">
-                                    <Package className="h-5 w-5"/>
+                                    <Package className="h-5 w-5" />
                                 </div>
                                 <div>
                                     <h4 className="font-mono text-sm font-bold text-foreground tracking-tight">
                                         {code}
                                     </h4>
                                     <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-0.5">
-                                        <Calendar className="h-3 w-3"/>
-                                        <ClientTime iso={o.created_at}/>
+                                        <Calendar className="h-3 w-3" />
+                                        <ClientTime iso={o.created_at} />
                                     </div>
                                 </div>
                             </div>
 
                             {/* Arrow (Visual cue) */}
                             <ChevronRight
-                                className="h-4 w-4 text-muted-foreground/50 group-hover:text-primary transition-colors"/>
+                                className="h-4 w-4 text-muted-foreground/50 group-hover:text-primary transition-colors" />
                         </div>
 
-                        <hr className="border-border/50 mb-3"/>
+                        <hr className="border-border/50 mb-3" />
 
                         {/* Bottom Row: Status & Price */}
                         <div className="flex items-center justify-between">

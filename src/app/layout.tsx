@@ -2,6 +2,9 @@ import './globals.css';
 import PageLoader from "@/components/ui/page-loader";
 import { Suspense } from "react";
 import { ThemeProvider } from "next-themes";
+import { Inter } from 'next/font/google';
+
+const inter = Inter({ subsets: ['latin'] });
 
 
 export const metadata = {
@@ -37,8 +40,8 @@ export const metadata = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-    return (<html lang="en">
-        <body>
+    return (<html lang="en" suppressHydrationWarning>
+        <body className={inter.className}>
             <Suspense fallback={null}><PageLoader /></Suspense>
             <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
                 {children}

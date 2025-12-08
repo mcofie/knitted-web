@@ -31,7 +31,7 @@ export default function AddClientDialog({
             toast.success("Client created");
             setOpen(false);
             onCreated?.();
-        } catch (e) {
+        } catch (_e) {
             toast.error("Something went wrong");
         } finally {
             setIsSubmitting(false);

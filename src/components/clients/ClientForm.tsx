@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { createClientBrowser } from "@/lib/supabase/browser";
-import { ClientFormValues } from "@/app/(app)/clients/actions";
+import type { ClientFormValues } from "@/app/(app)/clients/actions";
 
 // We can reuse the schema from actions or define a UI specific one if needed.
 // For now, let's redefine it here to match the UI validation needs (zod in actions is for server validation)

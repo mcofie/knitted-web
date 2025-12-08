@@ -1,14 +1,14 @@
-import {redirect} from "next/navigation";
+import { redirect } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import {createClientServer} from "@/lib/supabase/server";
+import { createClientServer } from "@/lib/supabase/server";
 
 // UI Components
-import {Card, CardHeader, CardTitle, CardContent, CardFooter} from "@/components/ui/card";
-import {Table, TableHeader, TableRow, TableHead, TableBody, TableCell} from "@/components/ui/table";
-import {Button} from "@/components/ui/button";
-import {Separator} from "@/components/ui/separator";
-import {Badge} from "@/components/ui/badge";
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
+import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -26,8 +26,6 @@ import {
     FileText,
     CreditCard,
     Package,
-    User,
-    CheckCircle2,
     StickyNote,
     ListTodo, Settings2
 } from "lucide-react";
@@ -83,15 +81,15 @@ type TotalsRow = {
 
 type RouteParams = Promise<{ id: string }>;
 
-export default async function OrderDetailPage({params}: { params: RouteParams }) {
-    const {id} = await params;
+export default async function OrderDetailPage({ params }: { params: RouteParams }) {
+    const { id } = await params;
 
     const sb = await createClientServer();
-    const {data: {user}} = await sb.auth.getUser();
+    const { data: { user } } = await sb.auth.getUser();
     if (!user) redirect("/login");
 
     // 1) Order with nested customer + items
-    const {data: order, error} = await sb
+    const { data: order, error } = await sb
         .schema("knitted")
         .from("orders")
         .select(`
@@ -106,7 +104,7 @@ export default async function OrderDetailPage({params}: { params: RouteParams })
     if (!order) {
         return (
             <div className="flex h-[50vh] items-center justify-center flex-col gap-2 text-muted-foreground">
-                <FileText className="h-10 w-10 opacity-20"/>
+                <FileText className="h-10 w-10 opacity-20" />
                 <p>Order not found</p>
                 {error && <pre className="text-xs opacity-50">{JSON.stringify(error, null, 2)}</pre>}
             </div>
@@ -116,7 +114,7 @@ export default async function OrderDetailPage({params}: { params: RouteParams })
     const ord = order as unknown as OrderRow;
 
     // 2) Totals
-    const {data: totals} = await sb
+    const { data: totals } = await sb
         .schema("knitted")
         .from("order_totals")
         .select("*")
@@ -145,11 +143,11 @@ export default async function OrderDetailPage({params}: { params: RouteParams })
                             <BreadcrumbItem>
                                 <BreadcrumbLink href="/dashboard">Home</BreadcrumbLink>
                             </BreadcrumbItem>
-                            <BreadcrumbSeparator/>
+                            <BreadcrumbSeparator />
                             <BreadcrumbItem>
                                 <BreadcrumbLink href="/orders">Orders</BreadcrumbLink>
                             </BreadcrumbItem>
-                            <BreadcrumbSeparator/>
+                            <BreadcrumbSeparator />
                             <BreadcrumbItem>
                                 <BreadcrumbPage>Details</BreadcrumbPage>
                             </BreadcrumbItem>
@@ -159,7 +157,7 @@ export default async function OrderDetailPage({params}: { params: RouteParams })
                         <h1 className="text-3xl font-bold tracking-tight text-foreground">
                             {ord.order_code ?? `Order #${ord.id.slice(0, 8).toUpperCase()}`}
                         </h1>
-                        <StatusBadge status={ord.status}/>
+                        <StatusBadge status={ord.status} />
                     </div>
                 </div>
             </div>
@@ -174,7 +172,7 @@ export default async function OrderDetailPage({params}: { params: RouteParams })
                     <Card className="overflow-hidden border-border/60 shadow-sm">
                         <CardHeader className="bg-muted/30 border-b py-4">
                             <CardTitle className="text-base flex items-center gap-2">
-                                <Package className="w-4 h-4 text-primary"/> Order Items
+                                <Package className="w-4 h-4 text-primary" /> Order Items
                             </CardTitle>
                         </CardHeader>
                         <div className="overflow-x-auto">
@@ -213,7 +211,7 @@ export default async function OrderDetailPage({params}: { params: RouteParams })
                                             <TableCell colSpan={4} className="h-24 text-center">
                                                 <div
                                                     className="flex flex-col items-center justify-center text-muted-foreground gap-1">
-                                                    <Package className="h-8 w-8 opacity-20"/>
+                                                    <Package className="h-8 w-8 opacity-20" />
                                                     <p className="text-sm">No items added yet.</p>
                                                 </div>
                                             </TableCell>
@@ -228,11 +226,11 @@ export default async function OrderDetailPage({params}: { params: RouteParams })
                     <Card className="border-border/60 shadow-sm">
                         <CardHeader className="pb-3">
                             <CardTitle className="text-base flex items-center gap-2">
-                                <CreditCard className="w-4 h-4 text-primary"/> Payments
+                                <CreditCard className="w-4 h-4 text-primary" /> Payments
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <PaymentsSection orderId={ord.id} currency={currency}/>
+                            <PaymentsSection orderId={ord.id} currency={currency} />
                         </CardContent>
                     </Card>
 
@@ -240,11 +238,11 @@ export default async function OrderDetailPage({params}: { params: RouteParams })
                     <Card className="border-border/60 shadow-sm">
                         <CardHeader className="pb-3">
                             <CardTitle className="text-base flex items-center gap-2">
-                                <FileText className="w-4 h-4 text-primary"/> Attachments & Measurements
+                                <FileText className="w-4 h-4 text-primary" /> Attachments & Measurements
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <AttachmentsSection orderId={ord.id}/>
+                            <AttachmentsSection orderId={ord.id} />
                         </CardContent>
                     </Card>
                 </div>
@@ -272,20 +270,20 @@ export default async function OrderDetailPage({params}: { params: RouteParams })
                                 </p>
                             </div>
                         </div>
-                        <Separator/>
+                        <Separator />
                         <div className="p-2 grid grid-cols-2 divide-x">
                             <Button variant="ghost"
-                                    className="w-full rounded-none h-12 text-muted-foreground hover:text-primary"
-                                    asChild>
+                                className="w-full rounded-none h-12 text-muted-foreground hover:text-primary"
+                                asChild>
                                 <Link href={`tel:${ord.customer?.phone}`}>
-                                    <Phone className="w-4 h-4 mr-2"/> Call
+                                    <Phone className="w-4 h-4 mr-2" /> Call
                                 </Link>
                             </Button>
                             <Button variant="ghost"
-                                    className="w-full rounded-none h-12 text-muted-foreground hover:text-primary"
-                                    asChild>
+                                className="w-full rounded-none h-12 text-muted-foreground hover:text-primary"
+                                asChild>
                                 <Link href={`/clients/${ord.customer?.id}/edit`}>
-                                    <Edit className="w-4 h-4 mr-2"/> Edit
+                                    <Edit className="w-4 h-4 mr-2" /> Edit
                                 </Link>
                             </Button>
                         </div>
@@ -295,7 +293,7 @@ export default async function OrderDetailPage({params}: { params: RouteParams })
                     <Card className="border-border/60 shadow-sm overflow-hidden">
                         <CardHeader className="bg-muted/30 py-3 border-b">
                             <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                                <Settings2 className="w-4 h-4 text-primary"/>
+                                <Settings2 className="w-4 h-4 text-primary" />
                                 Order Management
                             </CardTitle>
                         </CardHeader>
@@ -306,31 +304,31 @@ export default async function OrderDetailPage({params}: { params: RouteParams })
                             <div className="space-y-2">
                                 <label
                                     className="text-xs font-medium uppercase tracking-wider text-muted-foreground flex items-center gap-2">
-                                    <ListTodo className="w-3.5 h-3.5"/> Current Status
+                                    <ListTodo className="w-3.5 h-3.5" /> Current Status
                                 </label>
-                                <StatusSelect orderId={ord.id} initial={ord.status}/>
+                                <StatusSelect orderId={ord.id} initial={ord.status} />
                             </div>
 
                             {/* Separator */}
-                            <div className="h-px bg-border/60"/>
+                            <div className="h-px bg-border/60" />
 
                             {/* Ready Date Control */}
                             <div className="space-y-2">
                                 <label
                                     className="text-xs font-medium uppercase tracking-wider text-muted-foreground flex items-center gap-2">
-                                    <CalendarClock className="w-3.5 h-3.5"/> Target Completion
+                                    <CalendarClock className="w-3.5 h-3.5" /> Target Completion
                                 </label>
-                                <ReadyAtPicker orderId={ord.id} initial={ord.ready_at}/>
+                                <ReadyAtPicker orderId={ord.id} initial={ord.ready_at} />
                             </div>
 
                             {/* Notes Section (Conditional) */}
                             {ord.notes && (
                                 <>
-                                    <div className="h-px bg-border/60"/>
+                                    <div className="h-px bg-border/60" />
                                     <div className="space-y-2">
                                         <label
                                             className="text-xs font-medium uppercase tracking-wider text-muted-foreground flex items-center gap-2">
-                                            <StickyNote className="w-3.5 h-3.5"/> Order Notes
+                                            <StickyNote className="w-3.5 h-3.5" /> Order Notes
                                         </label>
                                         <div
                                             className="rounded-lg bg-yellow-50/50 dark:bg-yellow-900/10 border border-yellow-100 dark:border-yellow-800/30 p-3 text-sm text-foreground/90 leading-relaxed">
@@ -365,7 +363,7 @@ export default async function OrderDetailPage({params}: { params: RouteParams })
                                 <span>{currency} {t.shipping.toFixed(2)}</span>
                             </div>
 
-                            <Separator className="my-2"/>
+                            <Separator className="my-2" />
 
                             <div className="flex justify-between items-center">
                                 <span className="font-bold text-lg">Total</span>
@@ -383,8 +381,8 @@ export default async function OrderDetailPage({params}: { params: RouteParams })
                                 <span className="font-medium text-sm">Balance Due</span>
                                 <span
                                     className={`font-bold text-xl ${balance > 0 ? "text-amber-600" : "text-green-600"}`}>
-                  {currency} {balance <= 0 ? "0.00" : balance.toFixed(2)}
-                </span>
+                                    {currency} {balance <= 0 ? "0.00" : balance.toFixed(2)}
+                                </span>
                             </div>
                         </CardFooter>
                     </Card>

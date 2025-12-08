@@ -1,6 +1,6 @@
 'use client';
 
-import {useMemo} from 'react';
+import { useMemo } from 'react';
 
 type AddToCalendarProps = {
     title: string;                // e.g., `Order KNT-00027 is ready`
@@ -45,7 +45,7 @@ export function AddToCalendarButton(props: AddToCalendarProps) {
         filename = 'knitted-event.ics',
     } = props;
 
-    const {startDate, endDate, googleUrl, icsContent} = useMemo(() => {
+    const { googleUrl, icsContent } = useMemo(() => {
         const startDate = new Date(start);
         const endDate = new Date(startDate.getTime() + durationMinutes * 60_000);
 
@@ -84,11 +84,11 @@ export function AddToCalendarButton(props: AddToCalendarProps) {
             .filter(Boolean)
             .join('\r\n');
 
-        return {startDate, endDate, googleUrl: googleUrl.toString(), icsContent: ics};
-    }, [title, start, durationMinutes, location, description, filename]);
+        return { startDate, endDate, googleUrl: googleUrl.toString(), icsContent: ics };
+    }, [title, start, durationMinutes, location, description]);
 
     function downloadICS() {
-        const blob = new Blob([icsContent], {type: 'text/calendar;charset=utf-8'});
+        const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.setAttribute('download', filename);
