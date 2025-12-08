@@ -25,9 +25,12 @@ const nextConfig = {
                 port: "",
                 pathname: "/**",
             },
-        ],
-        domains: [
-            'developer.apple.com',
+            {
+                protocol: "https" as const,
+                hostname: "developer.apple.com",
+                port: "",
+                pathname: "/**",
+            },
         ],
         dangerouslyAllowSVG: true,
         contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
