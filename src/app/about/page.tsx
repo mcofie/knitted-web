@@ -37,7 +37,7 @@ export default function AboutPage() {
                 <div className="mx-auto max-w-7xl px-4 md:px-8">
                     <div className="grid md:grid-cols-2 gap-12 lg:gap-20 items-center">
                         <div className="order-2 md:order-1 relative">
-                            <div className="absolute -inset-4 bg-gradient-to-br from-primary/20 to-purple-500/20 rounded-3xl blur-2xl opacity-70" />
+                            <div className="absolute -inset-4 bg-gradient-to-br from-primary/20 to-stone-500/20 rounded-3xl blur-2xl opacity-70" />
                             <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-border/50 bg-card aspect-[4/3]">
                                 {/* Using a placeholder for now, would be a real image of a tailor or the team */}
                                 <div className="absolute inset-0 flex items-center justify-center bg-secondary/50">
@@ -63,7 +63,7 @@ export default function AboutPage() {
                                     </div>
                                 </div>
                                 <div className="flex gap-4">
-                                    <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center text-purple-600">
+                                    <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-stone-500/10 flex items-center justify-center text-stone-600">
                                         <Users className="w-6 h-6" />
                                     </div>
                                     <div>
@@ -72,7 +72,7 @@ export default function AboutPage() {
                                     </div>
                                 </div>
                                 <div className="flex gap-4">
-                                    <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-indigo-500/10 flex items-center justify-center text-indigo-600">
+                                    <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-teal-500/10 flex items-center justify-center text-teal-600">
                                         <Heart className="w-6 h-6" />
                                     </div>
                                     <div>

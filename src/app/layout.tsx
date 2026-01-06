@@ -2,10 +2,19 @@ import './globals.css';
 import PageLoader from "@/components/ui/page-loader";
 import { Suspense } from "react";
 import { ThemeProvider } from "next-themes";
-import { Inter } from 'next/font/google';
+import { Nunito, DM_Sans } from 'next/font/google';
 
-const inter = Inter({ subsets: ['latin'] });
+const nunito = Nunito({ 
+    subsets: ['latin'],
+    variable: '--font-nunito',
+    display: 'swap',
+});
 
+const dmSans = DM_Sans({ 
+    subsets: ['latin'],
+    variable: '--font-dm-sans',
+    display: 'swap',
+});
 
 export const metadata = {
     title: {
@@ -41,7 +50,7 @@ export const metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
     return (<html lang="en" suppressHydrationWarning>
-        <body className={inter.className}>
+        <body className={`${dmSans.variable} ${nunito.variable} font-sans antialiased`}>
             <Suspense fallback={null}><PageLoader /></Suspense>
             <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
                 {children}

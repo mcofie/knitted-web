@@ -169,7 +169,7 @@ export default function Hero() {
                 <div className="absolute top-0 -left-4 w-96 h-96 bg-primary/20 rounded-full blur-[128px] opacity-40 animate-pulse" />
                 <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-secondary/10 rounded-full blur-[128px] opacity-30" />
                 {/* Additional subtle blob for complexity without noise */}
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-purple-500/5 rounded-full blur-[120px] opacity-30 animate-pulse" style={{ animationDelay: '2s' }} />
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/5 rounded-full blur-[120px] opacity-30 animate-pulse" style={{ animationDelay: '2s' }} />
                 <GridPattern />
             </div>
 
@@ -190,7 +190,7 @@ export default function Hero() {
                     >
                         Tailoring,{' '}
                         <span className="relative whitespace-nowrap block md:inline">
-                            <span className="bg-gradient-to-r from-primary via-purple-600 to-indigo-600 bg-clip-text text-transparent [text-shadow:0_0_40px_rgba(124,58,237,0.3)]">
+                            <span className="bg-gradient-to-r from-primary via-emerald-600 to-teal-600 bg-clip-text text-transparent [text-shadow:0_0_40px_rgba(22,163,74,0.3)]">
                                 reimagined
                             </span>
                             {/* Enhanced scribble underline decoration */}
@@ -220,7 +220,7 @@ export default function Hero() {
                         className="flex flex-col sm:flex-row flex-wrap gap-4 justify-center md:justify-start">
                         <Link
                             href="/login"
-                            className="group relative inline-flex h-12 items-center justify-center rounded-xl bg-gradient-to-r from-primary via-purple-600 to-indigo-600 px-8 text-base font-semibold text-white shadow-lg shadow-primary/30 transition-all hover:scale-105 hover:shadow-xl hover:shadow-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2 overflow-hidden"
+                            className="group relative inline-flex h-12 items-center justify-center rounded-xl bg-primary px-8 text-base font-semibold text-primary-foreground shadow-lg shadow-primary/30 transition-all hover:scale-105 hover:shadow-xl hover:shadow-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2 overflow-hidden"
                         >
                             <span className="absolute inset-0 bg-gradient-to-r from-primary/0 via-white/20 to-primary/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
                             <span className="relative z-10 flex items-center gap-2">
@@ -234,7 +234,7 @@ export default function Hero() {
                         >
                             <>
                                 <span className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/5 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
-                                <div className="relative z-10 flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-primary/20 to-purple-500/20 text-primary transition-all group-hover:from-primary group-hover:to-purple-600 group-hover:text-white group-hover:scale-110">
+                                <div className="relative z-10 flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-primary/20 to-emerald-500/20 text-primary transition-all group-hover:from-primary group-hover:to-emerald-600 group-hover:text-white group-hover:scale-110">
                                     <Play className="h-3.5 w-3.5 fill-current ml-0.5" />
                                 </div>
                                 <span className="relative z-10">Watch demo</span>
@@ -327,7 +327,7 @@ export default function Hero() {
                             <div className="absolute inset-0 rounded-2xl bg-gradient-to-bl from-white/20 via-transparent to-transparent dark:from-white/5" />
                             <div className="flex -space-x-2 relative z-10">
                                 {[1, 2, 3].map(i => (
-                                    <div key={i} className="h-9 w-9 rounded-full border-2 border-background bg-gradient-to-br from-primary/30 to-purple-500/30 shadow-md" />
+                                    <div key={i} className="h-9 w-9 rounded-full border-2 border-background bg-gradient-to-br from-primary/30 to-stone-500/30 shadow-md" />
                                 ))}
                             </div>
                             <div className="relative z-10">

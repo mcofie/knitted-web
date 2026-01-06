@@ -8,16 +8,16 @@ export default function CTA() {
     return (
         <section className="py-24 relative overflow-hidden">
             {/* Enhanced gradient background */}
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-purple-500/5 to-background -z-20" />
-            <div className="absolute top-0 left-1/4 w-96 h-96 bg-gradient-to-br from-primary/30 to-purple-500/20 rounded-full blur-[120px] opacity-40 animate-pulse -z-10" />
-            <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-gradient-to-tl from-indigo-500/30 to-primary/20 rounded-full blur-[120px] opacity-40 -z-10" style={{ animationDelay: '1s' }} />
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-emerald-500/5 to-background -z-20" />
+            <div className="absolute top-0 left-1/4 w-96 h-96 bg-gradient-to-br from-primary/30 to-emerald-500/20 rounded-full blur-[120px] opacity-40 animate-pulse -z-10" />
+            <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-gradient-to-tl from-teal-500/30 to-primary/20 rounded-full blur-[120px] opacity-40 -z-10" style={{ animationDelay: '1s' }} />
 
             <div className="max-w-4xl mx-auto px-4 text-center">
                 <motion.div
                     initial={{ opacity: 0, scale: 0.95 }}
                     whileInView={{ opacity: 1, scale: 1 }}
                     viewport={{ once: true }}
-                    className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-primary via-purple-600 to-indigo-600 p-12 md:p-20 text-white shadow-2xl shadow-primary/30"
+                    className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-primary via-emerald-600 to-teal-700 p-12 md:p-20 text-white shadow-2xl shadow-primary/30"
                 >
                     {/* Background Texture */}
                     <div className="absolute inset-0 opacity-10 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] mix-blend-overlay" />

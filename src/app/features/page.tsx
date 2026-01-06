@@ -55,7 +55,7 @@ export default function FeaturesPage() {
                 <div className="mx-auto max-w-7xl px-4 md:px-8">
                     <div className="grid md:grid-cols-2 gap-12 lg:gap-20 items-center">
                         <div className="space-y-6">
-                            <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-blue-500/10 text-blue-600">
+                            <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
                                 <Users className="h-6 w-6" />
                             </div>
                             <h2 className="text-3xl font-bold">Client Management & Measurements</h2>
@@ -70,7 +70,7 @@ export default function FeaturesPage() {
                                     'One-click contact via WhatsApp or Email'
                                 ].map((item) => (
                                     <li key={item} className="flex items-center gap-3">
-                                        <div className="flex-shrink-0 h-5 w-5 rounded-full bg-blue-500/10 text-blue-600 flex items-center justify-center">
+                                        <div className="flex-shrink-0 h-5 w-5 rounded-full bg-primary/10 text-primary flex items-center justify-center">
                                             <Check className="h-3 w-3" />
                                         </div>
                                         <span className="text-foreground/80">{item}</span>
@@ -79,11 +79,11 @@ export default function FeaturesPage() {
                             </ul>
                         </div>
                         <div className="relative">
-                            <div className="aspect-[4/3] rounded-2xl bg-gradient-to-br from-blue-500/5 to-purple-500/5 border border-blue-500/10 p-8 flex items-center justify-center">
+                            <div className="aspect-[4/3] rounded-2xl bg-gradient-to-br from-primary/5 to-emerald-500/5 border border-primary/10 p-8 flex items-center justify-center">
                                 {/* Placeholder for UI visual */}
                                 <div className="text-center space-y-4">
                                     <div className="inline-block p-4 rounded-full bg-background shadow-lg mb-2">
-                                        <Scissors className="h-8 w-8 text-blue-500" />
+                                        <Scissors className="h-8 w-8 text-primary" />
                                     </div>
                                     <p className="text-sm text-muted-foreground font-mono">Measurements stored securely</p>
                                 </div>
@@ -98,18 +98,18 @@ export default function FeaturesPage() {
                 <div className="mx-auto max-w-7xl px-4 md:px-8">
                     <div className="grid md:grid-cols-2 gap-12 lg:gap-20 items-center">
                         <div className="order-2 md:order-1 relative">
-                            <div className="aspect-[4/3] rounded-2xl bg-gradient-to-bl from-orange-500/5 to-red-500/5 border border-orange-500/10 p-8 flex items-center justify-center">
+                            <div className="aspect-[4/3] rounded-2xl bg-gradient-to-bl from-amber-500/5 to-orange-500/5 border border-amber-500/10 p-8 flex items-center justify-center">
                                 {/* Placeholder for UI visual */}
                                 <div className="text-center space-y-4">
                                     <div className="inline-block p-4 rounded-full bg-background shadow-lg mb-2">
-                                        <FileText className="h-8 w-8 text-orange-500" />
+                                        <FileText className="h-8 w-8 text-amber-600" />
                                     </div>
                                     <p className="text-sm text-muted-foreground font-mono">Visual workflow stages</p>
                                 </div>
                             </div>
                         </div>
                         <div className="order-1 md:order-2 space-y-6">
-                            <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-orange-500/10 text-orange-600">
+                            <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-amber-500/10 text-amber-600">
                                 <Sparkles className="h-6 w-6" />
                             </div>
                             <h2 className="text-3xl font-bold">Order Tracking & Workflow</h2>
@@ -124,7 +124,7 @@ export default function FeaturesPage() {
                                     'Assign tasks to team members'
                                 ].map((item) => (
                                     <li key={item} className="flex items-center gap-3">
-                                        <div className="flex-shrink-0 h-5 w-5 rounded-full bg-orange-500/10 text-orange-600 flex items-center justify-center">
+                                        <div className="flex-shrink-0 h-5 w-5 rounded-full bg-amber-500/10 text-amber-600 flex items-center justify-center">
                                             <Check className="h-3 w-3" />
                                         </div>
                                         <span className="text-foreground/80">{item}</span>
@@ -184,18 +184,18 @@ export default function FeaturesPage() {
                 <div className="mx-auto max-w-7xl px-4 md:px-8">
                     <div className="grid md:grid-cols-2 gap-12 lg:gap-20 items-center">
                         <div className="order-2 md:order-1 relative">
-                            <div className="aspect-[4/3] rounded-2xl bg-gradient-to-tr from-purple-500/5 to-pink-500/5 border border-purple-500/10 p-8 flex items-center justify-center">
+                            <div className="aspect-[4/3] rounded-2xl bg-gradient-to-tr from-stone-500/5 to-primary/5 border border-stone-500/10 p-8 flex items-center justify-center">
                                 {/* Placeholder for UI visual */}
                                 <div className="text-center space-y-4">
                                     <div className="inline-block p-4 rounded-full bg-background shadow-lg mb-2">
-                                        <BarChart3 className="h-8 w-8 text-purple-500" />
+                                        <BarChart3 className="h-8 w-8 text-stone-600" />
                                     </div>
                                     <p className="text-sm text-muted-foreground font-mono">Revenue Trends</p>
                                 </div>
                             </div>
                         </div>
                         <div className="order-1 md:order-2 space-y-6">
-                            <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-purple-500/10 text-purple-600">
+                            <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-stone-500/10 text-stone-600">
                                 <BarChart3 className="h-6 w-6" />
                             </div>
                             <h2 className="text-3xl font-bold">Analytics & Growth</h2>
@@ -210,7 +210,7 @@ export default function FeaturesPage() {
                                     'Client retention metrics'
                                 ].map((item) => (
                                     <li key={item} className="flex items-center gap-3">
-                                        <div className="flex-shrink-0 h-5 w-5 rounded-full bg-purple-500/10 text-purple-600 flex items-center justify-center">
+                                        <div className="flex-shrink-0 h-5 w-5 rounded-full bg-stone-500/10 text-stone-600 flex items-center justify-center">
                                             <Check className="h-3 w-3" />
                                         </div>
                                         <span className="text-foreground/80">{item}</span>

@@ -70,4 +70,4 @@ export default withPWA({
             options: { cacheName: 'supabase-signed' },
         },
     ],
-})(nextConfig);
+})(nextConfig as any);

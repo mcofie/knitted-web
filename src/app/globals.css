@@ -1,99 +1,97 @@
 @import "tailwindcss";
 @custom-variant dark (&:where(.dark *));
 
-/* ---------- CLEAN & MINIMAL THEME ---------- */
-/* 
-   Primary: Violet (Vibrant but sophisticated)
-   Neutral: Zinc (Clean, professional grays)
-   Radius: 0.5rem (Crisp, modern)
-*/
-
+/* ---------- ADETON-INSPIRED THEME ---------- */
 :root {
-  /* Surfaces */
-  --background: 0 0% 100%;       /* Pure White */
-  --foreground: 240 10% 3.9%;    /* Zinc 950 */
+    /* Surfaces - Soft Warmth (Blending better than raw Stone) */
+    --background: 36 30% 98%;
+    /* Very pale warm cream */
+    --foreground: 25 10% 15%;
+    /* Soft warm charcoal */
 
-  /* Cards */
-  --card: 0 0% 100%;
-  --card-foreground: 240 10% 3.9%;
-  --popover: 0 0% 100%;
-  --popover-foreground: 240 10% 3.9%;
+    /* Cards */
+    --card: 0 0% 100%;
+    /* Pure white pop against cream */
+    --card-foreground: 25 10% 15%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 25 10% 15%;
 
-  /* Brand */
-  --primary: 262.1 83.3% 57.8%;  /* Violet 600 */
-  --primary-foreground: 210 20% 98%;
+    /* Brand - Harmonious Organic Green */
+    /* Slightly more muted and deeper than standard digital green */
+    --primary: 146 55% 40%;
+    --primary-foreground: 0 0% 100%;
 
-  --secondary: 240 4.8% 95.9%;   /* Zinc 100 */
-  --secondary-foreground: 240 5.9% 10%;
+    /* Secondary - Warm Neutral */
+    --secondary: 36 15% 94%;
+    --secondary-foreground: 25 10% 15%;
 
-  --muted: 240 4.8% 95.9%;       /* Zinc 100 */
-  --muted-foreground: 240 3.8% 46.1%; /* Zinc 500 */
+    /* Muted - Subtle */
+    --muted: 36 15% 94%;
+    --muted-foreground: 25 5% 45%;
 
-  --accent: 240 4.8% 95.9%;      /* Zinc 100 */
-  --accent-foreground: 240 5.9% 10%;
+    --accent: 36 15% 92%;
+    --accent-foreground: 25 10% 15%;
 
-  --destructive: 0 84.2% 60.2%;
-  --destructive-foreground: 210 20% 98%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
 
-  /* Borders & Input */
-  --border: 240 5.9% 90%;        /* Zinc 200 */
-  --input: 240 5.9% 90%;
-  --ring: 262.1 83.3% 57.8%;     /* Violet 600 */
+    /* Borders & Input - Soft Warm Grey */
+    --border: 36 10% 88%;
+    --input: 36 10% 88%;
+    --ring: 146 55% 40%;
 
-  /* Shape */
-  --radius: 0.5rem;              /* 8px - Clean & Crisp */
+    /* Shape */
+    --radius: 0.75rem;
 
-  /* Charts */
-  --chart-1: 262.1 83.3% 57.8%;
-  --chart-2: 240 5% 60%;
-  --chart-3: 142 70% 45%;
-  --chart-4: 35 90% 50%;
-  --chart-5: 0 84% 60%;
+    /* Charts */
+    --chart-1: 146 55% 40%;
+    --chart-2: 25 10% 50%;
+    --chart-3: 146 40% 55%;
+    --chart-4: 35 60% 60%;
+    --chart-5: 0 70% 65%;
 }
 
 .dark {
-  /* Surfaces */
-  --background: 240 10% 3.9%;    /* Zinc 950 - Deep neutral black */
-  --foreground: 0 0% 98%;
+    /* Surfaces - Deep Warm Charcoal */
+    --background: 25 10% 10%;
+    --foreground: 36 20% 96%;
 
-  /* Cards */
-  --card: 240 10% 3.9%;
-  --card-foreground: 0 0% 98%;
-  --popover: 240 10% 3.9%;
-  --popover-foreground: 0 0% 98%;
+    /* Cards */
+    --card: 25 8% 14%;
+    --card-foreground: 36 20% 96%;
+    --popover: 25 8% 14%;
+    --popover-foreground: 36 20% 96%;
 
-  /* Brand */
-  --primary: 263.4 70% 50.4%;    /* Violet 500 */
-  --primary-foreground: 210 20% 98%;
+    /* Brand - Brighter for Dark Mode */
+    --primary: 146 50% 50%;
+    --primary-foreground: 0 0% 100%;
 
-  --secondary: 240 3.7% 15.9%;   /* Zinc 800 */
-  --secondary-foreground: 0 0% 98%;
+    --secondary: 25 8% 18%;
+    --secondary-foreground: 36 20% 96%;
 
-  --muted: 240 3.7% 15.9%;       /* Zinc 800 */
-  --muted-foreground: 240 5% 64.9%; /* Zinc 400 */
+    --muted: 25 8% 18%;
+    --muted-foreground: 25 5% 65%;
 
-  --accent: 240 3.7% 15.9%;      /* Zinc 800 */
-  --accent-foreground: 0 0% 98%;
+    --accent: 25 8% 18%;
+    --accent-foreground: 36 20% 96%;
 
-  --destructive: 0 62.8% 30.6%;
-  --destructive-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
 
-  /* Borders & Input */
-  --border: 240 3.7% 15.9%;      /* Zinc 800 - Subtle dark borders */
-  --input: 240 3.7% 15.9%;
-  --ring: 263.4 70% 50.4%;
+    /* Borders & Input */
+    --border: 25 8% 22%;
+    --input: 25 8% 22%;
+    --ring: 146 50% 50%;
 
-  /* Charts */
-  --chart-1: 263.4 70% 50.4%;
-  --chart-2: 240 5% 64.9%;
-  --chart-3: 142 70% 55%;
-  --chart-4: 35 90% 60%;
-  --chart-5: 0 84% 65%;
+    /* Charts */
+    --chart-1: 146 50% 50%;
+    --chart-2: 25 8% 65%;
+    --chart-3: 146 40% 60%;
+    --chart-4: 35 60% 65%;
+    --chart-5: 0 70% 70%;
 }
 
-/* ---------- MAP TO shadcn SEMANTIC TOKENS ---------- */
 @theme {
-    /* shadcn required tokens */
     --color-background: hsl(var(--background));
     --color-foreground: hsl(var(--foreground));
 
@@ -125,19 +123,71 @@
     --radius: var(--radius);
 }
 
-/* ---------- BASE ---------- */
 @layer base {
     * {
         @apply border-border;
     }
+
     body {
-        @apply bg-background text-foreground;
+        @apply bg-background text-foreground font-sans relative;
+        /* Vignette Effect + Noise Texture */
+        background-image:
+            radial-gradient(circle at center, transparent 0%, rgba(0, 0, 0, 0.03) 100%),
+            url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        font-family: var(--font-nunito), sans-serif;
+        @apply font-black tracking-tight text-balance;
+    }
+
+    button {
+        @apply active:scale-95 transition-transform duration-100 ease-out;
+    }
+
+    /* Premium Selection */
+    ::selection {
+        @apply bg-primary/20 text-foreground;
+    }
+
+    /* Modern Minimal Scrollbar */
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+        @apply bg-transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        @apply bg-muted-foreground/20 rounded-full hover:bg-muted-foreground/40 transition-colors;
     }
 }
 
-/* ---------- UTILITIES ---------- */
 @layer utilities {
+
+    /* Fluid Type */
+    .text-fluid-h1 {
+        font-size: clamp(2.5rem, 5vw + 1rem, 4.5rem);
+    }
+
     .text-gradient-primary {
-        @apply bg-gradient-to-r from-primary to-purple-400 bg-clip-text text-transparent;
+        @apply bg-gradient-to-r from-primary to-emerald-400 bg-clip-text text-transparent;
+    }
+
+    .vignette-overlay {
+        @apply pointer-events-none fixed inset-0 z-50 mix-blend-multiply;
+        background: radial-gradient(circle at center, transparent 60%, rgba(50, 60, 80, 0.05) 100%);
+    }
+
+    /* Glass Morphism Utility for Nav/Cards */
+    .glass-panel {
+        @apply bg-background/80 backdrop-blur-xl border border-white/20 shadow-xl;
     }
 }

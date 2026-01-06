@@ -11,6 +11,10 @@ export default {
     darkMode: 'class',
     theme: {
         extend: {
+            fontFamily: {
+                sans: ['var(--font-dm-sans)', 'sans-serif'],
+                heading: ['var(--font-nunito)', 'sans-serif'],
+            },
             colors: {
                 surface: 'hsl(var(--surface))',
                 'surface-container': 'hsl(var(--surface-container))',

@@ -37,7 +37,7 @@ export default function WebAppScreens() {
             {/* Gentle background wash - cleaner opacity */}
             <div
                 aria-hidden
-                className="absolute inset-0 -z-10 bg-gradient-to-br from-primary/5 via-indigo-500/5 to-purple-500/5 dark:from-primary/10 dark:via-indigo-400/5 dark:to-purple-400/5"
+                className="absolute inset-0 -z-10 bg-gradient-to-br from-primary/5 via-emerald-500/5 to-teal-500/5 dark:from-primary/10 dark:via-emerald-400/5 dark:to-teal-400/5"
             />
 
             {/* Title container (centered, constrained) */}

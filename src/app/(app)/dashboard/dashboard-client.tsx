@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, type Variants } from 'framer-motion';
 import {
     Activity,
@@ -51,24 +51,31 @@ export default function DashboardClient({
     currency,
 }: DashboardClientProps) {
     // Greeting Logic
-    const hour = new Date().getHours();
-    const greeting =
-        hour < 5 || hour >= 20
-            ? 'Good evening'
-            : hour < 12
-                ? 'Good morning'
-                : hour < 17
-                    ? 'Good afternoon'
-                    : 'Good evening';
+    // Greeting Logic - Hydrated on client to prevent server mismatch
+    const [greeting, setGreeting] = useState('Welcome back');
+    const [quote, setQuote] = useState('Measure twice, cut once.');
 
-    const quotePool = [
-        'Measure twice, cut once.',
-        'Every stitch tells a story.',
-        'Consistency turns craft into mastery.',
-        'Details make the design.',
-        'Small improvements, big results.',
-    ];
-    const quote = quotePool[new Date().getDay() % quotePool.length];
+    useEffect(() => {
+        const hour = new Date().getHours();
+        setGreeting(
+            hour < 5 || hour >= 20
+                ? 'Good evening'
+                : hour < 12
+                    ? 'Good morning'
+                    : hour < 17
+                        ? 'Good afternoon'
+                        : 'Good evening'
+        );
+
+        const quotePool = [
+            'Measure twice, cut once.',
+            'Every stitch tells a story.',
+            'Consistency turns craft into mastery.',
+            'Details make the design.',
+            'Small improvements, big results.',
+        ];
+        setQuote(quotePool[new Date().getDay() % quotePool.length]);
+    }, []);
 
     const containerVariants: Variants = {
         hidden: { opacity: 0 },
@@ -338,13 +345,13 @@ function SummaryRow({
 }
 
 function num(n?: number | null) {
-    return typeof n === 'number' ? n.toLocaleString() : '—';
+    return typeof n === 'number' ? n.toLocaleString('en-US') : '—';
 }
 
 function money(code: string, n?: number | null) {
     if (typeof n !== 'number') return '—';
     try {
-        return new Intl.NumberFormat(undefined, {
+        return new Intl.NumberFormat('en-US', {
             style: 'currency',
             currency: code,
             currencyDisplay: 'symbol',

@@ -74,21 +74,22 @@ export default function Navbar() {
         <>
             <MobileNav />
             <header
-                className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-in-out ${scrolled
-                    ? 'border-b border-border/60 bg-background/95 backdrop-blur-xl shadow-lg shadow-black/5 supports-[backdrop-filter]:bg-background/80'
-                    : 'border-transparent bg-transparent'
-                    }`}
+                className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-in-out pointer-events-none md:pt-4`}
             >
-                {/* Subtle gradient overlay when scrolled */}
-                {scrolled && (
-                    <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-purple-500/5 opacity-50" />
-                )}
-                <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 md:px-8">
+                <div
+                    className={`mx-auto flex h-16 items-center justify-between px-4 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] pointer-events-auto
+                        ${scrolled
+                            ? 'md:max-w-4xl md:rounded-full md:glass-panel md:h-14 md:px-6 shadow-black/5'
+                            : 'max-w-7xl md:px-8'
+                        }
+                        ${scrolled ? 'bg-background/95 backdrop-blur-xl border-b md:border border-border/60' : 'bg-transparent'}
+                    `}
+                >
                     {/* Logo Section */}
-                    <Link href="/" className="flex items-center gap-3 z-50">
+                    <Link href="/" className="flex items-center gap-3 z-50 shrink-0">
                         <motion.div
                             initial={false}
-                            animate={scrolled ? { scale: 0.9, y: 0 } : { scale: 1, y: 0 }}
+                            animate={scrolled ? { scale: 0.9 } : { scale: 1 }}
                             className="flex items-center gap-2"
                         >
                             <div
@@ -96,7 +97,7 @@ export default function Navbar() {
                                 <Image src="/knitted-logo.svg" alt="Knitted" width={20} height={20}
                                     className="brightness-0 invert" />
                             </div>
-                            <span className="text-lg font-bold tracking-tight">Knitted</span>
+                            <span className="text-lg font-bold tracking-tight hidden sm:block">Knitted</span>
                         </motion.div>
                     </Link>
 
@@ -114,12 +115,9 @@ export default function Navbar() {
                                 {pathname === link.href && (
                                     <motion.span
                                         layoutId="nav-pill"
-                                        className="absolute inset-0 -z-10 rounded-full bg-gradient-to-r from-muted/80 via-muted to-muted/80"
+                                        className="absolute inset-0 -z-10 rounded-full bg-secondary"
                                         transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                                     />
-                                )}
-                                {pathname !== link.href && (
-                                    <span className="absolute bottom-1 left-1/2 h-0.5 w-0 -translate-x-1/2 rounded-full bg-gradient-to-r from-primary/0 via-primary to-primary/0 transition-all duration-300 group-hover:w-3/4" />
                                 )}
                                 <span className="relative z-10">{link.label}</span>
                             </Link>
@@ -127,7 +125,7 @@ export default function Navbar() {
                     </nav>
 
                     {/* Actions Group */}
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-3 shrink-0">
 
                         {/* Theme Toggle */}
                         {mounted && (
@@ -147,21 +145,21 @@ export default function Navbar() {
                         )}
 
                         {/* Desktop Auth Actions */}
-                        <div className="hidden md:flex items-center gap-4 pl-2">
-                            <div className="h-6 w-px bg-border/50" />
+                        <div className="hidden md:flex items-center gap-3 pl-2">
+                            {!scrolled && <div className="h-4 w-px bg-border/50" />}
                             <Link
                                 href="/login"
-                                className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+                                className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground hidden lg:block"
                             >
                                 Log in
                             </Link>
 
                             <Link
                                 href="/login"
-                                className="group relative inline-flex items-center justify-center overflow-hidden rounded-full bg-gradient-to-r from-primary via-purple-600 to-indigo-600 px-6 py-2 text-sm font-semibold text-white shadow-lg shadow-primary/30 transition-all hover:scale-105 hover:shadow-xl hover:shadow-primary/50"
+                                className="group relative inline-flex items-center justify-center overflow-hidden rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/30 transition-all hover:scale-105 active:scale-95 hover:shadow-xl hover:shadow-primary/50"
                             >
                                 <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
-                                <span className="relative z-10">Start Free Trial</span>
+                                <span className="relative z-10">{scrolled ? 'Start' : 'Start Free Trial'}</span>
                             </Link>
                         </div>
 

@@ -120,9 +120,9 @@ export default function Pricing() {
                             {plan.highlight && (
                                 <>
                                     {/* Animated gradient border glow */}
-                                    <div className="absolute inset-0 rounded-[2rem] bg-gradient-to-r from-primary via-purple-600 to-indigo-600 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-500 -z-10" />
+                                    <div className="absolute inset-0 rounded-[2rem] bg-gradient-to-r from-primary via-emerald-600 to-teal-600 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-500 -z-10" />
                                     {/* Popular badge */}
-                                    <div className="absolute -top-5 left-0 right-0 mx-auto w-fit rounded-full bg-gradient-to-r from-primary via-purple-600 to-indigo-600 px-5 py-1.5 text-sm font-bold text-white shadow-lg">
+                                    <div className="absolute -top-5 left-0 right-0 mx-auto w-fit rounded-full bg-gradient-to-r from-primary via-emerald-600 to-teal-600 px-5 py-1.5 text-sm font-bold text-white shadow-lg">
                                         <span className="relative z-10">Most Popular</span>
                                     </div>
                                 </>
