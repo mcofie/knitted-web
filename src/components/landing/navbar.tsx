@@ -1,181 +1,167 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import React, { useEffect, useState } from 'react';
-import { usePathname } from 'next/navigation';
-import { Menu } from 'lucide-react';
-import { motion } from 'framer-motion';
-import { IoMoonOutline } from 'react-icons/io5';
-import { GoSun } from 'react-icons/go';
-import { useTheme } from 'next-themes';
-import Image from 'next/image';
+import Link from "next/link";
+import React, { useEffect, useState } from "react";
+import { Menu, X, Sun, Moon } from "lucide-react";
+import { useTheme } from "next-themes";
+import Image from "next/image";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function Navbar() {
-    const [scrolled, setScrolled] = useState(false);
-    const pathname = usePathname();
-    const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const [mounted, setMounted] = useState(false);
-    const { theme, setTheme } = useTheme();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
 
-    useEffect(() => {
-        const onScroll = () => setScrolled(window.scrollY > 8);
-        onScroll();
-        window.addEventListener('scroll', onScroll, { passive: true });
-        return () => window.removeEventListener('scroll', onScroll);
-    }, []);
+  useEffect(() => setMounted(true), []);
 
-    useEffect(() => setMounted(true), []);
+  const links = [
+    { href: "/features", label: "Features" },
+    { href: "/pricing", label: "Pricing" },
+  ];
 
-    const links = [
-        { href: '/features', label: 'Features' },
-        { href: '/pricing', label: 'Pricing' },
-        { href: '/blog', label: 'Blog' },
-        { href: '/about', label: 'About' }
-    ];
+  const toggleTheme = () => {
+    setTheme(theme === "dark" ? "light" : "dark");
+  };
 
-    // Helper component for mobile navigation
-    const MobileNav = () => (
-        <div
-            className={`fixed inset-0 z-[100] md:hidden transition-transform duration-300 ease-in-out ${isMenuOpen ? 'translate-x-0' : 'translate-x-full'
-                } bg-background/95 backdrop-blur-lg`}
-        >
-            <div className="flex flex-col p-6 pt-24 space-y-4">
-                {links.map((link) => (
-                    <Link
-                        key={link.href}
-                        href={link.href}
-                        className="text-xl font-semibold py-2 border-b border-border/50 transition hover:text-primary"
-                        onClick={() => setIsMenuOpen(false)}
-                    >
-                        {link.label}
-                    </Link>
-                ))}
-                <div className="pt-4 flex flex-col gap-3">
-                    <Link
-                        href="/login"
-                        className="w-full text-center rounded-xl border border-border bg-card py-3 text-base font-semibold transition hover:bg-muted"
-                        onClick={() => setIsMenuOpen(false)}
-                    >
-                        Log in
-                    </Link>
-                    <Link
-                        href="/login"
-                        className="w-full text-center rounded-xl bg-primary py-3 text-base font-semibold text-primary-foreground transition hover:opacity-90"
-                        onClick={() => setIsMenuOpen(false)}
-                    >
-                        Start Free Trial
-                    </Link>
-                </div>
-            </div>
-        </div>
-    );
-
-    return (
-        <>
-            <MobileNav />
-            <header
-                className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-in-out pointer-events-none md:pt-4`}
+  return (
+    <React.Fragment>
+      {/* Desktop Floating Pill Nav */}
+      <header className="fixed top-6 left-0 right-0 z-50 flex justify-center pointer-events-none px-4">
+        <nav className="hidden md:flex items-center gap-2 pointer-events-auto bg-background border border-border shadow-xl shadow-black/5 rounded-full p-2 pl-6 pr-2 transition-all hover:scale-[1.01]">
+          {/* Logo */}
+          <Link href="/" className="flex items-center gap-2 mr-6 group">
+            <motion.div
+              className="relative h-6 w-6"
+              whileHover={{ rotate: 180 }}
+              transition={{ duration: 0.3 }}
             >
-                <div
-                    className={`mx-auto flex h-16 items-center justify-between px-4 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] pointer-events-auto
-                        ${scrolled
-                            ? 'md:max-w-4xl md:rounded-full md:glass-panel md:h-14 md:px-6 shadow-black/5'
-                            : 'max-w-7xl md:px-8'
-                        }
-                        ${scrolled ? 'bg-background/95 backdrop-blur-xl border-b md:border border-border/60' : 'bg-transparent'}
-                    `}
+              <Image
+                src="/knitted-logo.svg"
+                alt=""
+                fill
+                className="object-contain dark:invert"
+              />
+            </motion.div>
+            <span className="font-bold tracking-tight text-foreground">
+              Knitted
+            </span>
+          </Link>
+
+          {/* Links */}
+          <div className="flex items-center gap-1">
+            {links.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary/50 rounded-full transition-all"
+              >
+                {link.label}
+              </Link>
+            ))}
+          </div>
+
+          {/* Separator */}
+          <div className="w-px h-6 bg-border mx-2" />
+
+          {/* Actions */}
+          <div className="flex items-center gap-2">
+            {/* Theme Toggle */}
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-colors"
+              aria-label="Toggle theme"
+            >
+              {mounted && theme === "dark" ? (
+                <Moon className="w-4 h-4" />
+              ) : (
+                <Sun className="w-4 h-4" />
+              )}
+            </button>
+
+            <Link
+              href="/login"
+              className="px-4 py-2 text-sm font-medium text-foreground hover:text-primary transition-colors"
+            >
+              Log in
+            </Link>
+            <Link
+              href="/signup"
+              className="h-10 px-5 rounded-full bg-primary text-primary-foreground text-sm font-bold flex items-center shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all"
+            >
+              Get Started
+            </Link>
+          </div>
+        </nav>
+
+        {/* Mobile Top Bar */}
+        <div className="md:hidden w-full flex justify-between items-center pointer-events-auto bg-background border border-border shadow-sm rounded-full px-6 py-3">
+          <Link href="/" className="flex items-center gap-2">
+            <div className="relative h-6 w-6">
+              <Image
+                src="/knitted-logo.svg"
+                alt=""
+                fill
+                className="object-contain dark:invert"
+              />
+            </div>
+            <span className="font-bold text-foreground">Knitted</span>
+          </Link>
+          <div className="flex items-center gap-4">
+            <button
+              onClick={toggleTheme}
+              className="text-muted-foreground hover:text-foreground transition-colors"
+            >
+              {mounted && theme === "dark" ? (
+                <Moon className="w-5 h-5" />
+              ) : (
+                <Sun className="w-5 h-5" />
+              )}
+            </button>
+            <button onClick={() => setIsMenuOpen(!isMenuOpen)}>
+              {isMenuOpen ? (
+                <X className="w-6 h-6" />
+              ) : (
+                <Menu className="w-6 h-6" />
+              )}
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* Mobile Menu Overlay */}
+      <AnimatePresence>
+        {isMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="fixed inset-0 z-40 bg-background pt-24 px-6 md:hidden"
+          >
+            <div className="flex flex-col gap-6 text-2xl font-bold">
+              {links.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => setIsMenuOpen(false)}
                 >
-                    {/* Logo Section */}
-                    <Link href="/" className="flex items-center gap-3 z-50 shrink-0">
-                        <motion.div
-                            initial={false}
-                            animate={scrolled ? { scale: 0.9 } : { scale: 1 }}
-                            className="flex items-center gap-2"
-                        >
-                            <div
-                                className="relative flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-white shadow-lg shadow-primary/20">
-                                <Image src="/knitted-logo.svg" alt="Knitted" width={20} height={20}
-                                    className="brightness-0 invert" />
-                            </div>
-                            <span className="text-lg font-bold tracking-tight hidden sm:block">Knitted</span>
-                        </motion.div>
-                    </Link>
-
-                    {/* Desktop Navigation */}
-                    <nav className="hidden md:flex items-center gap-1">
-                        {links.map((link) => (
-                            <Link
-                                key={link.href}
-                                href={link.href}
-                                className={`group relative rounded-full px-4 py-2 text-sm font-medium transition-colors ${pathname === link.href
-                                    ? 'text-foreground'
-                                    : 'text-muted-foreground hover:text-foreground'
-                                    }`}
-                            >
-                                {pathname === link.href && (
-                                    <motion.span
-                                        layoutId="nav-pill"
-                                        className="absolute inset-0 -z-10 rounded-full bg-secondary"
-                                        transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                                    />
-                                )}
-                                <span className="relative z-10">{link.label}</span>
-                            </Link>
-                        ))}
-                    </nav>
-
-                    {/* Actions Group */}
-                    <div className="flex items-center gap-3 shrink-0">
-
-                        {/* Theme Toggle */}
-                        {mounted && (
-                            <button
-                                type="button"
-                                onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
-                                className="group relative inline-flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                                aria-label="Toggle theme"
-                            >
-                                <span className="sr-only">Switch theme</span>
-                                {theme === 'light' ? (
-                                    <IoMoonOutline className="h-4 w-4 transition-transform group-hover:-rotate-12" />
-                                ) : (
-                                    <GoSun className="h-4 w-4 transition-transform group-hover:rotate-90" />
-                                )}
-                            </button>
-                        )}
-
-                        {/* Desktop Auth Actions */}
-                        <div className="hidden md:flex items-center gap-3 pl-2">
-                            {!scrolled && <div className="h-4 w-px bg-border/50" />}
-                            <Link
-                                href="/login"
-                                className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground hidden lg:block"
-                            >
-                                Log in
-                            </Link>
-
-                            <Link
-                                href="/login"
-                                className="group relative inline-flex items-center justify-center overflow-hidden rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/30 transition-all hover:scale-105 active:scale-95 hover:shadow-xl hover:shadow-primary/50"
-                            >
-                                <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
-                                <span className="relative z-10">{scrolled ? 'Start' : 'Start Free Trial'}</span>
-                            </Link>
-                        </div>
-
-                        {/* Mobile Menu Button */}
-                        <button
-                            type="button"
-                            className="md:hidden inline-flex h-10 w-10 items-center justify-center rounded-full text-foreground transition-colors hover:bg-muted"
-                            onClick={() => setIsMenuOpen(!isMenuOpen)}
-                            aria-label="Toggle mobile menu"
-                        >
-                            <Menu
-                                className={`h-5 w-5 transition-transform duration-300 ${isMenuOpen ? 'rotate-90' : 'rotate-0'}`} />
-                        </button>
-                    </div>
-                </div>
-            </header>
-        </>
-    );
+                  {link.label}
+                </Link>
+              ))}
+              <hr className="border-border" />
+              <Link href="/login" onClick={() => setIsMenuOpen(false)}>
+                Log in
+              </Link>
+              <Link
+                href="/signup"
+                className="text-primary"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Get Started
+              </Link>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </React.Fragment>
+  );
 }

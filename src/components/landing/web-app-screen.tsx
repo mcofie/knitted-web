@@ -33,21 +33,15 @@ export default function WebAppScreens() {
     );
 
     return (
-        <section className="relative overflow-hidden">
-            {/* Gentle background wash - cleaner opacity */}
-            <div
-                aria-hidden
-                className="absolute inset-0 -z-10 bg-gradient-to-br from-primary/5 via-emerald-500/5 to-teal-500/5 dark:from-primary/10 dark:via-emerald-400/5 dark:to-teal-400/5"
-            />
-
+        <section className="relative overflow-hidden pt-24 pb-24 bg-background">
             {/* Title container (centered, constrained) */}
-            <div className="mx-auto max-w-6xl px-4 pt-16 md:px-6">
+            <div className="mx-auto max-w-6xl px-4 md:px-6">
                 <motion.h2
                     initial={{ y: 14, opacity: 0 }}
                     whileInView={{ y: 0, opacity: 1 }}
                     viewport={{ once: true, amount: 0.5 }}
                     transition={{ duration: 0.35, ease: "easeOut" }}
-                    className="text-center text-3xl font-bold tracking-tight md:text-4xl"
+                    className="text-center text-3xl font-bold tracking-tight md:text-4xl text-foreground"
                 >
                     The Knitted Studio
                 </motion.h2>
@@ -56,7 +50,7 @@ export default function WebAppScreens() {
                     whileInView={{ y: 0, opacity: 1 }}
                     viewport={{ once: true, amount: 0.5 }}
                     transition={{ duration: 0.35, ease: "easeOut", delay: 0.05 }}
-                    className="mx-auto mt-2 max-w-2xl text-center text-muted-foreground"
+                    className="mx-auto mt-4 max-w-2xl text-center text-muted-foreground text-lg"
                 >
                     See how every stitch of your business comes together — clients, orders, and creativity, perfectly
                     woven online.
@@ -69,25 +63,25 @@ export default function WebAppScreens() {
                     // pull container to the edges
                     "relative left-[50%] right-[50%] ml-[-50vw] mr-[-50vw] w-screen",
                     // spacing above/below carousel
-                    "mt-8 md:mt-10"
+                    "mt-12 md:mt-16"
                 )}
             >
                 <Carousel
                     opts={{ loop: true, align: "center" }}
                     plugins={[autoplay.current]}
-                    className="w-full py-10"
+                    className="w-full"
                     onMouseEnter={autoplay.current.stop}
                     onMouseLeave={autoplay.current.reset}
                 >
                     <CarouselContent>
                         {SCREENS.map((screen, i) => (
                             <CarouselItem key={i} className="basis-full flex justify-center">
-                                <figure className="w-[90%] md:w-[80%] lg:w-[80%] xl:w-[50%] mx-auto">
+                                <figure className="w-[90%] md:w-[80%] lg:w-[80%] xl:w-[60%] mx-auto shadow-2xl rounded-xl overflow-hidden border border-border">
                                     {/* Frame for the screenshot */}
                                     <div
-                                        className="relative overflow-hidden border-border">
+                                        className="relative overflow-hidden bg-muted">
                                         {/* Maintain a cinematic ratio */}
-                                        <div className="relative aspect-[16/9] w-full">
+                                        <div className="relative aspect-[16/10] w-full">
                                             {/* Light screenshot */}
                                             <Image
                                                 src={screen.light}
@@ -95,7 +89,7 @@ export default function WebAppScreens() {
                                                 fill
                                                 priority={i === 0}
                                                 sizes="80vw"
-                                                className="object-contain dark:hidden"
+                                                className="object-cover dark:hidden"
                                             />
                                             {/* Dark screenshot */}
                                             <Image
@@ -104,7 +98,7 @@ export default function WebAppScreens() {
                                                 fill
                                                 priority={i === 0}
                                                 sizes="80vw"
-                                                className="hidden object-contain dark:block"
+                                                className="hidden object-cover dark:block"
                                             />
                                         </div>
                                     </div>
@@ -115,9 +109,9 @@ export default function WebAppScreens() {
 
                     {/* Navigation controls */}
                     <div
-                        className="pointer-events-none absolute inset-0 flex items-center justify-between px-2 md:px-4">
-                        <CarouselPrevious className="pointer-events-auto border bg-background/80 backdrop-blur" />
-                        <CarouselNext className="pointer-events-auto border bg-background/80 backdrop-blur" />
+                        className="pointer-events-none absolute inset-0 flex items-center justify-between px-4 md:px-8">
+                        <CarouselPrevious className="pointer-events-auto border-border bg-background/80 backdrop-blur hover:bg-background" />
+                        <CarouselNext className="pointer-events-auto border-border bg-background/80 backdrop-blur hover:bg-background" />
                     </div>
                 </Carousel>
             </div>

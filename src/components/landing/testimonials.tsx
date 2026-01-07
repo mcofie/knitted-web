@@ -1,96 +1,92 @@
-'use client';
+"use client";
 
-import Image from 'next/image';
-import { motion } from 'framer-motion';
-import { Star } from 'lucide-react';
+import Image from "next/image";
+import { motion } from "framer-motion";
 
 const testimonials = [
-    {
-        content: "Knitted has completely transformed how I manage my atelier. The measurement tracking is a lifesaver.",
-        author: "Sarah Jenkins",
-        role: "Bespoke Tailor, London",
-        avatar: "https://api.dicebear.com/9.x/avataaars/svg?seed=Sarah"
-    },
-    {
-        content: "Finally, a system that understands the nuances of custom clothing. My clients love the professional invoices.",
-        author: "Marco Rossi",
-        role: "Fashion Designer, Milan",
-        avatar: "https://api.dicebear.com/9.x/avataaars/svg?seed=Marco"
-    },
-    {
-        content: "The best investment I've made for my business this year. It saves me hours of admin work every week.",
-        author: "Elena Rodriguez",
-        role: "Bridal Couturier, Madrid",
-        avatar: "https://api.dicebear.com/9.x/avataaars/svg?seed=Elena"
-    }
+  {
+    quote:
+      "The visual clarity Knitted brings to my chaotic studio is unmatched.",
+    author: "Sarah Jenkins",
+    role: "Bespoke Tailor, London",
+    avatar: "https://api.dicebear.com/9.x/avataaars/svg?seed=Sarah",
+  },
+  {
+    quote:
+      "I've tried every tool. Knitted is the only one that feels like it was made by a tailor.",
+    author: "Marco Rossi",
+    role: "Fashion Designer, Milan",
+    avatar: "https://api.dicebear.com/9.x/avataaars/svg?seed=Marco",
+  },
+  {
+    quote:
+      "It's not just software; it's peace of mind. My clients love the professional invoices.",
+    author: "Elena Rodriguez",
+    role: "Bridal Couturier, Madrid",
+    avatar: "https://api.dicebear.com/9.x/avataaars/svg?seed=Elena",
+  },
+  {
+    quote: "Data entry used to be a chore. Now it's satisfying.",
+    author: "David Chen",
+    role: "Suit Maker, Hong Kong",
+    avatar: "https://api.dicebear.com/9.x/avataaars/svg?seed=David",
+  },
+  {
+    quote: "The migration was effortless. I was up and running in minutes.",
+    author: "Sophie Dubois",
+    role: "Atelier Owner, Paris",
+    avatar: "https://api.dicebear.com/9.x/avataaars/svg?seed=Sophie",
+  },
+  {
+    quote: "Finally, a CRM that doesn't look like a spreadsheet from 1999.",
+    author: "James Wilson",
+    role: "Custom Clothier, NY",
+    avatar: "https://api.dicebear.com/9.x/avataaars/svg?seed=James",
+  },
 ];
 
 export default function Testimonials() {
-    return (
-        <section className="py-24 bg-secondary/5 relative overflow-hidden">
-            {/* Background decoration */}
-            <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
-                <div className="absolute top-[-10%] right-[-5%] w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
-                <div className="absolute bottom-[-10%] left-[-5%] w-96 h-96 bg-secondary/5 rounded-full blur-3xl" />
-            </div>
+  return (
+    <section className="py-32 bg-secondary">
+      <div className="mx-auto max-w-7xl px-4 md:px-8 text-center mb-16">
+        <h2 className="text-4xl font-bold tracking-tight mb-4">
+          Friends of Knitted.
+        </h2>
+        <p className="text-muted-foreground text-lg">
+          Join hundreds of the world's best ateliers.
+        </p>
+      </div>
 
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="text-center mb-16">
-                    <motion.h2
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        className="text-3xl font-bold tracking-tight sm:text-4xl mb-4"
-                    >
-                        Loved by modern ateliers
-                    </motion.h2>
-                    <motion.p
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ delay: 0.1 }}
-                        className="text-lg text-muted-foreground max-w-2xl mx-auto"
-                    >
-                        Join hundreds of tailors and designers who trust Knitted to run their business.
-                    </motion.p>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    {testimonials.map((testimonial, index) => (
-                        <motion.div
-                            key={index}
-                            initial={{ opacity: 0, y: 20 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ delay: index * 0.1 + 0.2 }}
-                            className="bg-background/60 backdrop-blur-sm border border-border/50 p-8 rounded-2xl shadow-sm hover:shadow-md transition-all hover:border-primary/20"
-                        >
-                            <div className="flex gap-1 mb-4 text-amber-500">
-                                {[...Array(5)].map((_, i) => (
-                                    <Star key={i} className="w-4 h-4 fill-current" />
-                                ))}
-                            </div>
-                            <p className="text-lg mb-6 leading-relaxed text-foreground/90">
-                                &quot;{testimonial.content}&quot;
-                            </p>
-                            <div className="flex items-center gap-4">
-                                <div className="relative w-10 h-10 rounded-full overflow-hidden bg-muted">
-                                    <Image
-                                        src={testimonial.avatar}
-                                        alt={testimonial.author}
-                                        fill
-                                        className="object-cover"
-                                    />
-                                </div>
-                                <div>
-                                    <div className="font-semibold text-sm">{testimonial.author}</div>
-                                    <div className="text-xs text-muted-foreground">{testimonial.role}</div>
-                                </div>
-                            </div>
-                        </motion.div>
-                    ))}
-                </div>
+      <div className="flex flex-wrap justify-center gap-6 max-w-7xl mx-auto px-4">
+        {testimonials.map((t, i) => (
+          <motion.div
+            key={i}
+            initial={{ opacity: 0, scale: 0.9 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: i * 0.05 }}
+            className="flex flex-col p-8 bg-background rounded-[2rem] shadow-sm border border-border/50 w-full sm:w-[350px] hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+          >
+            <div className="flex items-center gap-4 mb-6">
+              <div className="relative w-12 h-12 rounded-full overflow-hidden bg-secondary">
+                <Image
+                  src={t.avatar}
+                  alt={t.author}
+                  fill
+                  className="object-cover"
+                />
+              </div>
+              <div className="text-left">
+                <div className="font-bold text-foreground">{t.author}</div>
+                <div className="text-xs text-muted-foreground">{t.role}</div>
+              </div>
             </div>
-        </section>
-    );
+            <p className="text-lg text-foreground/80 text-left font-medium leading-relaxed">
+              "{t.quote}"
+            </p>
+          </motion.div>
+        ))}
+      </div>
+    </section>
+  );
 }
