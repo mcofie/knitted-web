@@ -2,7 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Suspense } from "react";
 import { createClientServer } from "@/lib/supabase/server";
-import { MapPin, Phone, Users } from "lucide-react"; // Removed unused SearchX
+import { MapPin, Phone, Users, Plus, Star, Search, Sparkles, Coffee, ChevronRight, UserCircle, Scissors } from "lucide-react";
 
 import ClientsPageActions from "./ClientsPageActions";
 import ClientsPager from "@/app/(app)/clients/pager";
@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-    title: 'Clients',
+    title: 'Clients | Knitted',
 };
 
 type SearchParams = Promise<{ page?: string; pageSize?: string }>;
@@ -24,10 +24,16 @@ export default async function ClientsPage({ searchParams }: { searchParams: Sear
 
     if (!user) {
         return (
-            <div className="flex h-[50vh] items-center justify-center">
-                <div className="text-center">
-                    <h2 className="text-lg font-semibold">Access Denied</h2>
-                    <p className="text-muted-foreground">Please sign in to view your clients.</p>
+            <div className="flex h-[80vh] items-center justify-center p-8 bg-background">
+                <div className="text-center space-y-6">
+                    <UserCircle className="w-20 h-20 text-muted-foreground/20 mx-auto" />
+                    <div className="space-y-4">
+                        <h2 className="text-4xl font-serif text-foreground">Identity Check</h2>
+                        <p className="text-muted-foreground font-sans max-w-sm mx-auto italic">Please authenticate to access your studio&apos;s records.</p>
+                    </div>
+                    <Button asChild className="btn-primary">
+                        <Link href="/login">Sign In</Link>
+                    </Button>
                 </div>
             </div>
         );
@@ -38,7 +44,7 @@ export default async function ClientsPage({ searchParams }: { searchParams: Sear
     // Parse Params
     const sp = await searchParams;
     const page = Math.max(1, Number(sp.page ?? 1));
-    const pageSize = Math.min(100, Math.max(6, Number(sp.pageSize ?? 12))); // Adjusted default pageSize
+    const pageSize = Math.min(100, Math.max(6, Number(sp.pageSize ?? 12)));
     const from = (page - 1) * pageSize;
     const to = from + pageSize - 1;
 
@@ -53,8 +59,9 @@ export default async function ClientsPage({ searchParams }: { searchParams: Sear
 
     if (error) {
         return (
-            <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-6 text-destructive">
-                Error loading clients: {error.message}
+            <div className="rounded-[2rem] bg-destructive/5 p-12 text-center space-y-4 border border-destructive/10">
+                <h3 className="text-2xl font-serif text-destructive">Sync Delayed</h3>
+                <p className="font-sans text-muted-foreground italic">Error retrieving client dossier: {error.message}</p>
             </div>
         );
     }
@@ -64,35 +71,33 @@ export default async function ClientsPage({ searchParams }: { searchParams: Sear
 
     return (
         <Suspense fallback={<ClientsLoadingSkeleton />}>
-            <div className="space-y-8 pb-10">
+            <div className="space-y-12 pb-20 max-w-7xl mx-auto">
 
                 {/* Header Section */}
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between px-2">
                     <div className="space-y-1">
-                        <h1 className="text-3xl font-bold tracking-tight text-foreground">Clients</h1>
-                        <p className="text-sm text-muted-foreground">
-                            Manage your customer directory and details.
-                        </p>
+                        <span className="text-xs font-medium text-muted-foreground uppercase tracking-[0.2em]">{total} Active Records</span>
+                        <h1 className="text-6xl font-serif text-foreground">Directory</h1>
                     </div>
-                    <ClientsPageActions />
+                    <div className="flex gap-4">
+                        <ClientsPageActions />
+                    </div>
                 </div>
 
                 {/* Content Section */}
                 {!hasClients ? (
                     <EmptyState />
                 ) : (
-                    <>
-                        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                    <div className="space-y-16">
+                        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
                             {clients.map((c) => (
                                 <Link
                                     key={c.id}
                                     href={`/clients/${c.id}`}
-                                    className="group relative flex flex-col rounded-xl border border-border bg-card p-5 shadow-sm transition-all duration-200 hover:border-primary/50 hover:shadow-md"
+                                    className="group bento-card p-8 flex flex-col justify-between h-[320px] bg-card"
                                 >
-                                    {/* Avatar & Name */}
-                                    <div className="flex items-start gap-4">
-                                        <div
-                                            className="relative h-12 w-12 flex-shrink-0 overflow-hidden rounded-full bg-secondary ring-2 ring-background group-hover:ring-primary/20 transition-all">
+                                    <div className="flex items-start justify-between">
+                                        <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-[1.5rem] bg-secondary group-hover:scale-110 transition-transform duration-500">
                                             <Image
                                                 src={`https://api.dicebear.com/9.x/glass/svg?seed=${encodeURIComponent(c?.name || "Guest")}`}
                                                 alt={c?.name || "Avatar"}
@@ -101,40 +106,36 @@ export default async function ClientsPage({ searchParams }: { searchParams: Sear
                                                 unoptimized
                                             />
                                         </div>
-                                        <div className="flex-1 min-w-0">
-                                            <h3 className="truncate text-base font-semibold text-foreground group-hover:text-primary transition-colors">
-                                                {c.name || "Unknown Name"}
-                                            </h3>
-                                            <p className="truncate text-sm text-muted-foreground">
-                                                {c.full_name !== c.name ? c.full_name : "Customer"}
-                                            </p>
+                                        <div className="h-10 w-10 border border-border rounded-full flex items-center justify-center group-hover:bg-foreground group-hover:text-background transition-colors">
+                                            <ChevronRight className="w-4 h-4" />
                                         </div>
                                     </div>
 
-                                    <hr className="my-4 border-border/50" />
-
-                                    {/* Details */}
-                                    <div className="mt-auto space-y-2 text-sm text-muted-foreground">
-                                        <div className="flex items-center gap-2">
-                                            <Phone className="h-3.5 w-3.5 opacity-70" />
-                                            <span className="truncate">{c.phone || "No phone number"}</span>
+                                    <div className="space-y-6">
+                                        <div>
+                                            <h3 className="text-3xl font-serif text-foreground leading-[1.1] mb-2">
+                                                {c.name || "Unknown"}
+                                            </h3>
+                                            <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground uppercase tracking-widest opacity-60">
+                                                <MapPin className="w-3 h-3" />
+                                                <span>{c.city || 'Global Atelier'}</span>
+                                            </div>
                                         </div>
+
                                         <div className="flex items-center gap-2">
-                                            <MapPin className="h-3.5 w-3.5 opacity-70" />
-                                            <span className="truncate">
-                                                {[c.city, c.country_code].filter(Boolean).join(", ") || "No location"}
-                                            </span>
+                                            <div className="h-1 w-1 rounded-full bg-accent" />
+                                            <span className="text-[10px] uppercase font-medium tracking-widest text-muted-foreground/60">verified stakeholder</span>
                                         </div>
                                     </div>
                                 </Link>
                             ))}
                         </div>
 
-                        {/* Pagination */}
-                        <div className="pt-4">
+                        {/* Pagination - Minimalist */}
+                        <div className="pt-8 border-t border-border">
                             <ClientsPager page={page} pageSize={pageSize} total={total} />
                         </div>
-                    </>
+                    </div>
                 )}
             </div>
         </Suspense>
@@ -145,18 +146,21 @@ export default async function ClientsPage({ searchParams }: { searchParams: Sear
 
 function EmptyState() {
     return (
-        <div
-            className="flex min-h-[400px] flex-col items-center justify-center rounded-2xl border-2 border-dashed border-muted bg-muted/5 p-8 text-center animate-in fade-in-50">
-            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-muted shadow-sm mb-4">
-                <Users className="h-10 w-10 text-muted-foreground" />
+        <div className="bento-card bg-secondary/30 min-h-[500px] flex flex-col items-center justify-center p-12 text-center">
+            <div className="w-20 h-20 bg-background border border-border rounded-[1.5rem] flex items-center justify-center mb-10 group-hover:scale-110 transition-transform">
+                <Scissors className="h-8 w-8 text-foreground opacity-20" />
             </div>
-            <h3 className="text-lg font-semibold">No clients found</h3>
-            <p className="mb-6 mt-2 max-w-sm text-sm text-muted-foreground">
-                You haven&apos;t added any clients yet. Start building your directory to track measurements and orders.
-            </p>
+            <div className="space-y-6 max-w-sm">
+                <h3 className="text-4xl font-serif text-foreground leading-tight">Your workshop is calling.</h3>
+                <p className="text-muted-foreground font-sans text-lg leading-relaxed italic">
+                    The studio floor is quiet. Add your first client to begin tracking their unique journey.
+                </p>
+            </div>
 
-            <div className="opacity-50 pointer-events-none">
-                <Button variant="outline">Use the &apos;Add Client&apos; button above</Button>
+            <div className="mt-12">
+                <button className="btn-primary min-w-[200px]">
+                    Create record
+                </button>
             </div>
         </div>
     );
@@ -164,17 +168,17 @@ function EmptyState() {
 
 function ClientsLoadingSkeleton() {
     return (
-        <div className="space-y-8">
-            <div className="flex items-center justify-between">
-                <div className="space-y-2">
-                    <div className="h-8 w-32 animate-pulse rounded-md bg-muted" />
-                    <div className="h-4 w-64 animate-pulse rounded-md bg-muted" />
+        <div className="space-y-12 pb-20 max-w-7xl mx-auto">
+            <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between px-2">
+                <div className="space-y-4">
+                    <div className="h-3 w-24 animate-pulse rounded-full bg-muted" />
+                    <div className="h-12 w-64 animate-pulse rounded-2xl bg-muted" />
                 </div>
-                <div className="h-10 w-28 animate-pulse rounded-md bg-muted" />
+                <div className="h-12 w-40 animate-pulse rounded-full bg-muted" />
             </div>
-            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-                {[...Array(8)].map((_, i) => (
-                    <div key={i} className="h-48 animate-pulse rounded-xl border bg-muted/30" />
+            <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+                {[...Array(6)].map((_, i) => (
+                    <div key={i} className="h-[320px] animate-pulse rounded-[2rem] bg-muted/50" />
                 ))}
             </div>
         </div>

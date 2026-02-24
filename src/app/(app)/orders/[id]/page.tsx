@@ -27,7 +27,19 @@ import {
     CreditCard,
     Package,
     StickyNote,
-    ListTodo, Settings2
+    ListTodo,
+    Settings2,
+    ArrowLeft,
+    Sparkles,
+    Star,
+    Zap,
+    Heart,
+    ChevronRight,
+    MapPin,
+    Layers,
+    Clock,
+    UserCircle,
+    Scissors
 } from "lucide-react";
 
 // Custom Components
@@ -36,6 +48,7 @@ import StatusSelect from "./status-select";
 import ReadyAtPicker from "./ready-at-picker";
 import AttachmentsSection from "./attachments";
 import StatusBadge from "@/components/StatusBadge";
+import { cn } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -103,10 +116,14 @@ export default async function OrderDetailPage({ params }: { params: RouteParams 
 
     if (!order) {
         return (
-            <div className="flex h-[50vh] items-center justify-center flex-col gap-2 text-muted-foreground">
-                <FileText className="h-10 w-10 opacity-20" />
-                <p>Order not found</p>
-                {error && <pre className="text-xs opacity-50">{JSON.stringify(error, null, 2)}</pre>}
+            <div className="flex h-[80vh] items-center justify-center p-8 bg-background">
+                <div className="text-center space-y-6">
+                    <Package className="w-20 h-20 text-muted-foreground/20 mx-auto" />
+                    <h2 className="text-4xl font-serif text-foreground">Order Archive</h2>
+                    <Button asChild className="btn-primary">
+                        <Link href="/orders">Back to Workshop</Link>
+                    </Button>
+                </div>
             </div>
         );
     }
@@ -133,260 +150,165 @@ export default async function OrderDetailPage({ params }: { params: RouteParams 
     const balance = t.total - t.paid;
 
     return (
-        <div className="space-y-8 max-w-7xl mx-auto pb-20">
+        <div className="space-y-12 max-w-7xl mx-auto pb-32">
 
-            {/* --- Header --- */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div className="space-y-1">
-                    <Breadcrumb>
-                        <BreadcrumbList>
-                            <BreadcrumbItem>
-                                <BreadcrumbLink href="/dashboard">Home</BreadcrumbLink>
-                            </BreadcrumbItem>
-                            <BreadcrumbSeparator />
-                            <BreadcrumbItem>
-                                <BreadcrumbLink href="/orders">Orders</BreadcrumbLink>
-                            </BreadcrumbItem>
-                            <BreadcrumbSeparator />
-                            <BreadcrumbItem>
-                                <BreadcrumbPage>Details</BreadcrumbPage>
-                            </BreadcrumbItem>
-                        </BreadcrumbList>
-                    </Breadcrumb>
-                    <div className="flex items-center gap-3">
-                        <h1 className="text-3xl font-bold tracking-tight text-foreground">
-                            {ord.order_code ?? `Order #${ord.id.slice(0, 8).toUpperCase()}`}
+            {/* --- Header Section --- */}
+            <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between px-2">
+                <div className="space-y-6">
+                    <Link href="/orders" className="inline-flex items-center gap-2 text-[10px] font-medium text-muted-foreground hover:text-foreground transition-all uppercase tracking-[0.2em]">
+                        <ArrowLeft className="h-3 w-3" />
+                        Back to Workshop
+                    </Link>
+                    <div className="flex flex-col sm:flex-row sm:items-baseline gap-6 md:gap-10">
+                        <h1 className="text-6xl font-serif text-foreground leading-none">
+                            {ord.order_code ?? `#${ord.id.slice(0, 5).toUpperCase()}`}
                         </h1>
-                        <StatusBadge status={ord.status} />
+                        <StatusBadge status={ord.status} className="h-7 px-4 shadow-none rounded-full" />
                     </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                    <Button variant="outline" className="rounded-full h-12 border-border bg-transparent text-foreground hover:bg-muted font-medium text-xs uppercase tracking-widest px-8" asChild>
+                        <Link href={`/orders/${ord.id}/edit`}>Edit Project</Link>
+                    </Button>
                 </div>
             </div>
 
-            {/* --- Main Layout Grid --- */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
 
-                {/* --- LEFT COLUMN (Content) --- */}
-                <div className="lg:col-span-2 space-y-8">
+                {/* --- LEFT: Blueprints & Values --- */}
+                <div className="lg:col-span-8 space-y-12">
 
-                    {/* Items Card */}
-                    <Card className="overflow-hidden border-border/60 shadow-sm">
-                        <CardHeader className="bg-muted/30 border-b py-4">
-                            <CardTitle className="text-base flex items-center gap-2">
-                                <Package className="w-4 h-4 text-primary" /> Order Items
-                            </CardTitle>
-                        </CardHeader>
-                        <div className="overflow-x-auto">
-                            <Table>
-                                <TableHeader>
-                                    <TableRow className="hover:bg-transparent">
-                                        <TableHead className="w-[50%]">Description</TableHead>
-                                        <TableHead className="text-right">Qty</TableHead>
-                                        <TableHead className="text-right">Unit Price</TableHead>
-                                        <TableHead className="text-right">Total</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody className={"px-5"}>
-                                    {(ord.items ?? []).map((it) => {
-                                        const line = (Number(it.quantity) || 0) * (Number(it.unit_price) || 0);
-                                        return (
-                                            <TableRow key={it.id} className="hover:bg-muted/20 transition-colors">
-                                                <TableCell className="font-medium text-foreground">
-                                                    {it.description || "Custom Item"}
-                                                </TableCell>
-                                                <TableCell className="text-right">{it.quantity}</TableCell>
-                                                <TableCell className="text-right tabular-nums text-muted-foreground">
-                                                    {new Intl.NumberFormat('en-US', {
-                                                        style: 'decimal',
-                                                        minimumFractionDigits: 2
-                                                    }).format(it.unit_price)}
-                                                </TableCell>
-                                                <TableCell className="text-right font-medium tabular-nums">
-                                                    {it.currency_code} {line.toFixed(2)}
-                                                </TableCell>
-                                            </TableRow>
-                                        );
-                                    })}
-                                    {(!ord.items || ord.items.length === 0) && (
-                                        <TableRow>
-                                            <TableCell colSpan={4} className="h-24 text-center">
-                                                <div
-                                                    className="flex flex-col items-center justify-center text-muted-foreground gap-1">
-                                                    <Package className="h-8 w-8 opacity-20" />
-                                                    <p className="text-sm">No items added yet.</p>
-                                                </div>
-                                            </TableCell>
-                                        </TableRow>
-                                    )}
-                                </TableBody>
-                            </Table>
+                    {/* Items */}
+                    <Card className="bento-card p-10 space-y-10 bg-card">
+                        <div className="flex items-center justify-between">
+                            <h3 className="text-3xl font-serif text-foreground">Manifest</h3>
+                            <div className="h-10 w-10 border border-border rounded-full flex items-center justify-center">
+                                <Layers className="w-4 h-4 text-foreground opacity-40" />
+                            </div>
+                        </div>
+
+                        <div className="space-y-4">
+                            {(ord.items ?? []).map((it) => (
+                                <div key={it.id} className="flex items-center justify-between py-6 border-b border-border last:border-none">
+                                    <div className="space-y-1">
+                                        <h4 className="font-sans font-medium text-lg leading-tight text-foreground">{it.description}</h4>
+                                        <p className="text-xs font-medium text-muted-foreground/60 uppercase tracking-widest">
+                                            {it.quantity} Unit{it.quantity > 1 ? 's' : ''} at {currency} {it.unit_price.toLocaleString()}
+                                        </p>
+                                    </div>
+                                    <div className="text-2xl font-serif text-foreground tabular-nums">
+                                        {currency} {((it.quantity || 0) * (it.unit_price || 0)).toLocaleString()}
+                                    </div>
+                                </div>
+                            ))}
+                            {(!ord.items || ord.items.length === 0) && (
+                                <p className="text-sm font-sans italic text-muted-foreground/40 text-center py-12">No items specified.</p>
+                            )}
+                        </div>
+
+                        <div className="pt-10 border-t border-border space-y-6">
+                            <div className="flex justify-between items-center text-xs font-medium text-muted-foreground uppercase tracking-widest opacity-60">
+                                <span>Service Value</span>
+                                <span className="tabular-nums font-serif text-lg">{currency} {t.subtotal.toLocaleString()}</span>
+                            </div>
+                            <div className="flex justify-between items-center">
+                                <span className="text-2xl font-serif text-foreground">Total</span>
+                                <span className="text-5xl font-serif text-foreground tabular-nums">{currency} {t.total.toLocaleString()}</span>
+                            </div>
                         </div>
                     </Card>
 
-                    {/* Payments Section */}
-                    <Card className="border-border/60 shadow-sm">
-                        <CardHeader className="pb-3">
-                            <CardTitle className="text-base flex items-center gap-2">
-                                <CreditCard className="w-4 h-4 text-primary" /> Payments
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <PaymentsSection orderId={ord.id} currency={currency} />
-                        </CardContent>
-                    </Card>
+                    {/* Transaction Log */}
+                    <div className="space-y-8">
+                        <div className="flex items-center justify-between px-2">
+                            <h3 className="text-3xl font-serif text-foreground">Liquid Ledger</h3>
+                            <div className="h-10 w-10 border border-border rounded-full flex items-center justify-center">
+                                <CreditCard className="w-4 h-4 text-foreground opacity-40" />
+                            </div>
+                        </div>
+                        <PaymentsSection orderId={ord.id} currency={currency} />
+                    </div>
 
-                    {/* Attachments Section */}
-                    <Card className="border-border/60 shadow-sm">
-                        <CardHeader className="pb-3">
-                            <CardTitle className="text-base flex items-center gap-2">
-                                <FileText className="w-4 h-4 text-primary" /> Attachments & Measurements
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <AttachmentsSection orderId={ord.id} />
-                        </CardContent>
-                    </Card>
+                    {/* Content Section */}
+                    <div className="space-y-8">
+                        <div className="flex items-center justify-between px-2">
+                            <h3 className="text-3xl font-serif text-foreground">Digital Dossier</h3>
+                            <div className="h-10 w-10 border border-border rounded-full flex items-center justify-center">
+                                <FileText className="w-4 h-4 text-foreground opacity-40" />
+                            </div>
+                        </div>
+                        <AttachmentsSection orderId={ord.id} />
+                    </div>
                 </div>
 
-                {/* --- RIGHT COLUMN (Sidebar) --- */}
-                <div className="space-y-8">
+                {/* --- RIGHT: Logistics & Governance --- */}
+                <div className="lg:col-span-4 space-y-8">
 
-                    {/* 1. Customer Profile Card */}
-                    <Card className="overflow-hidden border-border/60 shadow-sm">
-                        <div className="p-6 flex items-center gap-4 bg-card">
-                            <div className="relative h-16 w-16 shrink-0">
+                    {/* Stakeholder */}
+                    <Card className="bento-card bg-secondary/30 p-8 flex flex-col items-center text-center space-y-8">
+                        <div className="relative">
+                            <div className="h-32 w-32 rounded-[2rem] bg-background border border-border overflow-hidden">
                                 <Image
                                     src={`https://api.dicebear.com/9.x/glass/svg?seed=${encodeURIComponent(ord.customer?.full_name || "Guest")}`}
                                     alt="Avatar"
                                     fill
-                                    className="rounded-full object-cover border-2 border-border"
+                                    className="object-cover"
                                     unoptimized
                                 />
                             </div>
-                            <div className="overflow-hidden">
-                                <h3 className="text-lg font-semibold truncate">{ord.customer?.full_name || "Unknown Customer"}</h3>
-                                <p className="text-sm text-muted-foreground truncate">
-                                    {ord.customer?.city ?? "No City"}
-                                    {ord.customer?.country_code ? `, ${ord.customer.country_code}` : ""}
-                                </p>
-                            </div>
                         </div>
-                        <Separator />
-                        <div className="p-2 grid grid-cols-2 divide-x">
-                            <Button variant="ghost"
-                                className="w-full rounded-none h-12 text-muted-foreground hover:text-primary"
-                                asChild>
-                                <Link href={`tel:${ord.customer?.phone}`}>
-                                    <Phone className="w-4 h-4 mr-2" /> Call
-                                </Link>
-                            </Button>
-                            <Button variant="ghost"
-                                className="w-full rounded-none h-12 text-muted-foreground hover:text-primary"
-                                asChild>
-                                <Link href={`/clients/${ord.customer?.id}/edit`}>
-                                    <Edit className="w-4 h-4 mr-2" /> Edit
-                                </Link>
+                        <div className="space-y-6 w-full text-center">
+                            <div className="space-y-2">
+                                <h3 className="text-2xl font-serif text-foreground">{ord.customer?.full_name}</h3>
+                                <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-widest opacity-40">Project Lead</p>
+                            </div>
+
+                            <Button variant="outline" className="w-full rounded-full h-12 border-border bg-transparent text-foreground hover:bg-muted font-medium text-xs uppercase tracking-widest" asChild>
+                                <Link href={`/clients/${ord.customer?.id}`}>Dossier Directory</Link>
                             </Button>
                         </div>
                     </Card>
 
-                    {/* 2. Order Management (Status & Dates) */}
-                    <Card className="border-border/60 shadow-sm overflow-hidden">
-                        <CardHeader className="bg-muted/30 py-3 border-b">
-                            <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                                <Settings2 className="w-4 h-4 text-primary" />
-                                Order Management
-                            </CardTitle>
-                        </CardHeader>
+                    {/* Operational Hub */}
+                    <Card className="bento-card bg-foreground p-8 text-background space-y-10 border-none">
+                        <div className="flex items-center justify-between">
+                            <h3 className="text-xl font-serif">Logistics</h3>
+                            <Settings2 className="w-4 h-4 opacity-30" />
+                        </div>
 
-                        <CardContent className="p-5 space-y-5">
-
-                            {/* Status Control */}
-                            <div className="space-y-2">
-                                <label
-                                    className="text-xs font-medium uppercase tracking-wider text-muted-foreground flex items-center gap-2">
-                                    <ListTodo className="w-3.5 h-3.5" /> Current Status
+                        <div className="space-y-8">
+                            <div className="space-y-3">
+                                <label className="text-[10px] font-medium text-background/50 uppercase tracking-[0.2em] flex items-center gap-2">
+                                    <Zap className="w-3 h-3" /> State Transition
                                 </label>
                                 <StatusSelect orderId={ord.id} initial={ord.status} />
                             </div>
 
-                            {/* Separator */}
-                            <div className="h-px bg-border/60" />
-
-                            {/* Ready Date Control */}
-                            <div className="space-y-2">
-                                <label
-                                    className="text-xs font-medium uppercase tracking-wider text-muted-foreground flex items-center gap-2">
-                                    <CalendarClock className="w-3.5 h-3.5" /> Target Completion
+                            <div className="space-y-3">
+                                <label className="text-[10px] font-medium text-background/50 uppercase tracking-[0.2em] flex items-center gap-2">
+                                    <Clock className="w-3 h-3" /> Goal Time
                                 </label>
                                 <ReadyAtPicker orderId={ord.id} initial={ord.ready_at} />
                             </div>
+                        </div>
 
-                            {/* Notes Section (Conditional) */}
-                            {ord.notes && (
-                                <>
-                                    <div className="h-px bg-border/60" />
-                                    <div className="space-y-2">
-                                        <label
-                                            className="text-xs font-medium uppercase tracking-wider text-muted-foreground flex items-center gap-2">
-                                            <StickyNote className="w-3.5 h-3.5" /> Order Notes
-                                        </label>
-                                        <div
-                                            className="rounded-lg bg-yellow-50/50 dark:bg-yellow-900/10 border border-yellow-100 dark:border-yellow-800/30 p-3 text-sm text-foreground/90 leading-relaxed">
-                                            {ord.notes}
-                                        </div>
-                                    </div>
-                                </>
-                            )}
-                        </CardContent>
+                        {ord.notes && (
+                            <div className="pt-8 border-t border-background/10 space-y-3">
+                                <label className="text-[10px] font-medium text-background/50 uppercase tracking-[0.2em] flex items-center gap-2">
+                                    <StickyNote className="w-3 h-3" /> Memo
+                                </label>
+                                <p className="text-sm font-sans italic text-background/80 leading-relaxed">{ord.notes}</p>
+                            </div>
+                        )}
                     </Card>
 
-                    {/* 3. Financial Summary */}
-                    <Card className="border-border/60 shadow-sm bg-card/50">
-                        <CardHeader className="pb-4 border-b border-dashed">
-                            <CardTitle className="text-base">Summary</CardTitle>
-                        </CardHeader>
-                        <CardContent className="pt-4 space-y-3">
-                            <div className="flex justify-between text-sm">
-                                <span className="text-muted-foreground">Subtotal</span>
-                                <span>{currency} {t.subtotal.toFixed(2)}</span>
-                            </div>
-                            <div className="flex justify-between text-sm">
-                                <span className="text-muted-foreground">Tax</span>
-                                <span>{currency} {t.tax.toFixed(2)}</span>
-                            </div>
-                            <div className="flex justify-between text-sm">
-                                <span className="text-muted-foreground">Discount</span>
-                                <span className="text-red-500">-{currency} {t.discount.toFixed(2)}</span>
-                            </div>
-                            <div className="flex justify-between text-sm">
-                                <span className="text-muted-foreground">Shipping</span>
-                                <span>{currency} {t.shipping.toFixed(2)}</span>
-                            </div>
-
-                            <Separator className="my-2" />
-
-                            <div className="flex justify-between items-center">
-                                <span className="font-bold text-lg">Total</span>
-                                <span className="font-bold text-lg">{currency} {t.total.toFixed(2)}</span>
-                            </div>
-
-                            <div className="flex justify-between items-center text-sm text-muted-foreground">
-                                <span>Amount Paid</span>
-                                <span>{currency} {t.paid.toFixed(2)}</span>
-                            </div>
-                        </CardContent>
-
-                        <CardFooter className="bg-muted/30 pt-4">
-                            <div className="flex justify-between w-full items-center">
-                                <span className="font-medium text-sm">Balance Due</span>
-                                <span
-                                    className={`font-bold text-xl ${balance > 0 ? "text-amber-600" : "text-green-600"}`}>
-                                    {currency} {balance <= 0 ? "0.00" : balance.toFixed(2)}
-                                </span>
-                            </div>
-                        </CardFooter>
-                    </Card>
-
+                    {/* Final Actions */}
+                    <div className="flex flex-col gap-3 px-2">
+                        <button className="h-12 w-full flex items-center justify-center gap-3 bg-muted/50 rounded-full font-medium text-[10px] uppercase tracking-widest hover:bg-muted transition-all border border-border/50">
+                            <FileText className="w-4 h-4 text-foreground opacity-60" /> Generate Report
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

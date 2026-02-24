@@ -26,7 +26,8 @@ import {
 } from "@/components/ui/alert-dialog";
 
 // Icons
-import { Ruler, Plus, MoreVertical, Pencil, Trash2 } from "lucide-react";
+import { Ruler, Plus, MoreVertical, Pencil, Trash2, X } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 type Measurement = {
     id: string;
@@ -73,7 +74,7 @@ export default function MeasurementsSection({ customerId }: { customerId: string
             toast.error("Delete failed", { description: error.message });
             return;
         }
-        toast.success("Measurement deleted");
+        toast.success("Measurement removed ✨");
         setOpenDelete(false);
         setDeleteRow(null);
         await load();
@@ -85,138 +86,125 @@ export default function MeasurementsSection({ customerId }: { customerId: string
     }, [customerId]);
 
     return (
-        <Card className="p-6 border-border/60 shadow-sm">
-            <div className="space-y-6">
-
-                {/* Header */}
-                <div className="flex items-center justify-between">
-                    <h2 className="text-lg font-semibold flex items-center gap-2">
-                        <Ruler className="h-5 w-5 text-primary" /> Measurements
-                    </h2>
-                    <Button
-                        size="sm"
-                        onClick={() => {
-                            setEditRow(null); // create mode
-                            setOpenEdit(true);
-                        }}
-                        className="gap-2"
-                    >
-                        <Plus className="h-4 w-4" /> Add Measurement
-                    </Button>
-                </div>
-
-                {/* Content */}
-                <div className="min-h-[100px]">
-                    {loading ? (
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                            {[...Array(4)].map((_, i) => (
-                                <div key={i} className="h-24 rounded-xl bg-muted animate-pulse" />
-                            ))}
+        <div className="space-y-6">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
+                {loading ? (
+                    [...Array(4)].map((_, i) => (
+                        <div key={i} className="h-40 rounded-[2rem] bg-secondary animate-pulse border border-border/50" />
+                    ))
+                ) : items.length === 0 ? (
+                    <div className="col-span-full bento-card bg-secondary/30 p-16 text-center flex flex-col items-center gap-6">
+                        <div className="h-20 w-20 bg-background border border-border rounded-[1.5rem] flex items-center justify-center mb-2">
+                            <Ruler className="h-10 w-10 text-foreground opacity-20" />
                         </div>
-                    ) : items.length === 0 ? (
-                        <div
-                            className="flex flex-col items-center justify-center rounded-xl border border-dashed py-10 bg-muted/5 text-center">
-                            <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center mb-3">
-                                <Ruler className="h-6 w-6 text-muted-foreground/50" />
-                            </div>
-                            <p className="text-sm font-medium">No measurements yet</p>
-                            <p className="text-xs text-muted-foreground mt-1">
-                                Add body measurements to speed up future orders.
-                            </p>
+                        <div className="space-y-2">
+                            <h4 className="text-2xl font-serif text-foreground">Dimensions Empty</h4>
+                            <p className="text-sm font-sans text-muted-foreground italic">Add precision metrics to this creator&apos;s dossier.</p>
                         </div>
-                    ) : (
-                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                            {items.map((m) => (
-                                <div
-                                    key={m.id}
-                                    className="group relative flex flex-col justify-between rounded-xl border bg-card p-4 transition-all hover:border-primary/50 hover:shadow-sm"
-                                >
-                                    <div className="flex justify-between items-start">
-                                        <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide truncate pr-4">
-                                            {m.name}
-                                        </span>
+                        <Button onClick={() => setOpenEdit(true)} className="btn-primary mt-4 h-11 px-8">Add Metric</Button>
+                    </div>
+                ) : (
+                    <>
+                        {items.map((m) => (
+                            <div
+                                key={m.id}
+                                className="group bento-card bg-card p-8 flex flex-col justify-between hover:shadow-xl transition-all h-44 border-border/40"
+                            >
+                                <div className="flex justify-between items-start">
+                                    <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-[0.2em] opacity-40 truncate">
+                                        {m.name}
+                                    </span>
 
-                                        {/* Context Menu */}
-                                        <DropdownMenu>
-                                            <DropdownMenuTrigger asChild>
-                                                <Button variant="ghost" size="icon"
-                                                    className="h-6 w-6 -mr-2 -mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                    <MoreVertical className="h-3.5 w-3.5" />
-                                                </Button>
-                                            </DropdownMenuTrigger>
-                                            <DropdownMenuContent align="end">
-                                                <DropdownMenuItem onClick={() => {
+                                    <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                            <button className="h-8 w-8 rounded-full flex items-center justify-center border border-border opacity-0 group-hover:opacity-100 transition-opacity hover:bg-muted">
+                                                <MoreVertical className="h-3.5 w-3.5 text-muted-foreground" />
+                                            </button>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent align="end" className="rounded-2xl border border-border shadow-2xl bg-background p-2">
+                                            <DropdownMenuItem
+                                                onClick={() => {
                                                     setEditRow(m);
                                                     setOpenEdit(true);
-                                                }}>
-                                                    <Pencil className="mr-2 h-3.5 w-3.5" /> Edit
-                                                </DropdownMenuItem>
-                                                <DropdownMenuItem
-                                                    className="text-destructive focus:text-destructive"
-                                                    onClick={() => {
-                                                        setDeleteRow(m);
-                                                        setOpenDelete(true);
-                                                    }}
-                                                >
-                                                    <Trash2 className="mr-2 h-3.5 w-3.5" /> Delete
-                                                </DropdownMenuItem>
-                                            </DropdownMenuContent>
-                                        </DropdownMenu>
-                                    </div>
+                                                }}
+                                                className="rounded-xl font-medium text-xs py-3"
+                                            >
+                                                <Pencil className="mr-2 h-4 w-4" /> Edit
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem
+                                                className="rounded-xl font-medium text-xs py-3 text-rose-500"
+                                                onClick={() => {
+                                                    setDeleteRow(m);
+                                                    setOpenDelete(true);
+                                                }}
+                                            >
+                                                <Trash2 className="mr-2 h-4 w-4" /> Delete
+                                            </DropdownMenuItem>
+                                        </DropdownMenuContent>
+                                    </DropdownMenu>
+                                </div>
 
-                                    <div className="mt-2">
-                                        <div className="flex items-baseline gap-1">
-                                            <span className="text-2xl font-bold tracking-tight text-foreground">
-                                                {Number(m.value).toFixed(2)}
-                                            </span>
-                                            <span className="text-sm font-medium text-muted-foreground">
-                                                {m.unit ?? "in"}
-                                            </span>
-                                        </div>
-                                        <p className="text-[10px] text-muted-foreground mt-2 opacity-60">
-                                            {new Date(m.created_at).toLocaleDateString(undefined, {
-                                                month: "short", day: "numeric"
-                                            })}
-                                        </p>
+                                <div className="space-y-1">
+                                    <div className="flex items-baseline gap-2">
+                                        <span className="text-5xl font-serif text-foreground tabular-nums">
+                                            {Number(m.value).toString()}
+                                        </span>
+                                        <span className="text-xs font-medium text-muted-foreground italic lowercase opacity-40">
+                                            {m.unit ?? "in"}
+                                        </span>
                                     </div>
                                 </div>
-                            ))}
-                        </div>
-                    )}
-                </div>
+                            </div>
+                        ))}
 
-                {/* Edit / Create dialog */}
-                <MeasurementDialog
-                    open={openEdit}
-                    onOpenChange={(v) => {
-                        setOpenEdit(v);
-                        if (!v) setEditRow(null);
-                    }}
-                    customerId={customerId}
-                    editRow={editRow}
-                    onSaved={load}
-                />
-
-                {/* Delete confirm dialog */}
-                <AlertDialog open={openDelete} onOpenChange={setOpenDelete}>
-                    <AlertDialogContent>
-                        <AlertDialogHeader>
-                            <AlertDialogTitle>Delete measurement?</AlertDialogTitle>
-                            <AlertDialogDescription>
-                                This will permanently remove the <strong>{deleteRow?.name}</strong> measurement. This
-                                action cannot be undone.
-                            </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                            <AlertDialogCancel onClick={() => setDeleteRow(null)}>Cancel</AlertDialogCancel>
-                            <AlertDialogAction onClick={confirmDelete}
-                                className="bg-destructive hover:bg-destructive/90">
-                                Delete
-                            </AlertDialogAction>
-                        </AlertDialogFooter>
-                    </AlertDialogContent>
-                </AlertDialog>
+                        {/* Inline Add Button */}
+                        <button
+                            onClick={() => {
+                                setEditRow(null);
+                                setOpenEdit(true);
+                            }}
+                            className="bento-card border-2 border-dashed border-border bg-transparent p-6 flex flex-col items-center justify-center group h-44 gap-3 hover:bg-secondary/20 hover:border-transparent transition-all text-muted-foreground opacity-30 hover:opacity-100"
+                        >
+                            <Plus className="w-10 h-10 opacity-20 group-hover:scale-110 transition-transform" />
+                            <span className="text-[10px] font-medium uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity">Add Dimension</span>
+                        </button>
+                    </>
+                )}
             </div>
-        </Card>
+
+            {/* Edit / Create dialog */}
+            <MeasurementDialog
+                open={openEdit}
+                onOpenChange={(v) => {
+                    setOpenEdit(v);
+                    if (!v) setEditRow(null);
+                }}
+                customerId={customerId}
+                editRow={editRow}
+                onSaved={load}
+            />
+
+            {/* Delete confirm dialog */}
+            <AlertDialog open={openDelete} onOpenChange={setOpenDelete}>
+                <AlertDialogContent className="rounded-[2.5rem] border border-border p-10 shadow-3xl bg-background transition-all">
+                    <div className="flex items-center justify-between mb-6">
+                        <AlertDialogTitle className="text-3xl font-serif text-foreground">Remove Metric</AlertDialogTitle>
+                        <button onClick={() => setOpenDelete(false)} className="h-10 w-10 rounded-full border border-border flex items-center justify-center hover:bg-muted transition-colors">
+                            <X className="w-4 h-4 text-foreground" />
+                        </button>
+                    </div>
+                    <AlertDialogDescription className="text-lg font-sans text-muted-foreground leading-relaxed italic">
+                        Confirm removal of the <span className="text-foreground font-medium">{deleteRow?.name}</span> measurement record. This action cannot be undone.
+                    </AlertDialogDescription>
+                    <AlertDialogFooter className="mt-10 gap-4">
+                        <AlertDialogCancel onClick={() => setDeleteRow(null)} className="h-12 rounded-full font-medium border-border bg-transparent hover:bg-muted text-xs uppercase tracking-widest px-8">Keep Record</AlertDialogCancel>
+                        <AlertDialogAction onClick={confirmDelete}
+                            className="btn-primary bg-rose-500 hover:bg-rose-600 border-none h-12 px-8">
+                            Delete Metric
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+        </div>
     );
 }

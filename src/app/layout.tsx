@@ -2,17 +2,19 @@ import "./globals.css";
 import PageLoader from "@/components/ui/page-loader";
 import { Suspense } from "react";
 import { ThemeProvider } from "next-themes";
-import { Nunito, DM_Sans } from "next/font/google";
+import { Manrope, Cormorant_Garamond } from "next/font/google";
 
-const nunito = Nunito({
+const manrope = Manrope({
   subsets: ["latin"],
-  variable: "--font-nunito",
+  variable: "--font-manrope",
+  weight: ["200", "300", "400", "500", "600", "700", "800"],
   display: "swap",
 });
 
-const dmSans = DM_Sans({
+const fontSerif = Cormorant_Garamond({
   subsets: ["latin"],
-  variable: "--font-dm-sans",
+  variable: "--font-serif",
+  weight: ["300", "400", "500", "600", "700"],
   display: "swap",
 });
 
@@ -59,7 +61,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${dmSans.variable} ${nunito.variable} font-sans antialiased`}
+        className={`${manrope.variable} ${fontSerif.variable} antialiased min-h-screen bg-background text-foreground`}
       >
         <Suspense fallback={null}>
           <PageLoader />

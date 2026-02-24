@@ -6,42 +6,31 @@ import {
     Package,
     Calendar,
     ChevronRight,
-    Filter
+    Filter,
+    Sparkles,
+    Star,
+    Clock,
+    CheckCircle2,
+    RotateCcw,
+    AlertCircle,
+    Layers,
+    ArrowRight,
+    Scissors
 } from "lucide-react";
 
 import Pager from "./pager";
-// Removed unused Card import
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import StatusBadge from "@/components/StatusBadge";
 
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-    title: 'Orders',
+    title: 'Orders | Knitted',
 };
 
 type SearchParams = Promise<{ page?: string; pageSize?: string }>;
-
-/* --- Helper: Status Styles --- */
-function getStatusStyles(status: string) {
-    const s = status.toLowerCase().replace('_', ' ');
-    switch (s) {
-        case 'delivered':
-        case 'completed':
-        case 'ready':
-            return "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-300 dark:border-emerald-800";
-        case 'in production':
-        case 'processing':
-            return "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-800";
-        case 'confirmed':
-            return "bg-indigo-50 text-indigo-700 border-indigo-200 dark:bg-indigo-900/20 dark:text-indigo-300 dark:border-indigo-800";
-        case 'cancelled':
-            return "bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-300 dark:border-red-800";
-        default: // pending / draft
-            return "bg-zinc-100 text-zinc-700 border-zinc-200 dark:bg-zinc-800 dark:text-zinc-300 dark:border-zinc-700";
-    }
-}
 
 /* --- Page Component --- */
 export default async function OrdersPage({ searchParams }: { searchParams: SearchParams }) {
@@ -52,13 +41,16 @@ export default async function OrdersPage({ searchParams }: { searchParams: Searc
 
     if (!user) {
         return (
-            <div className="flex h-[50vh] flex-col items-center justify-center gap-4 text-center">
-                <div className="h-16 w-16 rounded-full bg-muted/50 flex items-center justify-center">
-                    <ShoppingBag className="h-8 w-8 text-muted-foreground" />
-                </div>
-                <div>
-                    <h2 className="text-lg font-semibold">Access Restricted</h2>
-                    <p className="text-muted-foreground">Please sign in to manage orders.</p>
+            <div className="flex h-[80vh] items-center justify-center p-8 bg-background">
+                <div className="text-center space-y-6">
+                    <ShoppingBag className="w-20 h-20 text-muted-foreground/20 mx-auto" />
+                    <div className="space-y-4">
+                        <h2 className="text-4xl font-serif text-foreground">Identity Check</h2>
+                        <p className="text-muted-foreground font-sans max-w-sm mx-auto italic">Authentication is required to synchronize your workshop records.</p>
+                    </div>
+                    <Button asChild className="btn-primary">
+                        <Link href="/login">Sign In</Link>
+                    </Button>
                 </div>
             </div>
         );
@@ -67,7 +59,7 @@ export default async function OrdersPage({ searchParams }: { searchParams: Searc
     // 2. Parse Params
     const sp = await searchParams;
     const page = Math.max(1, Number(sp.page ?? 1));
-    const pageSize = Math.min(100, Math.max(9, Number(sp.pageSize ?? 9))); // Default 9 for grid
+    const pageSize = Math.min(100, Math.max(9, Number(sp.pageSize ?? 9)));
     const from = (page - 1) * pageSize;
     const to = from + pageSize - 1;
 
@@ -82,10 +74,9 @@ export default async function OrdersPage({ searchParams }: { searchParams: Searc
 
     if (error) {
         return (
-            <div
-                className="rounded-lg border border-destructive/50 bg-destructive/10 p-6 text-destructive flex items-center gap-3">
-                <div className="h-2 w-2 rounded-full bg-destructive" />
-                Error loading orders: {error.message}
+            <div className="rounded-[2rem] bg-destructive/5 p-12 text-center space-y-4 border border-destructive/10">
+                <h3 className="text-2xl font-serif text-destructive">Sync Delayed</h3>
+                <p className="font-sans text-muted-foreground italic">Error retrieving project logs: {error.message}</p>
             </div>
         );
     }
@@ -112,23 +103,19 @@ export default async function OrdersPage({ searchParams }: { searchParams: Searc
 
     return (
         <Suspense fallback={<OrdersLoadingSkeleton />}>
-            <div className="space-y-8 pb-20 max-w-7xl mx-auto">
+            <div className="space-y-12 pb-20 max-w-7xl mx-auto">
 
                 {/* Header Section */}
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                    <div>
-                        <h1 className="text-3xl font-bold tracking-tight text-foreground">Orders</h1>
-                        <p className="text-sm text-muted-foreground mt-1">
-                            Manage production, track status, and view history.
-                        </p>
+                <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between px-2">
+                    <div className="space-y-1">
+                        <span className="text-xs font-medium text-muted-foreground uppercase tracking-[0.2em]">{total} Production Jobs</span>
+                        <h1 className="text-6xl font-serif text-foreground">Orders</h1>
                     </div>
 
                     {hasOrders && (
-                        <div className="flex items-center gap-2">
-                            {/* Optional Filter Button Placeholder */}
-                            <Button variant="outline" size="sm"
-                                className="h-9 gap-2 text-muted-foreground hidden sm:flex">
-                                <Filter className="h-3.5 w-3.5" /> Filter
+                        <div className="flex items-center gap-4">
+                            <Button variant="outline" className="h-10 px-5 rounded-full border-border bg-transparent text-foreground hover:bg-muted font-medium text-xs uppercase tracking-widest gap-3 transition-all">
+                                <Filter className="h-4 w-4" /> Filters
                             </Button>
                         </div>
                     )}
@@ -138,67 +125,58 @@ export default async function OrdersPage({ searchParams }: { searchParams: Searc
                 {!hasOrders ? (
                     <EmptyState />
                 ) : (
-                    <div className="space-y-6">
+                    <div className="space-y-16">
 
-                        {/* Modern Grid View */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {/* Immersive List View */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                             {orders.map((o) => {
                                 const amount = totalByOrder[o.id] ?? 0;
                                 const code = o.order_code ?? `#${o.id.slice(0, 8).toUpperCase()}`;
-                                const statusStyle = getStatusStyles(o.status);
 
                                 // Format Date
                                 const dateStr = new Date(o.created_at).toLocaleDateString(undefined, {
-                                    month: 'short', day: 'numeric', year: 'numeric'
+                                    month: 'short', day: 'numeric'
                                 });
 
                                 // Format Money
                                 const moneyStr = new Intl.NumberFormat(undefined, {
                                     style: 'currency',
                                     currency: o.currency_code,
-                                    maximumFractionDigits: 2
+                                    maximumFractionDigits: 0
                                 }).format(amount);
 
                                 return (
                                     <Link
                                         key={o.id}
                                         href={`/orders/${o.id}`}
-                                        className="group relative flex flex-col justify-between rounded-xl border border-border bg-card p-5 shadow-sm transition-all duration-200 hover:border-primary/50 hover:shadow-md"
+                                        className="group bento-card p-8 flex flex-col justify-between h-[320px] bg-card"
                                     >
-                                        <div className="flex justify-between items-start mb-4">
-                                            <div className="flex items-start gap-3">
-                                                <div
-                                                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-secondary text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary transition-colors">
-                                                    <Package className="h-5 w-5" />
+                                        <div className="flex justify-between items-start">
+                                            <div className="flex items-start gap-4">
+                                                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-secondary text-foreground group-hover:scale-110 transition-transform">
+                                                    <Package className="h-5 w-5 stroke-[1.5]" />
                                                 </div>
                                                 <div>
-                                                    <h3 className="font-mono text-sm font-bold text-foreground tracking-tight group-hover:text-primary transition-colors">
+                                                    <h3 className="text-xl font-serif text-foreground leading-none mb-1 group-hover:text-accent transition-colors">
                                                         {code}
                                                     </h3>
-                                                    <div
-                                                        className="flex items-center gap-1.5 text-xs text-muted-foreground mt-1">
-                                                        <Calendar className="h-3 w-3 opacity-70" />
-                                                        <span>{dateStr}</span>
-                                                    </div>
+                                                    <span className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground opacity-60">{dateStr}</span>
                                                 </div>
                                             </div>
-
-                                            <ChevronRight
-                                                className="h-4 w-4 text-muted-foreground/30 group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
+                                            <div className="h-10 w-10 border border-border rounded-full flex items-center justify-center group-hover:bg-foreground group-hover:text-background transition-colors">
+                                                <ArrowRight className="h-4 w-4" />
+                                            </div>
                                         </div>
 
-                                        <div
-                                            className="mt-auto pt-3 border-t border-dashed flex items-center justify-between">
-                                            <Badge
-                                                variant="outline"
-                                                className={cn("rounded-full px-2.5 py-0.5 text-[10px] font-medium border uppercase tracking-wider", statusStyle)}
-                                            >
-                                                {o.status.replace('_', ' ')}
-                                            </Badge>
+                                        <div className="space-y-6">
+                                            <div className="flex items-baseline gap-2">
+                                                <span className="text-4xl font-serif text-foreground leading-none tabular-nums">{moneyStr}</span>
+                                                <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-widest opacity-40">Total</span>
+                                            </div>
 
-                                            <span className="text-sm font-bold tabular-nums tracking-tight">
-                                                {moneyStr}
-                                            </span>
+                                            <div className="pt-6 border-t border-border">
+                                                <StatusBadge status={o.status} className="h-7 px-4 border border-border bg-background shadow-none rounded-full text-xs font-medium uppercase tracking-widest" />
+                                            </div>
                                         </div>
                                     </Link>
                                 );
@@ -206,11 +184,9 @@ export default async function OrdersPage({ searchParams }: { searchParams: Searc
                         </div>
 
                         {/* Pagination Footer */}
-                        <div className="flex flex-col items-center justify-between gap-4 sm:flex-row pt-4 border-t">
-                            <p className="text-xs text-muted-foreground text-center sm:text-left">
-                                Showing <span className="font-medium text-foreground">{from + 1}</span> to{" "}
-                                <span className="font-medium text-foreground">{Math.min(to + 1, total)}</span> of{" "}
-                                <span className="font-medium text-foreground">{total}</span> orders
+                        <div className="flex flex-col items-center justify-center gap-6 pt-12 border-t border-border">
+                            <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-muted-foreground/60 italic">
+                                Page <span className="text-foreground">{page}</span> of {Math.ceil(total / pageSize)}
                             </p>
                             <Pager page={page} pageSize={pageSize} total={total} />
                         </div>
@@ -225,34 +201,39 @@ export default async function OrdersPage({ searchParams }: { searchParams: Searc
 
 function EmptyState() {
     return (
-        <div
-            className="flex min-h-[400px] flex-col items-center justify-center rounded-2xl border-2 border-dashed border-muted bg-muted/5 p-8 text-center animate-in fade-in-50">
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted shadow-sm mb-4">
-                <ShoppingBag className="h-8 w-8 text-muted-foreground" />
+        <div className="bento-card bg-secondary/30 min-h-[500px] flex flex-col items-center justify-center p-12 text-center">
+            <div className="w-20 h-20 bg-background border border-border rounded-[1.5rem] flex items-center justify-center mb-10 group-hover:scale-110 transition-transform">
+                <Scissors className="h-8 w-8 text-foreground opacity-20" />
             </div>
-            <h3 className="text-lg font-semibold">No orders yet</h3>
-            <p className="mb-6 mt-2 max-w-sm text-sm text-muted-foreground">
-                Get started by creating your first order from a client&apos;s profile.
-            </p>
-            <Button variant="outline" asChild>
-                <Link href="/clients">Go to Clients</Link>
-            </Button>
+            <div className="space-y-6 max-w-sm">
+                <h3 className="text-4xl font-serif text-foreground leading-tight">No active production.</h3>
+                <p className="text-muted-foreground font-sans text-lg leading-relaxed italic">
+                    The workshop floor is waiting. Start an order from a client record to begin a new creative journey.
+                </p>
+            </div>
+
+            <div className="mt-12">
+                <Button className="btn-primary" asChild>
+                    <Link href="/clients">Open Directory</Link>
+                </Button>
+            </div>
         </div>
     );
 }
 
 function OrdersLoadingSkeleton() {
     return (
-        <div className="space-y-8 max-w-7xl mx-auto">
-            <div className="flex items-center justify-between">
-                <div className="space-y-2">
-                    <div className="h-8 w-32 animate-pulse rounded-md bg-muted" />
-                    <div className="h-4 w-64 animate-pulse rounded-md bg-muted" />
+        <div className="space-y-12 pb-20 max-w-7xl mx-auto">
+            <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between px-2">
+                <div className="space-y-4">
+                    <div className="h-3 w-24 animate-pulse rounded-full bg-muted" />
+                    <div className="h-12 w-64 animate-pulse rounded-2xl bg-muted" />
                 </div>
+                <div className="h-12 w-40 animate-pulse rounded-full bg-muted" />
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
                 {[...Array(6)].map((_, i) => (
-                    <div key={i} className="h-40 animate-pulse rounded-xl border bg-muted/30" />
+                    <div key={i} className="h-[320px] animate-pulse rounded-[2rem] bg-muted/50" />
                 ))}
             </div>
         </div>

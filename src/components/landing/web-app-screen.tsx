@@ -110,8 +110,8 @@ export default function WebAppScreens() {
                     {/* Navigation controls */}
                     <div
                         className="pointer-events-none absolute inset-0 flex items-center justify-between px-4 md:px-8">
-                        <CarouselPrevious className="pointer-events-auto border-border bg-background/80 backdrop-blur hover:bg-background" />
-                        <CarouselNext className="pointer-events-auto border-border bg-background/80 backdrop-blur hover:bg-background" />
+                        <CarouselPrevious className="pointer-events-auto border-border bg-background hover:bg-secondary" />
+                        <CarouselNext className="pointer-events-auto border-border bg-background hover:bg-secondary" />
                     </div>
                 </Carousel>
             </div>

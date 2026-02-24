@@ -4,7 +4,7 @@
 import { useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Sun, Moon, Sunrise } from "lucide-react";
+import { Sun, Moon, Sunrise, MapPin } from "lucide-react";
 
 type Settings = {
     business_name?: string | null;
@@ -12,9 +12,9 @@ type Settings = {
 };
 
 export default function DashboardHero({
-                                          settings,
-                                          stats,
-                                      }: {
+    settings,
+    stats,
+}: {
     settings?: Settings | null;
     stats?: { active?: number; pending?: number; total?: number } | null;
 }) {
@@ -40,58 +40,50 @@ export default function DashboardHero({
     const quote = quotes[new Date().getDay() % quotes.length];
 
     return (
-        <div className="relative overflow-hidden rounded-2xl border border-border">
-            {/* Solid, theme-aware primary surface */}
-            <div aria-hidden className="absolute inset-0 -z-10 bg-primary" />
-
-            <Card className="border-transparent bg-transparent">
-                <CardContent className="px-4 py-8 md:px-8 md:py-10">
-                    <div className="flex items-start gap-4">
-                        {/* Icon chip: uses background surface for contrast over primary */}
-                        <div className="mt-1 inline-flex h-10 w-10 items-center justify-center rounded-xl bg-background/40 text-primary-foreground ring-1 ring-primary-foreground/20">
-                            <Icon className="h-5 w-5" />
+        <div className="relative overflow-hidden group">
+            <div className="bento-card bg-secondary/50 p-8 md:p-12">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-8">
+                    <div className="space-y-4">
+                        <div className="flex items-center gap-3">
+                            <div className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-background border border-border text-foreground">
+                                <Icon className="h-4 w-4 stroke-[1.5]" />
+                            </div>
+                            <span className="text-xs font-medium text-muted-foreground uppercase tracking-[0.2em]">{greeting}</span>
                         </div>
 
-                        <div className="flex-1">
-                            <div className="flex flex-wrap items-baseline gap-x-3 gap-y-2">
-                                <h2 className="text-2xl font-semibold tracking-tight md:text-3xl text-primary-foreground">
-                                    {greeting}, <span className="opacity-95">{name}</span> 👋
-                                </h2>
-                            </div>
+                        <h2 className="text-4xl md:text-5xl font-serif text-foreground leading-tight">
+                            Welcome back, <br />
+                            <span className="italic">{name}</span>
+                        </h2>
 
-                            <p className="mt-2 text-sm text-primary-foreground/80">{quote}</p>
+                        <p className="text-muted-foreground font-sans italic max-w-sm">&ldquo;{quote}&rdquo;</p>
 
-                            {/* Business details */}
-                            <div className="mt-4 flex flex-wrap items-center gap-2">
-                                <Badge
-                                    variant="secondary"
-                                    className="bg-background text-foreground hover:bg-background"
-                                >
-                                    City: {city}
-                                </Badge>
+                        <div className="flex items-center gap-4 pt-2">
+                            <div className="flex items-center gap-2 text-xs font-medium text-foreground/40 uppercase tracking-widest">
+                                <MapPin className="w-3.5 h-3.5" />
+                                <span>{city}</span>
                             </div>
                         </div>
                     </div>
 
-                    {/* Quick stats (theme-aware cards over primary bg) */}
-                    <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
-                        <MiniStat label="Active orders" value={stats?.active ?? "—"} />
-                        <MiniStat label="Pending pickup" value={stats?.pending ?? "—"} />
-                        <MiniStat label="Total orders" value={stats?.total ?? "—"} />
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 min-w-[300px]">
+                        <MiniStat label="Active" value={stats?.active ?? "0"} />
+                        <MiniStat label="Pending" value={stats?.pending ?? "0"} />
+                        <MiniStat label="Total" value={stats?.total ?? "0"} />
                     </div>
-                </CardContent>
-            </Card>
+                </div>
+            </div>
         </div>
     );
 }
 
 function MiniStat({ label, value }: { label: string; value: string | number }) {
     return (
-        <div className="rounded-xl border border-border bg-card p-3 text-center shadow-sm">
-            <div className="text-xs uppercase tracking-wide text-muted-foreground">
+        <div className="rounded-2xl border border-border bg-background p-6 text-center shadow-sm hover:border-foreground/20 transition-colors">
+            <div className="text-[10px] font-medium uppercase tracking-[0.2em] text-muted-foreground mb-2">
                 {label}
             </div>
-            <div className="mt-1 text-xl font-semibold text-card-foreground tabular-nums">
+            <div className="text-2xl font-serif text-foreground tabular-nums">
                 {value}
             </div>
         </div>

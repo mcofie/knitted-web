@@ -9,10 +9,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { createClientBrowser } from "@/lib/supabase/browser";
-import type { ClientFormValues } from "@/app/(app)/clients/actions";
+import { Loader2, ChevronDown } from "lucide-react";
+import { countries } from "@/lib/countries";
+import { cn } from "@/lib/utils";
 
-// We can reuse the schema from actions or define a UI specific one if needed.
-// For now, let's redefine it here to match the UI validation needs (zod in actions is for server validation)
 const Schema = z.object({
     full_name: z.string().min(2, "Full name is required"),
     country_code: z.string().length(2, "2-letter ISO country code"),
@@ -43,7 +43,6 @@ export default function ClientForm({
     const sb = createClientBrowser();
     const [fallbackCountry, setFallbackCountry] = useState(initialValues?.country_code ?? "GH");
 
-    // Try load default country from account_settings if not provided in initialValues
     useEffect(() => {
         if (initialValues?.country_code) return;
         (async () => {
@@ -54,7 +53,6 @@ export default function ClientForm({
                 .maybeSingle();
             if (data?.country_code) setFallbackCountry(String(data.country_code).toUpperCase());
         })();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const {
@@ -76,93 +74,92 @@ export default function ClientForm({
         mode: "onBlur",
     });
 
-    // Keep form in sync when fallbackCountry loads
     useEffect(() => {
         if (!initialValues?.country_code) {
             setValue("country_code", fallbackCountry.toUpperCase());
         }
     }, [fallbackCountry, initialValues?.country_code, setValue]);
 
+    const inputClasses = "h-12 bg-background border border-border rounded-full px-6 font-medium focus-visible:ring-1 focus-visible:ring-accent transition-all placeholder:text-muted-foreground/30";
+    const labelClasses = "text-[10px] font-medium text-muted-foreground uppercase tracking-[0.2em] ml-2 mb-2 block opacity-60";
+    const textareaClasses = "bg-background border border-border rounded-[1.5rem] p-6 font-medium focus-visible:ring-1 focus-visible:ring-accent transition-all placeholder:text-muted-foreground/30 resize-none";
+
     return (
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
             {/* Full name */}
-            <div className="space-y-1">
-                <Label htmlFor="full_name">Full name</Label>
-                <Input id="full_name" {...register("full_name")} />
-                {errors.full_name && <p className="text-sm text-red-500">{errors.full_name.message}</p>}
+            <div className="space-y-2">
+                <Label htmlFor="full_name" className={labelClasses}>Full Name</Label>
+                <Input id="full_name" className={inputClasses} placeholder="e.g. Alexander McQueen" {...register("full_name")} />
+                {errors.full_name && <p className="text-[10px] text-destructive ml-2 uppercase tracking-wide">{errors.full_name.message}</p>}
             </div>
 
             {/* Country / Phone / Email */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div className="space-y-1">
-                    <Label htmlFor="country_code">Country</Label>
-                    <select
-                        id="country_code"
-                        className="w-full border rounded px-3 py-2 bg-background"
-                        {...register("country_code", {
-                            setValueAs: (v) => String(v || "").toUpperCase(),
-                        })}
-                        defaultValue={(initialValues?.country_code ?? fallbackCountry).toUpperCase()}
-                        onChange={(e) => setValue("country_code", e.target.value.toUpperCase())}
-                    >
-                        <option value="GH">Ghana</option>
-                        <option value="NG">Nigeria</option>
-                        <option value="KE">Kenya</option>
-                        <option value="ZA">South Africa</option>
-                        <option value="US">United States</option>
-                        <option value="GB">United Kingdom</option>
-                        <option value="DE">Germany</option>
-                        <option value="FR">France</option>
-                    </select>
-                    {errors.country_code && (
-                        <p className="text-sm text-red-500">{errors.country_code.message}</p>
-                    )}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="space-y-2">
+                    <Label htmlFor="phone" className={labelClasses}>Phone</Label>
+                    <Input id="phone" className={inputClasses} placeholder="+44..." {...register("phone")} />
                 </div>
 
-                <div className="space-y-1">
-                    <Label htmlFor="phone">Phone</Label>
-                    <Input id="phone" placeholder="+233..." {...register("phone")} />
-                    {errors.phone && <p className="text-sm text-red-500">{errors.phone.message}</p>}
-                </div>
-
-                <div className="space-y-1">
-                    <Label htmlFor="email">Email</Label>
-                    <Input id="email" type="email" placeholder="name@example.com" {...register("email")} />
-                    {errors.email && <p className="text-sm text-red-500">{errors.email.message}</p>}
+                <div className="space-y-2">
+                    <Label htmlFor="email" className={labelClasses}>Email</Label>
+                    <Input id="email" type="email" className={inputClasses} placeholder="hello@studio.com" {...register("email")} />
                 </div>
             </div>
 
-            {/* City */}
-            <div className="space-y-1">
-                <Label htmlFor="city">City</Label>
-                <Input id="city" {...register("city")} />
-                {errors.city && <p className="text-sm text-red-500">{errors.city.message}</p>}
-            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="space-y-2 relative">
+                    <Label htmlFor="country_code" className={labelClasses}>Country</Label>
+                    <div className="relative group">
+                        <select
+                            id="country_code"
+                            className={cn(inputClasses, "w-full appearance-none cursor-pointer")}
+                            {...register("country_code", {
+                                setValueAs: (v) => String(v || "").toUpperCase(),
+                            })}
+                            defaultValue={(initialValues?.country_code ?? fallbackCountry).toUpperCase()}
+                            onChange={(e) => setValue("country_code", e.target.value.toUpperCase())}
+                        >
+                            {countries.map(c => (
+                                <option key={c.code} value={c.code.toUpperCase()}>{c.flag} {c.name}</option>
+                            ))}
+                        </select>
+                        <ChevronDown className="absolute right-6 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none opacity-40" />
+                    </div>
+                </div>
 
-            {/* Address */}
-            <div className="space-y-1">
-                <Label htmlFor="address">Address</Label>
-                <Textarea id="address" rows={2} {...register("address")} />
-                {errors.address && <p className="text-sm text-red-500">{errors.address.message}</p>}
+                <div className="space-y-2">
+                    <Label htmlFor="city" className={labelClasses}>City</Label>
+                    <Input id="city" className={inputClasses} placeholder="London" {...register("city")} />
+                </div>
             </div>
 
             {/* Notes */}
-            <div className="space-y-1">
-                <Label htmlFor="notes">Notes</Label>
-                <Textarea id="notes" rows={3} placeholder="Optional notes" {...register("notes")} />
-                {errors.notes && <p className="text-sm text-red-500">{errors.notes.message}</p>}
+            <div className="space-y-2">
+                <Label htmlFor="notes" className={labelClasses}>Studio Notes</Label>
+                <Textarea id="notes" className={textareaClasses} rows={4} placeholder="Describe their style preferences..." {...register("notes")} />
             </div>
 
-            <div className="flex justify-end gap-2 pt-2">
+            <div className="flex flex-col sm:flex-row justify-end gap-4 pt-8 border-t border-border">
                 {onCancel && (
-                    <Button type="button" variant="outline" onClick={onCancel}>
+                    <Button
+                        type="button"
+                        variant="ghost"
+                        onClick={onCancel}
+                        className="h-12 px-8 rounded-full text-[10px] font-medium uppercase tracking-widest text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                    >
                         Cancel
                     </Button>
                 )}
-                <Button type="submit" disabled={isSubmitting}>
-                    {isSubmitting ? "Saving..." : submitLabel}
+                <Button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="btn-primary min-w-[180px]"
+                >
+                    {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : null}
+                    {isSubmitting ? "Drafting..." : submitLabel}
                 </Button>
             </div>
         </form>
     );
 }
+

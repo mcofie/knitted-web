@@ -64,17 +64,14 @@ export default function AttachmentsSection({ orderId }: { orderId: string }) {
 
 
     return (
-        <div>
-            <div className="pb-2 flex items-center justify-between">
-                <CardTitle className="text-base">Attachments</CardTitle>
-            </div>
-            <div className="w-full group relative rounded-2xl border border-border bg-card/70 p-4">
+        <div className="space-y-6">
+            <div className="bento-card bg-card p-4">
                 {rows.length === 0 && (
-                    <div className="text-sm text-muted-foreground py-8 text-center">
-                        No images yet
+                    <div className="text-sm font-sans italic text-muted-foreground/40 py-12 text-center">
+                        The visual portfolio is currently empty.
                     </div>
                 )}
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                     {rows.map((r) => {
                         const src = urls[r.id];
                         return (
@@ -82,17 +79,17 @@ export default function AttachmentsSection({ orderId }: { orderId: string }) {
                                 key={r.id}
                                 type="button"
                                 onClick={() => setSelectedUrl(src ?? null)}
-                                className="relative aspect-square rounded border overflow-hidden focus:outline-none"
+                                className="group relative aspect-square rounded-[1.5rem] border border-border overflow-hidden focus:outline-none transition-all hover:shadow-xl"
                             >
                                 {src ? (
                                     <Image
                                         src={src}
                                         alt={r.caption ?? ""}
                                         fill
-                                        className="object-cover hover:opacity-90 transition"
+                                        className="object-cover group-hover:scale-110 transition-transform duration-500"
                                     />
                                 ) : (
-                                    <div className="w-full h-full flex items-center justify-center text-xs text-muted-foreground">
+                                    <div className="w-full h-full flex items-center justify-center text-[10px] font-medium uppercase tracking-widest text-muted-foreground/40 animate-pulse">
                                         Loading…
                                     </div>
                                 )}
@@ -104,7 +101,7 @@ export default function AttachmentsSection({ orderId }: { orderId: string }) {
 
             {/* Modal view */}
             <Dialog open={!!selectedUrl} onOpenChange={() => setSelectedUrl(null)}>
-                <DialogContent className="max-w-3xl p-0 bg-black/90">
+                <DialogContent className="max-w-4xl p-0 bg-background/95 backdrop-blur-xl border border-border rounded-[2.5rem] overflow-hidden">
                     {selectedUrl && (
                         <div className="relative w-full h-[80vh]">
                             <Image

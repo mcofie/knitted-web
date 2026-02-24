@@ -6,11 +6,10 @@ export function AppleStoreButton({ dark = false }: { dark?: boolean }) {
   return (
     <Link
       href="#"
-      className={`inline-flex items-center justify-center rounded-xl border px-5 py-2.5 transition-all hover:scale-105 active:scale-95 duration-200 group ${
-        dark
-          ? "bg-black text-white border-white/20 shadow-lg shadow-black/20 hover:bg-zinc-900"
-          : "bg-foreground text-background border-transparent shadow-xl hover:bg-foreground/90"
-      }`}
+      className={`inline-flex items-center justify-center rounded-xl border px-5 py-2.5 transition-all hover:scale-105 active:scale-95 duration-200 group ${dark
+          ? "bg-black text-white border-white/20 hover:bg-zinc-900"
+          : "bg-foreground text-background border-transparent hover:bg-foreground"
+        }`}
     >
       <svg
         viewBox="0 0 384 512"
@@ -37,11 +36,10 @@ export function GooglePlayButton({ dark = false }: { dark?: boolean }) {
   return (
     <Link
       href="#"
-      className={`inline-flex items-center justify-center rounded-xl border px-5 py-2.5 transition-all hover:scale-105 active:scale-95 duration-200 group ${
-        dark
-          ? "bg-black text-white border-white/20 shadow-lg shadow-black/20 hover:bg-zinc-900"
-          : "bg-foreground text-background border-transparent shadow-xl hover:bg-foreground/90"
-      }`}
+      className={`inline-flex items-center justify-center rounded-xl border px-5 py-2.5 transition-all hover:scale-105 active:scale-95 duration-200 group ${dark
+          ? "bg-black text-white border-white/20 hover:bg-zinc-900"
+          : "bg-foreground text-background border-transparent hover:bg-foreground"
+        }`}
     >
       <svg
         viewBox="0 0 512 512"

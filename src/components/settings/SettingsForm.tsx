@@ -5,6 +5,7 @@ import { useTheme } from "next-themes";
 import { z } from "zod";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader2, Sparkles, Save, RotateCcw, ChevronDown } from "lucide-react";
 
 import { countries } from "@/lib/countries";
 import { currencies } from "@/lib/currencies";
@@ -20,6 +21,7 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import { updateSettings } from "@/app/(app)/settings/actions";
+import { cn } from "@/lib/utils";
 
 const Schema = z.object({
     business_name: z.string().min(2, "Enter a business name").trim(),
@@ -33,7 +35,6 @@ const Schema = z.object({
         .string()
         .length(3, "Pick a currency")
         .transform((v) => v.toUpperCase()),
-    // UI field `theme`, mapped to DB `theme_pref`
     theme: z.enum(["system", "light", "dark"]),
 });
 
@@ -102,122 +103,113 @@ export default function SettingsForm({
             // Apply theme immediately & reset dirty state
             setTheme(values.theme);
             reset(values);
-            toast.success("Settings saved");
+            toast.success("Identity records synchronized. ✨");
         } catch (e: unknown) {
-            const message =
-                e instanceof Error ? e.message : "Something went wrong";
-            toast.error("Save failed", { description: message });
+            const message = e instanceof Error ? e.message : "Something went wrong";
+            toast.error("Sync failed", { description: message });
         } finally {
             setSaving(false);
         }
     };
 
+    const inputClasses = "h-12 bg-black/[0.03] dark:bg-white/[0.03] border-none rounded-xl px-4 font-semibold focus:ring-2 focus:ring-primary/20 transition-all placeholder:text-muted-foreground/30";
+    const labelClasses = "text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em] ml-1 mb-2 block opacity-50";
+
     return (
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            <fieldset disabled={saving} className="space-y-6">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+            <fieldset disabled={saving} className="space-y-8">
 
                 {/* Business name */}
-                <div className="space-y-1.5">
-                    <Label htmlFor="business_name">Business name</Label>
+                <div className="space-y-2">
+                    <Label htmlFor="business_name" className={labelClasses}>Atelier Brand</Label>
                     <Input
                         id="business_name"
                         placeholder="e.g., Knitted Studio"
+                        className={inputClasses}
                         {...register("business_name")}
-                        autoComplete="organization"
                     />
                     {errors.business_name && (
-                        <p className="text-xs text-red-500">
+                        <p className="text-[10px] font-bold text-rose-500 ml-1">
                             {errors.business_name.message}
                         </p>
                     )}
                 </div>
 
-                {/* City */}
-                <div className="space-y-1.5">
-                    <Label htmlFor="city">City</Label>
-                    <Input
-                        id="city"
-                        placeholder="e.g., Accra"
-                        {...register("city")}
-                        autoComplete="address-level2"
-                    />
-                    {errors.city && (
-                        <p className="text-xs text-red-500">
-                            {errors.city.message as string}
-                        </p>
-                    )}
+                {/* Location */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                        <Label htmlFor="city" className={labelClasses}>Base City</Label>
+                        <Input
+                            id="city"
+                            placeholder="e.g., Accra"
+                            className={inputClasses}
+                            {...register("city")}
+                        />
+                    </div>
+
+                    <div className="space-y-2 relative">
+                        <Label className={labelClasses}>Country</Label>
+                        <Controller
+                            control={control}
+                            name="country_code"
+                            render={({ field }) => (
+                                <Select value={field.value} onValueChange={field.onChange}>
+                                    <SelectTrigger className={cn(inputClasses, "w-full flex justify-between")}>
+                                        <SelectValue placeholder="Pick Country" />
+                                    </SelectTrigger>
+                                    <SelectContent className="rounded-2xl border-none shadow-ios-xl bg-white dark:bg-[#2C2C2E] max-h-80">
+                                        {countries.map((c) => (
+                                            <SelectItem key={c.code} value={c.code.toUpperCase()} className="rounded-xl font-semibold py-3">
+                                                <span className="mr-2">{c.flag}</span>
+                                                {c.name}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            )}
+                        />
+                    </div>
                 </div>
 
-                {/* Country */}
-                <div className="space-y-1.5">
-                    <Label>Country</Label>
-                    <Controller
-                        control={control}
-                        name="country_code"
-                        render={({ field }) => (
-                            <Select value={field.value} onValueChange={field.onChange}>
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Select country" />
-                                </SelectTrigger>
-                                <SelectContent className="max-h-72">
-                                    {countries.map((c) => (
-                                        <SelectItem key={c.code} value={c.code.toUpperCase()}>
-                                            <span className="mr-2">{c.flag}</span>
-                                            {c.name}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        )}
-                    />
-                    {errors.country_code && (
-                        <p className="text-xs text-red-500">
-                            {errors.country_code.message}
-                        </p>
-                    )}
-                </div>
+                <div className="h-px bg-black/[0.05] dark:bg-white/[0.05]" />
 
                 {/* Measurement & Currency */}
-                <div className="grid gap-4 sm:grid-cols-2">
-                    <div className="space-y-1.5">
-                        <Label>Measurement unit</Label>
+                <div className="grid gap-6 sm:grid-cols-2">
+                    <div className="space-y-2">
+                        <Label className={labelClasses}>Unit System</Label>
                         <Controller
                             control={control}
                             name="measurement_system"
                             render={({ field }) => (
                                 <Select value={field.value} onValueChange={field.onChange}>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select unit" />
+                                    <SelectTrigger className={inputClasses}>
+                                        <SelectValue placeholder="System" />
                                     </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="metric">Metric (cm)</SelectItem>
-                                        <SelectItem value="imperial">Imperial (in)</SelectItem>
+                                    <SelectContent className="rounded-2xl border-none shadow-ios bg-white dark:bg-[#2C2C2E]">
+                                        <SelectItem value="metric" className="rounded-xl font-semibold py-3">Metric (cm)</SelectItem>
+                                        <SelectItem value="imperial" className="rounded-xl font-semibold py-3">Imperial (in)</SelectItem>
                                     </SelectContent>
                                 </Select>
                             )}
                         />
-                        {errors.measurement_system && (
-                            <p className="text-xs text-red-500">
-                                {errors.measurement_system.message}
-                            </p>
-                        )}
                     </div>
 
-                    <div className="space-y-1.5">
-                        <Label>Currency</Label>
+                    <div className="space-y-2">
+                        <Label className={labelClasses}>Studio Currency</Label>
                         <Controller
                             control={control}
                             name="currency_code"
                             render={({ field }) => (
                                 <Select value={field.value} onValueChange={field.onChange}>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select currency" />
+                                    <SelectTrigger className={inputClasses}>
+                                        <SelectValue placeholder="Currency" />
                                     </SelectTrigger>
-                                    <SelectContent className="max-h-72">
+                                    <SelectContent className="rounded-2xl border-none shadow-ios bg-white dark:bg-[#2C2C2E] max-h-80">
                                         {currencies.map((c) => (
                                             <SelectItem
                                                 key={c.code}
                                                 value={c.code.toUpperCase()}
+                                                className="rounded-xl font-semibold py-3"
                                             >
                                                 {c.code.toUpperCase()} — {c.name}
                                             </SelectItem>
@@ -226,59 +218,49 @@ export default function SettingsForm({
                                 </Select>
                             )}
                         />
-                        {errors.currency_code && (
-                            <p className="text-xs text-red-500">
-                                {errors.currency_code.message}
-                            </p>
-                        )}
                     </div>
                 </div>
 
                 {/* Theme */}
-                <div className="space-y-1.5">
-                    <Label>Theme</Label>
+                <div className="space-y-2">
+                    <Label className={labelClasses}>Appearance</Label>
                     <Controller
                         control={control}
                         name="theme"
                         render={({ field }) => (
                             <Select value={field.value} onValueChange={field.onChange}>
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Select theme" />
+                                <SelectTrigger className={inputClasses}>
+                                    <SelectValue placeholder="Theme" />
                                 </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="system">System</SelectItem>
-                                    <SelectItem value="light">Light</SelectItem>
-                                    <SelectItem value="dark">Dark</SelectItem>
+                                <SelectContent className="rounded-2xl border-none shadow-ios bg-white dark:bg-[#2C2C2E]">
+                                    <SelectItem value="system" className="rounded-xl font-semibold py-3">System Adaptation</SelectItem>
+                                    <SelectItem value="light" className="rounded-xl font-semibold py-3">Brilliant Light</SelectItem>
+                                    <SelectItem value="dark" className="rounded-xl font-semibold py-3">Deep Obsidian (Dark)</SelectItem>
                                 </SelectContent>
                             </Select>
                         )}
                     />
-                    {errors.theme && (
-                        <p className="text-xs text-red-500">
-                            {errors.theme.message}
-                        </p>
-                    )}
                 </div>
 
-                {/* Footer */}
-                <div className="flex items-center justify-between">
-                    <div className="text-xs text-muted-foreground">
-                        <span className="font-medium">Version:</span> {version}
-                    </div>
-
-                    <div className="flex gap-2">
-                        <Button
-                            type="button"
-                            variant="outline"
-                            onClick={() => reset(defaultValues)}
-                            disabled={saving || !isDirty}
-                        >
-                            Reset
-                        </Button>
-                        <Button type="submit" disabled={saving || !isDirty}>
-                            {saving ? "Saving…" : "Save changes"}
-                        </Button>
-                    </div>
+                {/* Footer Actions */}
+                <div className="pt-8 flex items-center justify-end gap-3 border-t border-black/[0.05] dark:border-white/[0.05]">
+                    <Button
+                        type="button"
+                        variant="ghost"
+                        onClick={() => reset(defaultValues)}
+                        disabled={saving || !isDirty}
+                        className="h-12 px-6 rounded-full font-bold hover:bg-black/[0.03] transition-colors disabled:opacity-30"
+                    >
+                        Reset
+                    </Button>
+                    <Button
+                        type="submit"
+                        disabled={saving || !isDirty}
+                        className="btn-ios min-w-[140px] disabled:opacity-50"
+                    >
+                        {saving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}
+                        {saving ? "Syncing..." : "Apply Changes"}
+                    </Button>
                 </div>
             </fieldset>
         </form>

@@ -2,90 +2,72 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, Minus, ChevronDown } from "lucide-react";
+import { Plus, Minus } from "lucide-react";
 
 const faqs = [
   {
-    question: "Is Knitted suitable for solo tailors?",
-    answer:
-      "Absolutely! Our 'Solo' plan is specifically designed for independent tailors and hobbyists. It gives you all the essential tools to manage your clients and measurements without breaking the bank.",
+    question: "Is Knitted really free to start?",
+    answer: "Absolutely. We believe every master craftsperson should have access to professional tools. Manage your first 10 sittings for free, forever.",
   },
   {
-    question: "Can I export my client data?",
-    answer:
-      "Yes, you own your data. You can export your client lists, measurements, and order history to CSV or PDF formats at any time. The 'Atelier' plan also offers API access for custom integrations.",
+    question: "Can I import my existing client logs?",
+    answer: "Yes. Our team can help you migrate measurements from spreadsheets or paper ledgers. We handle the technical work so you can focus on the needle.",
   },
   {
-    question: "How secure is my data?",
-    answer:
-      "Security is our top priority. We use bank-level encryption for all data transmission and storage. Your client's sensitive information is safe with us, and we perform regular security audits.",
+    question: "How secure is my atelier's data?",
+    answer: "Meticulously. We use industry-standard encryption to ensure your clients' measurements and history remain confidential and private.",
   },
   {
-    question: "Do you offer a free trial?",
-    answer:
-      "Yes! You can try the 'Studio' plan for free for 14 days. No credit card required. You can also start with the 'Solo' plan which has a free tier for up to 20 active orders.",
-  },
-  {
-    question: "Can I customize the invoices?",
-    answer:
-      "Yes, on the 'Studio' and 'Atelier' plans, you can fully customize your invoices with your own logo, brand colors, and custom terms and conditions.",
-  },
+    question: "Does it work on tablet and mobile?",
+    answer: "Knitted is designed to be as versatile as your measuring tape. It works seamlessly on any browser, whether you're at your cutting table or in a fitting.",
+  }
 ];
 
 export default function FAQ() {
-  const [openIndex, setOpenIndex] = useState<number | null>(null);
+  const [openIndex, setOpenIndex] = useState<number | null>(0);
 
   return (
-    <section className="py-24 bg-background">
-      <div className="mx-auto max-w-3xl px-4 md:px-8">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl font-bold tracking-tight md:text-5xl mb-6 text-foreground">
-            Frequently Asked Questions
+    <section id="faq" className="py-32 bg-background">
+      <div className="mx-auto max-w-4xl px-6">
+        <div className="mb-24 text-center">
+          <h2 className="text-4xl md:text-5xl mb-6">
+            Common Inquiries
           </h2>
-          <p className="text-muted-foreground text-lg">
-            Everything you need to know about Knitted.
-          </p>
         </div>
 
-        <div className="flex flex-col gap-4">
+        <div className="divide-y divide-border border-t border-border">
           {faqs.map((faq, index) => (
-            <div key={index} className="group">
-              <motion.div
-                className={`rounded-[2rem] border overflow-hidden transition-all duration-300 ${openIndex === index ? "bg-secondary/30 border-primary/20" : "bg-background border-border/60 hover:border-border hover:shadow-lg"}`}
+            <div key={index} className="py-8">
+              <button
+                onClick={() => setOpenIndex(openIndex === index ? null : index)}
+                className="w-full flex items-center justify-between text-left focus:outline-none group"
               >
-                <button
-                  onClick={() =>
-                    setOpenIndex(openIndex === index ? null : index)
+                <span className="text-xl md:text-2xl font-serif text-foreground group-hover:opacity-70 transition-opacity">
+                  {faq.question}
+                </span>
+                <div className="shrink-0 ml-4">
+                  {openIndex === index ?
+                    <Minus className="w-5 h-5 text-foreground/40 stroke-[1.5]" /> :
+                    <Plus className="w-5 h-5 text-foreground/40 stroke-[1.5]" />
                   }
-                  className="flex w-full items-center justify-between p-6 px-8 text-left focus:outline-none"
-                >
-                  <span
-                    className={`text-lg font-bold transition-colors ${openIndex === index ? "text-primary" : "text-foreground"}`}
+                </div>
+              </button>
+
+              <AnimatePresence>
+                {openIndex === index && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.4, ease: "easeInOut" }}
+                    className="overflow-hidden"
                   >
-                    {faq.question}
-                  </span>
-                  <span
-                    className={`ml-4 flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-full transition-all duration-300 ${openIndex === index ? "bg-primary text-white rotate-180" : "bg-secondary text-foreground group-hover:bg-foreground group-hover:text-background"}`}
-                  >
-                    <ChevronDown className="h-5 w-5" />
-                  </span>
-                </button>
-                <AnimatePresence>
-                  {openIndex === index && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: "auto", opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.3, ease: "easeInOut" }}
-                      className="overflow-hidden"
-                    >
-                      <div className="px-8 pb-8 text-lg text-muted-foreground leading-relaxed">
-                        {faq.answer}
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </motion.div>
+                    <div className="pt-6 pb-2 text-base text-muted-foreground leading-relaxed font-sans max-w-2xl">
+                      {faq.answer}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           ))}
         </div>

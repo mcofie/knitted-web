@@ -35,33 +35,27 @@ export default async function EditClientPage({
     const displayName = client.full_name ?? client.name ?? "Client";
 
     return (
-        <div className="max-w-3xl mx-auto py-10 space-y-8">
+        <div className="max-w-3xl mx-auto py-20 space-y-12 px-6">
             {/* --- Top Navigation --- */}
-            <div className="space-y-1">
-                <div className="flex items-center gap-2 text-muted-foreground mb-1">
-                    <Button variant="ghost" size="icon" className="h-6 w-6 -ml-2" asChild>
-                        <Link href={`/clients/${client.id}`}><ArrowLeft className="h-4 w-4" /></Link>
-                    </Button>
-                    <Breadcrumb>
-                        <BreadcrumbList>
-                            <BreadcrumbItem>
-                                <BreadcrumbLink href="/clients">Clients</BreadcrumbLink>
-                            </BreadcrumbItem>
-                            <BreadcrumbSeparator />
-                            <BreadcrumbItem>
-                                <BreadcrumbLink href={`/clients/${client.id}`}>{displayName}</BreadcrumbLink>
-                            </BreadcrumbItem>
-                            <BreadcrumbSeparator />
-                            <BreadcrumbItem>
-                                <BreadcrumbPage>Edit</BreadcrumbPage>
-                            </BreadcrumbItem>
-                        </BreadcrumbList>
-                    </Breadcrumb>
+            <div className="space-y-6">
+                <div className="flex items-center gap-4">
+                    <Link href={`/clients/${client.id}`} className="group h-10 w-10 rounded-full border border-border flex items-center justify-center hover:bg-muted transition-colors">
+                        <ArrowLeft className="h-4 w-4 text-foreground" />
+                    </Link>
+                    <div className="flex items-center gap-2 text-[10px] font-medium text-muted-foreground uppercase tracking-[0.2em]">
+                        <Link href="/clients" className="hover:text-foreground">Directory</Link>
+                        <span className="opacity-30">/</span>
+                        <Link href={`/clients/${client.id}`} className="hover:text-foreground">{displayName}</Link>
+                        <span className="opacity-30">/</span>
+                        <span className="text-foreground">Editing</span>
+                    </div>
                 </div>
-                <h1 className="text-3xl font-bold tracking-tight">Edit Client</h1>
-                <p className="text-muted-foreground">
-                    Update client information or delete this client.
-                </p>
+                <div className="space-y-2">
+                    <h1 className="text-6xl font-serif text-foreground leading-tight">Edit Record</h1>
+                    <p className="text-sm font-sans text-muted-foreground italic">
+                        Refine the identification and details for this creator.
+                    </p>
+                </div>
             </div>
 
             <EditClientForm clientId={client.id} initialValues={client} />

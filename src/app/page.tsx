@@ -2,11 +2,7 @@ import React from 'react';
 import Navbar from '@/components/landing/navbar';
 import Hero from '@/components/landing/hero';
 import Features from '@/components/landing/features';
-
-import Testimonials from '@/components/landing/testimonials';
 import CTA from '@/components/landing/cta';
-import Pricing from '@/components/landing/pricing';
-import DesktopPreview from '@/components/landing/desktop-preview';
 import FAQ from '@/components/landing/faq';
 import Footer from '@/components/landing/footer';
 import { Metadata } from 'next';
@@ -18,14 +14,10 @@ export const metadata: Metadata = {
 
 export default function LandingPage() {
     return (
-        <main className="bg-background text-foreground min-h-screen flex flex-col font-sans selection:bg-primary/20">
+        <main className="bg-background text-foreground min-h-screen flex flex-col selection:bg-accent/20">
             <Navbar />
             <Hero />
             <Features />
-
-            <Testimonials />
-            <Pricing />
-            <DesktopPreview />
             <FAQ />
             <CTA />
             <Footer />

@@ -1,36 +1,44 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
-import { StoreButtons } from "@/components/ui/store-buttons";
+import { motion } from "framer-motion";
+import { ScrapsIllustration } from "@/components/ui/illustrations";
 
 export default function CTA() {
   return (
-    <section className="py-24 px-4 bg-background">
-      <div className="mx-auto max-w-7xl relative overflow-hidden rounded-[3rem] bg-card border border-border text-foreground px-6 py-24 md:px-20 text-center">
-        {/* Decorative blob */}
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/10 blur-[120px] rounded-full pointer-events-none" />
+    <section className="py-32 bg-background border-t border-border">
+      <div className="mx-auto max-w-7xl px-6 text-center">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+          className="flex flex-col items-center"
+        >
+          <div className="mb-12">
+            <ScrapsIllustration />
+          </div>
 
-        <div className="relative z-10 max-w-2xl mx-auto space-y-8">
-          <h2 className="text-4xl md:text-6xl font-bold tracking-tighter text-balance">
-            Ready to organize your atelier?
+          <h2 className="text-5xl md:text-7xl mb-12">
+            Your craft deserves <br />better tools.
           </h2>
-          <p className="text-xl text-muted-foreground">
-            Join the tailored operating system today. No credit card required.
+
+          <p className="max-w-xl text-lg text-muted-foreground mb-16 font-sans">
+            Meticulously built for those who understand that every measurement matters.
           </p>
-          <div className="flex flex-col sm:flex-row justify-center gap-4 pt-4">
+
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-8">
             <Link
               href="/signup"
-              className="h-14 px-8 rounded-full bg-primary text-primary-foreground text-lg font-bold flex items-center justify-center transition-transform hover:scale-105"
+              className="btn-primary min-w-[200px]"
             >
-              Start Free Trial
-              <ArrowRight className="ml-2 w-5 h-5" />
+              Get started free
             </Link>
           </div>
-          <div className="flex justify-center pt-8">
-            <StoreButtons centered dark={false} /> {/* Let buttons adapt or force if needed. Using default which adapts to theme usually, or we can explicit. Let's rely on theme since bg is now theme-aware */}
-          </div>
-        </div>
+
+          <p className="mt-16 text-xs text-muted-foreground font-sans tracking-widest uppercase">
+            Designed in London · Used Worldwide
+          </p>
+        </motion.div>
       </div>
     </section>
   );

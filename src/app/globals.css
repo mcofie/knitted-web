@@ -1,97 +1,75 @@
 @import "tailwindcss";
 @custom-variant dark (&:where(.dark *));
 
-/* ---------- ADETON-INSPIRED THEME ---------- */
 :root {
-  /* Surfaces - Soft Warmth (Blending better than raw Stone) */
-  --background: 36 30% 98%;
-  /* Very pale warm cream */
-  --foreground: 25 10% 15%;
-  /* Soft warm charcoal */
+  /* Knitted Refined Palette */
+  --background: 34 33% 98%;
+  /* #fdfcfb - Warm cream */
+  --foreground: 0 0% 10%;
+  /* #1a1a1a - Charcoal */
 
-  /* Cards */
   --card: 0 0% 100%;
-  /* Pure white pop against cream */
-  --card-foreground: 25 10% 15%;
-  --popover: 0 0% 100%;
-  --popover-foreground: 25 10% 15%;
+  --card-foreground: 0 0% 10%;
 
-  /* Brand - Harmonious Organic Green */
-  /* Slightly more muted and deeper than standard digital green */
-  --primary: 146 55% 40%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 0 0% 10%;
+
+  --primary: 0 0% 10%;
+  /* Solid Charcoal for primary buttons */
   --primary-foreground: 0 0% 100%;
 
-  /* Secondary - Warm Neutral */
-  --secondary: 36 15% 94%;
-  --secondary-foreground: 25 10% 15%;
+  --secondary: 210 100% 97%;
+  /* #f0f7ff - Pale blue wash */
+  --secondary-foreground: 0 0% 10%;
 
-  /* Muted - Subtle */
-  --muted: 36 15% 94%;
-  --muted-foreground: 25 5% 45%;
+  --muted: 34 33% 94%;
+  --muted-foreground: 0 0% 40%;
 
-  --accent: 36 15% 92%;
-  --accent-foreground: 25 10% 15%;
+  --accent: 330 100% 65%;
+  /* #ff4d94 - Pink accent */
+  --accent-foreground: 0 0% 100%;
 
-  --destructive: 0 84% 60%;
-  --destructive-foreground: 0 0% 98%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 210 40% 98%;
 
-  /* Borders & Input - Soft Warm Grey */
-  --border: 36 10% 88%;
-  --input: 36 10% 88%;
-  --ring: 146 55% 40%;
+  --border: 0 0% 90%;
+  --input: 0 0% 90%;
+  --ring: 0 0% 10%;
 
-  /* Shape */
-  --radius: 0.75rem;
-
-  /* Charts */
-  --chart-1: 146 55% 40%;
-  --chart-2: 25 10% 50%;
-  --chart-3: 146 40% 55%;
-  --chart-4: 35 60% 60%;
-  --chart-5: 0 70% 65%;
+  --radius: 2rem;
 }
 
 .dark {
-  /* Surfaces - Deep Warm Charcoal */
-  --background: 25 10% 10%;
-  --foreground: 36 20% 96%;
+  --background: 0 0% 5%;
+  --foreground: 0 0% 95%;
 
-  /* Cards */
-  --card: 25 8% 14%;
-  --card-foreground: 36 20% 96%;
-  --popover: 25 8% 14%;
-  --popover-foreground: 36 20% 96%;
+  --card: 0 0% 8%;
+  --card-foreground: 0 0% 95%;
 
-  /* Brand - Brighter for Dark Mode */
-  --primary: 146 50% 50%;
-  --primary-foreground: 0 0% 100%;
+  --popover: 0 0% 8%;
+  --popover-foreground: 0 0% 95%;
 
-  --secondary: 25 8% 18%;
-  --secondary-foreground: 36 20% 96%;
+  --primary: 0 0% 95%;
+  --primary-foreground: 0 0% 5%;
 
-  --muted: 25 8% 18%;
-  --muted-foreground: 25 5% 65%;
+  --secondary: 0 0% 15%;
+  --secondary-foreground: 0 0% 95%;
 
-  --accent: 25 8% 18%;
-  --accent-foreground: 36 20% 96%;
+  --muted: 0 0% 15%;
+  --muted-foreground: 0 0% 60%;
 
-  --destructive: 0 62.8% 30.6%;
-  --destructive-foreground: 0 0% 98%;
+  --accent: 330 100% 65%;
+  --accent-foreground: 0 0% 100%;
 
-  /* Borders & Input */
-  --border: 25 8% 22%;
-  --input: 25 8% 22%;
-  --ring: 146 50% 50%;
-
-  /* Charts */
-  --chart-1: 146 50% 50%;
-  --chart-2: 25 8% 65%;
-  --chart-3: 146 40% 60%;
-  --chart-4: 35 60% 65%;
-  --chart-5: 0 70% 70%;
+  --border: 0 0% 20%;
+  --input: 0 0% 20%;
+  --ring: 0 0% 95%;
 }
 
 @theme {
+  --font-sans: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-serif), ui-serif, Georgia, serif;
+
   --color-background: hsl(var(--background));
   --color-foreground: hsl(var(--foreground));
 
@@ -121,16 +99,44 @@
   --color-ring: hsl(var(--ring));
 
   --radius: var(--radius);
+
+  /* NO SHADOWS */
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-bento: none;
+
+  @keyframes spin-slow {
+    from {
+      transform: rotate(0deg);
+    }
+
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  --animate-spin-slow: spin-slow 3s linear infinite;
+}
+
+@layer utilities {
+  .bento-card {
+    @apply bg-card rounded-[2rem] border border-border pb-8 transition-all duration-500 hover:scale-[1.01];
+  }
+
+  .btn-primary {
+    @apply h-12 px-8 rounded-full bg-primary text-primary-foreground font-medium text-base hover:opacity-90 active:scale-95 transition-all inline-flex items-center justify-center;
+  }
+
+  .btn-secondary {
+    @apply h-12 px-8 rounded-full bg-transparent text-foreground font-medium text-base hover:underline active:scale-95 transition-all inline-flex items-center justify-center;
+  }
 }
 
 @layer base {
-  * {
-    @apply border-border;
-  }
-
   body {
-    @apply bg-background text-foreground font-sans relative;
-    font-family: var(--font-dm-sans), sans-serif;
+    @apply bg-background text-foreground font-sans antialiased selection:bg-accent/20;
   }
 
   h1,
@@ -139,37 +145,19 @@
   h4,
   h5,
   h6 {
-    font-family: var(--font-dm-sans), sans-serif;
-    @apply font-bold tracking-tight text-balance;
-  }
-
-  button {
-    @apply active:scale-95 transition-transform duration-100 ease-out;
-  }
-
-  /* Premium Selection */
-  ::selection {
-    @apply bg-primary/20 text-foreground;
-  }
-
-  /* Modern Minimal Scrollbar */
-  ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-  }
-
-  ::-webkit-scrollbar-track {
-    @apply bg-transparent;
-  }
-
-  ::-webkit-scrollbar-thumb {
-    @apply bg-muted-foreground/20 rounded-full hover:bg-muted-foreground/40 transition-colors;
+    @apply font-serif font-normal tracking-tight leading-[1.1];
   }
 }
 
-@layer utilities {
-  /* Fluid Type */
-  .text-fluid-h1 {
-    font-size: clamp(2.5rem, 5vw + 1rem, 4.5rem);
-  }
+/* Minimal Scrollbar */
+::-webkit-scrollbar {
+  width: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-primary/20 rounded-full;
 }

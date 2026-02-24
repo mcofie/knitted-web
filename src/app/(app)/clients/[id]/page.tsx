@@ -8,7 +8,16 @@ import {
     ShoppingBag,
     Edit,
     User,
-    ArrowLeft
+    ArrowLeft,
+    Sparkles,
+    Star,
+    Coffee,
+    Heart,
+    Zap,
+    Scale,
+    ChevronRight,
+    UserCircle,
+    Scissors
 } from "lucide-react";
 
 // UI Components
@@ -27,7 +36,7 @@ import {
 
 // Sub-components
 import MeasurementsSection from "./measurements";
-import ClientActions from "@/app/(app)/clients/[id]/client-actions"; // Keep existing actions if complex
+import ClientActions from "@/app/(app)/clients/[id]/client-actions";
 import OrdersListItems from "@/app/(app)/clients/[id]/order-list-items";
 
 export const dynamic = "force-dynamic";
@@ -50,8 +59,14 @@ export default async function ClientDetailPage({ params }: { params: RouteParams
     const { data: { user } } = await sb.auth.getUser();
     if (!user) {
         return (
-            <div className="flex h-[50vh] items-center justify-center text-muted-foreground">
-                Not signed in
+            <div className="flex h-[80vh] items-center justify-center p-8 bg-background">
+                <div className="text-center space-y-6">
+                    <UserCircle className="w-20 h-20 text-muted-foreground/20 mx-auto" />
+                    <h2 className="text-4xl font-serif text-foreground">Identity Check</h2>
+                    <Button asChild className="btn-primary">
+                        <Link href="/login">Sign In</Link>
+                    </Button>
+                </div>
             </div>
         );
     }
@@ -66,21 +81,22 @@ export default async function ClientDetailPage({ params }: { params: RouteParams
 
     if (clientErr || !client) {
         return (
-            <div className="p-8 text-center">
-                <div
-                    className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10 text-destructive mb-4">
-                    <User className="h-6 w-6" />
+            <div className="p-20 text-center max-w-sm mx-auto space-y-8">
+                <div className="w-20 h-20 bg-secondary/30 rounded-3xl flex items-center justify-center mx-auto">
+                    <Scissors className="w-10 h-10 text-foreground opacity-20" />
                 </div>
-                <h2 className="text-lg font-semibold">Client Not Found</h2>
-                <p className="text-muted-foreground">The client you are looking for does not exist.</p>
-                <Button asChild variant="link" className="mt-4">
-                    <Link href="/clients">Back to Clients</Link>
+                <div className="space-y-4">
+                    <h2 className="text-4xl font-serif text-foreground">Record Not Found</h2>
+                    <p className="font-sans text-muted-foreground italic text-lg">The dossier you are looking for has been archived or removed.</p>
+                </div>
+                <Button asChild className="btn-primary">
+                    <Link href="/clients">Return to Directory</Link>
                 </Button>
             </div>
         );
     }
 
-    const displayName = client.full_name ?? client.name ?? "Client";
+    const displayName = client.full_name ?? client.name ?? "Master Client";
 
     // 2) Fetch Orders
     const { data: orders, error: ordersErr } = await sb
@@ -90,14 +106,10 @@ export default async function ClientDetailPage({ params }: { params: RouteParams
         .eq("customer_id", id)
         .order("created_at", { ascending: false });
 
-    if (ordersErr) {
-        return <div className="p-6 text-destructive">Error loading orders: {ordersErr.message}</div>;
-    }
-
     // 3) Calculate Totals & Stats
     let totalsByOrder: Record<string, number> = {};
     let lifetimeValue = 0;
-    let currency = "GHS"; // Default
+    let currency = "GHS";
 
     if (orders?.length) {
         const orderIds = (orders as OrderRow[]).map((o) => o.id);
@@ -120,173 +132,118 @@ export default async function ClientDetailPage({ params }: { params: RouteParams
     }
 
     return (
-        <div className="max-w-6xl mx-auto space-y-8 pb-10">
+        <div className="max-w-7xl mx-auto space-y-12 pb-20">
 
-            {/* --- Top Navigation --- */}
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                <div className="space-y-1">
-                    <div className="flex items-center gap-2 text-muted-foreground mb-1">
-                        <Button variant="ghost" size="icon" className="h-6 w-6 -ml-2" asChild>
-                            <Link href="/clients"><ArrowLeft className="h-4 w-4" /></Link>
-                        </Button>
-                        <Breadcrumb>
-                            <BreadcrumbList>
-                                <BreadcrumbItem>
-                                    <BreadcrumbLink href="/clients">Clients</BreadcrumbLink>
-                                </BreadcrumbItem>
-                                <BreadcrumbSeparator />
-                                <BreadcrumbItem>
-                                    <BreadcrumbPage>{displayName}</BreadcrumbPage>
-                                </BreadcrumbItem>
-                            </BreadcrumbList>
-                        </Breadcrumb>
+            {/* --- Header Section --- */}
+            <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between px-2">
+                <div className="space-y-6">
+                    <Link href="/clients" className="inline-flex items-center gap-2 text-[10px] font-medium text-muted-foreground hover:text-foreground transition-all uppercase tracking-[0.2em]">
+                        <ArrowLeft className="h-3 w-3" />
+                        Back to Directory
+                    </Link>
+                    <div className="space-y-2">
+                        <h1 className="text-6xl font-serif text-foreground leading-[1.1]">
+                            {displayName}
+                        </h1>
+                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-widest opacity-60 italic">Verified Lifetime Member</p>
                     </div>
-                    <h1 className="text-2xl font-bold tracking-tight">{displayName}</h1>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-4">
                     <ClientActions clientId={client.id} clientName={displayName} />
                 </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
 
-                {/* --- LEFT COLUMN (Profile) --- */}
-                <div className="lg:col-span-4 space-y-6">
-
-                    {/* Profile Card */}
-                    <Card className="overflow-hidden border-border/60 shadow-sm">
-                        <div className="bg-muted/30 p-6 flex flex-col items-center text-center border-b">
-                            <div className="relative mb-4">
-                                <div
-                                    className="h-24 w-24 rounded-full ring-4 ring-background bg-white overflow-hidden shadow-sm">
-                                    <Image
-                                        src={`https://api.dicebear.com/9.x/glass/svg?seed=${encodeURIComponent(client.name || "Guest")}`}
-                                        alt={displayName}
-                                        fill
-                                        className="object-cover rounded-full"
-                                        unoptimized
-                                    />
-                                </div>
-                            </div>
-                            <h2 className="text-xl font-semibold">{displayName}</h2>
-                            <p className="text-sm text-muted-foreground mt-1 flex items-center justify-center gap-1">
-                                <MapPin className="h-3 w-3" />
-                                {client.city || "No City"} {client.country_code ? `• ${client.country_code}` : ""}
-                            </p>
-
-                            <div className="grid grid-cols-2 gap-3 w-full mt-6">
-                                <Button variant="outline" className="w-full gap-2" asChild>
-                                    <Link href={`tel:${client.phone}`}>
-                                        <Phone className="h-4 w-4" /> Call
-                                    </Link>
-                                </Button>
-                                <Button variant="outline" className="w-full gap-2" asChild>
-                                    <Link href={`mailto:${client.email}`}>
-                                        <Mail className="h-4 w-4" /> Email
-                                    </Link>
-                                </Button>
+                {/* --- LEFT COLUMN: Profile Info --- */}
+                <div className="lg:col-span-4 space-y-8">
+                    <Card className="bento-card bg-secondary/30 p-8 flex flex-col items-center text-center space-y-8">
+                        <div className="relative">
+                            <div className="h-40 w-40 rounded-[2.5rem] bg-background border border-border overflow-hidden">
+                                <Image
+                                    src={`https://api.dicebear.com/9.x/glass/svg?seed=${encodeURIComponent(client.name || "Guest")}`}
+                                    alt={displayName}
+                                    fill
+                                    className="object-cover"
+                                    unoptimized
+                                />
                             </div>
                         </div>
 
-                        <div className="p-6 space-y-4">
-                            <h3 className="text-xs font-semibold uppercase text-muted-foreground tracking-wider mb-3">Contact
-                                Info</h3>
-
-                            <div className="space-y-3 text-sm">
-                                <div className="flex items-center justify-between group">
-                                    <span className="text-muted-foreground flex items-center gap-2">
-                                        <Phone className="h-4 w-4 opacity-70" /> Phone
-                                    </span>
-                                    <span className="font-medium">{client.phone || "—"}</span>
-                                </div>
-                                <div className="separator border-b border-dashed border-muted" />
-                                <div className="flex items-center justify-between group">
-                                    <span className="text-muted-foreground flex items-center gap-2">
-                                        <Mail className="h-4 w-4 opacity-70" /> Email
-                                    </span>
-                                    <span className="font-medium truncate max-w-[150px]" title={client.email || ""}>
-                                        {client.email || "—"}
-                                    </span>
+                        <div className="space-y-6 w-full">
+                            <div className="space-y-2">
+                                <h2 className="text-3xl font-serif text-foreground">{client.name}</h2>
+                                <div className="flex items-center justify-center gap-2 text-xs font-medium text-muted-foreground uppercase tracking-widest">
+                                    <MapPin className="w-3 h-3" />
+                                    <span>{client.city || 'Global Atelier'}</span>
                                 </div>
                             </div>
 
-                            <div className="mt-6 pt-6 border-t">
-                                <div className="grid grid-cols-2 gap-4 text-center">
-                                    <div className="space-y-1">
-                                        <span className="text-xs text-muted-foreground uppercase">Orders</span>
-                                        <p className="text-2xl font-bold">{orders?.length || 0}</p>
-                                    </div>
-                                    <div className="space-y-1">
-                                        <span className="text-xs text-muted-foreground uppercase">Lifetime Value</span>
-                                        <p className="text-2xl font-bold">
-                                            {new Intl.NumberFormat(undefined, {
-                                                style: 'currency',
-                                                currency: currency,
-                                                maximumFractionDigits: 0
-                                            }).format(lifetimeValue)}
-                                        </p>
-                                    </div>
-                                </div>
+                            <div className="space-y-3 pt-4">
+                                <Button variant="outline" className="w-full rounded-full h-12 border-border bg-transparent text-foreground hover:bg-muted font-medium text-xs uppercase tracking-widest" asChild>
+                                    <Link href={`tel:${client.phone}`}>Call Stakeholder</Link>
+                                </Button>
+                                <Button variant="outline" className="w-full rounded-full h-12 border-border bg-transparent text-foreground hover:bg-muted font-medium text-xs uppercase tracking-widest" asChild>
+                                    <Link href={`mailto:${client.email}`}>Send Brief</Link>
+                                </Button>
                             </div>
                         </div>
                     </Card>
 
-                    {/* Quick Actions / Edit */}
-                    <Card className="p-1 border-none shadow-none bg-transparent">
-                        <Button variant="outline"
-                            className="w-full border-dashed border-muted-foreground/30 hover:bg-muted/50" asChild>
-                            <Link href={`/clients/${client.id}/edit`}>
-                                <Edit className="mr-2 h-4 w-4" /> Edit Client Profile
-                            </Link>
-                        </Button>
+                    <Card className="bento-card bg-foreground p-8 text-background space-y-6 border-none">
+                        <span className="text-[10px] font-medium text-background/50 uppercase tracking-[0.2em]">Growth Statistics</span>
+                        <div className="grid grid-cols-2 gap-8">
+                            <div className="space-y-2">
+                                <span className="text-[10px] uppercase opacity-40 font-medium tracking-widest">Projects</span>
+                                <p className="text-3xl font-serif">{orders?.length || 0}</p>
+                            </div>
+                            <div className="space-y-2">
+                                <span className="text-[10px] uppercase opacity-40 font-medium tracking-widest">LTV</span>
+                                <p className="text-3xl font-serif tabular-nums">
+                                    {new Intl.NumberFormat(undefined, { style: 'currency', currency: currency, maximumFractionDigits: 0 }).format(lifetimeValue)}
+                                </p>
+                            </div>
+                        </div>
                     </Card>
+
+                    <Button variant="ghost" className="w-full h-12 rounded-full text-xs font-medium uppercase tracking-widest text-muted-foreground/60 hover:text-foreground hover:bg-muted/50" asChild>
+                        <Link href={`/clients/${client.id}/edit`}>Edit Identification</Link>
+                    </Button>
                 </div>
 
-                {/* --- RIGHT COLUMN (Data) --- */}
-                <div className="lg:col-span-8 space-y-8">
-
+                {/* --- RIGHT COLUMN: Measurements & Orders --- */}
+                <div className="lg:col-span-8 space-y-16">
                     {/* Measurements */}
-                    <div className="space-y-4">
-                        {/*<div className="flex items-center justify-between px-1">*/}
-                        {/*    <h3 className="text-lg font-semibold flex items-center gap-2">*/}
-                        {/*        <Ruler className="h-5 w-5 text-primary"/> Measurements*/}
-                        {/*    </h3>*/}
-                        {/*</div>*/}
-                        {/* MeasurementsSection handles its own card UI internally */}
+                    <div className="space-y-8">
+                        <div className="flex items-center justify-between px-2">
+                            <h3 className="text-4xl font-serif text-foreground">Dimensions</h3>
+                            <div className="h-10 w-10 border border-border rounded-full flex items-center justify-center">
+                                <Scale className="w-4 h-4 text-foreground opacity-40" />
+                            </div>
+                        </div>
                         <MeasurementsSection customerId={client.id} />
                     </div>
 
-                    <Separator />
-
-                    {/* Orders */}
-                    <div className="space-y-4">
-                        <div className="flex items-center justify-between px-1">
-                            <h3 className="text-lg font-semibold flex items-center gap-2">
-                                <ShoppingBag className="h-5 w-5 text-primary" /> Order History
-                            </h3>
-                            {/* Optional: Add Order Button could go here */}
+                    {/* Projects */}
+                    <div className="space-y-8">
+                        <div className="flex items-center justify-between px-2">
+                            <h3 className="text-4xl font-serif text-foreground">Projects</h3>
+                            <div className="h-10 w-10 border border-border rounded-full flex items-center justify-center">
+                                <ShoppingBag className="w-4 h-4 text-foreground opacity-40" />
+                            </div>
                         </div>
 
-                        <Card className="overflow-hidden border-border/60 shadow-sm">
-                            <div className="overflow-x-auto px-2">
-                                <OrdersListItems orders={orders} totalsByOrder={totalsByOrder} />
-                            </div>
-                            {/*{(!orders || orders.length === 0) && (*/}
-                            {/*    <div className="p-12 text-center">*/}
-                            {/*        <div*/}
-                            {/*            className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-muted mb-4">*/}
-                            {/*            <ShoppingBag className="h-6 w-6 text-muted-foreground"/>*/}
-                            {/*        </div>*/}
-                            {/*        <h3 className="text-sm font-semibold">No orders yet</h3>*/}
-                            {/*        <p className="text-sm text-muted-foreground mt-1">*/}
-                            {/*            Create a new order to start tracking history.*/}
-                            {/*        </p>*/}
-                            {/*    </div>*/}
-                            {/*)}*/}
+                        <Card className="bento-card p-0 overflow-hidden bg-muted/20">
+                            <OrdersListItems orders={orders} totalsByOrder={totalsByOrder} />
+                            {(!orders || orders.length === 0) && (
+                                <div className="p-20 text-center space-y-6 opacity-40">
+                                    <Coffee className="w-12 h-12 mx-auto text-foreground stroke-[1.5]" />
+                                    <p className="font-sans text-lg italic mt-4">This creator has no active projects yet.</p>
+                                </div>
+                            )}
                         </Card>
                     </div>
-
                 </div>
             </div>
         </div>

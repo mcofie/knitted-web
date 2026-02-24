@@ -1,43 +1,49 @@
 "use client";
 
-import {Badge} from "@/components/ui/badge";
-import {cn} from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
+import { CheckCircle2, Star, Clock, AlertCircle, RotateCcw } from "lucide-react";
 
-export default function StatusBadge({status}: { status: string }) {
-    // Normalize status: lowercase and remove underscores for cleaner display
+export default function StatusBadge({ status, className: extraClass }: { status: string, className?: string }) {
     const normalizedStatus = status.toLowerCase();
     const label = status.replace(/_/g, " ");
 
-    // Define styles for each status state
-    // Using specific background/text color combinations looks more premium than generic "destructive/secondary" variants
     const styles = {
-        completed: "border-transparent bg-green-500/15 text-green-700 dark:text-green-400 hover:bg-green-500/25",
-        delivered: "border-transparent bg-green-500/15 text-green-700 dark:text-green-400 hover:bg-green-500/25",
-        ready: "border-transparent bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-500/25",
-
-        in_production: "border-transparent bg-blue-500/15 text-blue-700 dark:text-blue-400 hover:bg-blue-500/25",
-        processing: "border-transparent bg-blue-500/15 text-blue-700 dark:text-blue-400 hover:bg-blue-500/25",
-
-        pending: "border-transparent bg-yellow-500/15 text-yellow-700 dark:text-yellow-400 hover:bg-yellow-500/25",
-        draft: "text-muted-foreground border-muted-foreground/30",
-
-        cancelled: "border-transparent bg-red-500/15 text-red-700 dark:text-red-400 hover:bg-red-500/25",
-        rejected: "border-transparent bg-red-500/15 text-red-700 dark:text-red-400 hover:bg-red-500/25",
+        completed: "bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-500/5 dark:text-emerald-400 dark:border-emerald-500/10",
+        delivered: "bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-500/5 dark:text-emerald-400 dark:border-emerald-500/10",
+        ready: "bg-accent/5 text-accent border-accent/10",
+        in_production: "bg-blue-50 text-blue-600 border-blue-100 dark:bg-blue-500/5 dark:text-blue-400 dark:border-blue-500/10",
+        processing: "bg-blue-50 text-blue-600 border-blue-100 dark:bg-blue-500/5 dark:text-blue-400 dark:border-blue-500/10",
+        pending: "bg-amber-50 text-amber-600 border-amber-100 dark:bg-amber-500/5 dark:text-amber-400 dark:border-amber-500/10",
+        draft: "bg-muted/30 text-muted-foreground border-border",
+        cancelled: "bg-rose-50 text-rose-600 border-rose-100 dark:bg-rose-500/5 dark:text-rose-400 dark:border-rose-500/10",
+        rejected: "bg-rose-50 text-rose-600 border-rose-100 dark:bg-rose-500/5 dark:text-rose-400 dark:border-rose-500/10",
     };
 
-    // Default style if status doesn't match
-    const defaultStyle = "text-muted-foreground border-border";
+    const icons = {
+        completed: <CheckCircle2 className="w-3 h-3 stroke-[1.5]" />,
+        delivered: <CheckCircle2 className="w-3 h-3 stroke-[1.5]" />,
+        ready: <Star className="w-3 h-3 fill-current stroke-[1.5]" />,
+        in_production: <RotateCcw className="w-3 h-3 animate-spin-slow stroke-[1.5]" />,
+        processing: <RotateCcw className="w-3 h-3 animate-spin-slow stroke-[1.5]" />,
+        pending: <Clock className="w-3 h-3 stroke-[1.5]" />,
+        cancelled: <AlertCircle className="w-3 h-3 stroke-[1.5]" />,
+        rejected: <AlertCircle className="w-3 h-3 stroke-[1.5]" />,
+    };
 
-    const className = styles[normalizedStatus as keyof typeof styles] || defaultStyle;
+    const baseStyle = styles[normalizedStatus as keyof typeof styles] || "text-muted-foreground border-border";
+    const Icon = icons[normalizedStatus as keyof typeof icons] || <Clock className="w-3 h-3 stroke-[1.5]" />;
 
     return (
         <Badge
-            variant="outline" // Using outline as base allows us to override borders/bg easily
+            variant="outline"
             className={cn(
-                "px-2.5 py-0.5 text-xs font-semibold capitalize transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
-                className
+                "inline-flex items-center gap-2 rounded-full px-3 py-1 text-[10px] font-medium uppercase tracking-[0.15em] border transition-all",
+                baseStyle,
+                extraClass
             )}
         >
+            {Icon}
             {label}
         </Badge>
     );

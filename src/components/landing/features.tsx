@@ -1,121 +1,106 @@
 "use client";
 
-import Image from "next/image";
 import { motion } from "framer-motion";
-import { Ruler, CreditCard, Users, Sparkles, Search, Bell } from "lucide-react";
+import {
+  Users,
+  Ruler,
+  Smartphone,
+  Scissors
+} from "lucide-react";
+
+const features = [
+  {
+    title: "Client Dossiers",
+    description: "Meticulously organized client profiles with exhaustive measurement history.",
+    icon: Users,
+  },
+  {
+    title: "Precise Logic",
+    description: "Built-in measurement validation to ensure every stitch is intentional.",
+    icon: Ruler,
+  },
+  {
+    title: "Motto of the Hand",
+    description: "Access your atelier's data from any device, anywhere in the world.",
+    icon: Smartphone,
+  },
+  {
+    title: "Craft First",
+    description: "Design tools that stay out of your way and let your talent lead.",
+    icon: Scissors,
+  }
+];
 
 export default function Features() {
   return (
-    <section className="py-32 bg-background">
-      <div className="mx-auto max-w-7xl px-4 md:px-8">
-        <div className="max-w-3xl mb-20">
-          <h2 className="text-5xl md:text-6xl font-bold tracking-tighter text-foreground mb-6">
-            Details that matter.
+    <section id="features" className="py-24 bg-background">
+      <div className="mx-auto max-w-7xl px-6">
+        <div className="text-center mb-32">
+          <h2 className="text-4xl md:text-6xl mb-6">
+            Everything you need <br />in one place.
           </h2>
-          <p className="text-xl md:text-2xl text-muted-foreground leading-relaxed">
-            We sweat the small stuff so you don't have to.
-            <br />
-            Powerful tools wrapped in a delightful interface.
-          </p>
         </div>
 
-        {/* Bento Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 auto-rows-[400px]">
-          {/* Card 1: Measurements (Large) */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="md:col-span-2 group relative overflow-hidden rounded-[2.5rem] bg-secondary border border-border p-10 hover:bg-muted transition-colors"
-          >
-            <div className="relative z-10 max-w-sm">
-              <div className="w-12 h-12 rounded-2xl bg-background shadow-sm flex items-center justify-center mb-6">
-                <Ruler className="w-6 h-6 text-foreground" />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-12 gap-y-20">
+          {features.map((feature, index) => (
+            <motion.div
+              key={feature.title}
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: index * 0.1, duration: 0.8 }}
+              className="group"
+            >
+              <div className="mb-8">
+                <feature.icon className="w-6 h-6 text-foreground/40 stroke-[1.5]" />
               </div>
-              <h3 className="text-3xl font-bold text-foreground mb-4">
-                Precision Measurements
+              <h3 className="text-2xl mb-4">
+                {feature.title}
               </h3>
-              <p className="text-lg text-muted-foreground">
-                Save over 50 unique measurement points per client. Customizable
-                templates for suits, dresses, and more.
+              <p className="text-sm text-muted-foreground leading-relaxed font-sans">
+                {feature.description}
               </p>
-            </div>
-            <div className="absolute right-0 bottom-0 w-1/2 h-full translate-x-12 translate-y-12">
-              {/* Abstract placeholder for UI */}
-              <div className="w-full h-full bg-background rounded-tl-[2rem] border border-border shadow-2xl p-6">
-                <div className="space-y-4 opacity-50">
-                  <div className="h-4 bg-secondary rounded w-3/4" />
-                  <div className="h-4 bg-secondary rounded w-1/2" />
-                  <div className="h-4 bg-secondary rounded w-full" />
+            </motion.div>
+          ))}
+        </div>
+      </div>
+
+      {/* Pale Blue Wash Section */}
+      <div className="mt-32 py-32 bg-secondary">
+        <div className="mx-auto max-w-7xl px-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            <div>
+              <h2 className="text-4xl md:text-5xl mb-8">
+                Built for how <br />you create.
+              </h2>
+              <div className="space-y-12">
+                <div className="flex gap-4">
+                  <span className="text-xs font-medium text-foreground/40">01</span>
+                  <div>
+                    <h4 className="text-xl mb-2">For independent tailors</h4>
+                    <p className="text-sm text-muted-foreground max-w-sm">Consolidate measurements, notes, and fittings into a single source of truth.</p>
+                  </div>
+                </div>
+                <div className="flex gap-4">
+                  <span className="text-xs font-medium text-foreground/40">02</span>
+                  <div>
+                    <h4 className="text-xl mb-2">For scaling ateliers</h4>
+                    <p className="text-sm text-muted-foreground max-w-sm">Coordinate between pattern makers and tailors with shared measurement data.</p>
+                  </div>
                 </div>
               </div>
             </div>
-          </motion.div>
 
-          {/* Card 2: Payments (Tall) */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.1 }}
-            className="md:row-span-2 group relative overflow-hidden rounded-[2.5rem] bg-primary text-primary-foreground p-10 flex flex-col justify-between"
-          >
-            <div>
-              <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center mb-6">
-                <CreditCard className="w-6 h-6 text-white" />
-              </div>
-              <h3 className="text-3xl font-bold mb-4">Get paid faster</h3>
-              <p className="text-lg text-primary-foreground/80">
-                Create professional invoices in seconds. Track deposits and
-                outstanding balances automatically.
-              </p>
-            </div>
-            {/* Solid Receipt Card - Removed Blur */}
-            <div className="mt-8 relative h-60 w-full bg-white text-black rounded-2xl border border-white/10 shadow-lg p-6 flex flex-col items-center justify-center">
-              <div className="text-4xl font-bold mb-2">$1,250.00</div>
-              <div className="text-sm font-medium bg-black/5 px-3 py-1 rounded-full">
-                Paid
+            <div className="relative aspect-square bg-white/50 border border-white/20 rounded-2xl p-12 flex items-center justify-center">
+              <div className="text-center">
+                <div className="w-16 h-1 w-1 bg-accent/20 mx-auto mb-8 rounded-full" />
+                <p className="text-2xl italic font-serif text-foreground/60">
+                  "Knitted has transformed how we handle client sittings. It's the only tool that feels as premium as our suits."
+                </p>
+                <p className="mt-8 text-xs font-sans tracking-widest uppercase text-foreground/40">— Luca Bianchi, Master Tailor</p>
               </div>
             </div>
-          </motion.div>
-
-          {/* Card 3: Search (Small) */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.2 }}
-            className="group relative overflow-hidden rounded-[2.5rem] bg-secondary/30 border border-border/50 p-10"
-          >
-            <div className="w-12 h-12 rounded-2xl bg-background shadow-sm flex items-center justify-center mb-6">
-              <Search className="w-6 h-6 text-foreground" />
-            </div>
-            <h3 className="text-2xl font-bold text-foreground mb-2">
-              Instant Search
-            </h3>
-            <p className="text-muted-foreground">
-              Find any order, client, or fabric in milliseconds.
-            </p>
-          </motion.div>
-
-          {/* Card 4: Clients (Small) */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.3 }}
-            className="group relative overflow-hidden rounded-[2.5rem] bg-secondary/30 border border-border/50 p-10"
-          >
-            <div className="w-12 h-12 rounded-2xl bg-background shadow-sm flex items-center justify-center mb-6">
-              <Users className="w-6 h-6 text-foreground" />
-            </div>
-            <h3 className="text-2xl font-bold text-foreground mb-2">
-              Client Profiles
-            </h3>
-            <p className="text-muted-foreground">
-              Detailed history for every VIP.
-            </p>
-          </motion.div>
+          </div>
         </div>
       </div>
     </section>
