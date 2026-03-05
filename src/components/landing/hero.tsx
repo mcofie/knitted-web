@@ -6,13 +6,13 @@ import Image from "next/image";
 
 export default function Hero() {
   return (
-    <section className="relative pt-24 pb-20 lg:pt-32 lg:pb-32 overflow-hidden bg-background">
+    <section className="relative pt-16 pb-12 lg:pt-20 lg:pb-20 overflow-hidden bg-background">
       <div className="mx-auto max-w-7xl px-6 relative z-10 text-center">
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 1.2, ease: "easeOut" }}
-          className="relative mx-auto max-w-5xl mb-12"
+          className="relative mx-auto max-w-5xl mb-8"
         >
           <div className="relative">
             <Image
@@ -31,7 +31,7 @@ export default function Hero() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2, duration: 0.8 }}
-            className="text-4xl md:text-6xl lg:text-7xl mb-8 text-foreground tracking-tight"
+            className="text-4xl md:text-6xl lg:text-7xl mb-6 text-foreground tracking-tight"
           >
             The software that <br />Sewn with <span className="italic">intent.</span>
           </motion.h1>
@@ -40,7 +40,7 @@ export default function Hero() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4, duration: 0.8 }}
-            className="text-base md:text-xl text-muted-foreground leading-relaxed mb-12 max-w-xl mx-auto font-sans"
+            className="text-base md:text-xl text-muted-foreground leading-relaxed mb-10 max-w-xl mx-auto font-sans"
           >
             Knitted helps tailors manage client measurements and history with the meticulous care their craft deserves.
           </motion.p>
@@ -63,7 +63,7 @@ export default function Hero() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 0.4 }}
         transition={{ delay: 1, duration: 1 }}
-        className="mt-32 border-t border-border/50 pt-12 pb-12"
+        className="mt-20 border-t border-border/50 pt-10 pb-10"
       >
         <div className="mx-auto max-w-7xl px-6">
           <div className="flex flex-wrap justify-center items-center gap-x-12 gap-y-8 grayscale opacity-70 text-sm font-sans tracking-[0.2em] uppercase">

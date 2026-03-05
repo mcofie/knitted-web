@@ -27,10 +27,10 @@ export default function FAQ() {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
   return (
-    <section id="faq" className="py-32 bg-background">
+    <section id="faq" className="py-20 bg-background">
       <div className="mx-auto max-w-4xl px-6">
-        <div className="mb-24 text-center">
-          <h2 className="text-4xl md:text-5xl mb-6">
+        <div className="mb-12 text-center">
+          <h2 className="text-4xl md:text-5xl mb-4 text-foreground">
             Common Inquiries
           </h2>
         </div>

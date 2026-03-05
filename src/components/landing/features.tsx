@@ -43,10 +43,10 @@ const features = [
 
 export default function Features() {
   return (
-    <section id="features" className="py-24 bg-background">
+    <section id="features" className="py-16 bg-background">
       <div className="mx-auto max-w-7xl px-6">
-        <div className="text-center mb-24">
-          <h2 className="text-4xl md:text-6xl mb-6 font-serif tracking-tight text-foreground">
+        <div className="text-center mb-12">
+          <h2 className="text-4xl md:text-6xl mb-4 font-serif tracking-tight text-foreground">
             Everything you need <br />in one place.
           </h2>
         </div>
@@ -92,7 +92,7 @@ export default function Features() {
               style={{
                 backgroundColor: feature.color,
               }}
-              className="group relative aspect-[4/5] p-6 md:p-8 flex flex-col justify-between rounded-sm cursor-pointer shadow-sm hover:shadow-xl transition-shadow duration-300"
+              className="group relative aspect-[4/5] p-6 md:p-8 flex flex-col justify-between rounded-sm cursor-pointer border border-black/[0.03] transition-all duration-300"
             >
               {/* Illustration Area with float animation */}
               <motion.div
@@ -105,9 +105,9 @@ export default function Features() {
                   ease: "easeInOut",
                   delay: index * 0.5
                 }}
-                className="relative flex-1 flex items-center justify-center p-2"
+                className="relative flex-1 flex items-center justify-center"
               >
-                <div className="relative w-full h-full max-h-[280px] lg:max-h-[320px]">
+                <div className="relative w-full h-full max-h-[380px] lg:max-h-[420px]">
                   <Image
                     src={feature.image}
                     alt={feature.title}
