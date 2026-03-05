@@ -66,7 +66,7 @@ export default function RootLayout({
         <Suspense fallback={null}>
           <PageLoader />
         </Suspense>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+        <ThemeProvider attribute="class" defaultTheme="light" forcedTheme="light">
           {children}
         </ThemeProvider>
       </body>

@@ -92,7 +92,7 @@ export default function Features() {
               style={{
                 backgroundColor: feature.color,
               }}
-              className="group relative aspect-[4/5] p-8 md:p-10 flex flex-col justify-between rounded-sm cursor-pointer"
+              className="group relative aspect-[4/5] p-6 md:p-8 flex flex-col justify-between rounded-sm cursor-pointer shadow-sm hover:shadow-xl transition-shadow duration-300"
             >
               {/* Illustration Area with float animation */}
               <motion.div
@@ -105,9 +105,9 @@ export default function Features() {
                   ease: "easeInOut",
                   delay: index * 0.5
                 }}
-                className="relative flex-1 flex items-center justify-center p-4"
+                className="relative flex-1 flex items-center justify-center p-2"
               >
-                <div className="relative w-full h-full max-h-[220px]">
+                <div className="relative w-full h-full max-h-[280px] lg:max-h-[320px]">
                   <Image
                     src={feature.image}
                     alt={feature.title}
