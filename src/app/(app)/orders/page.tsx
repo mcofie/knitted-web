@@ -23,6 +23,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import StatusBadge from "@/components/StatusBadge";
+import OrderList from "@/components/orders/order-list";
 
 export const dynamic = "force-dynamic";
 
@@ -109,7 +110,7 @@ export default async function OrdersPage({ searchParams }: { searchParams: Searc
                 <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between px-2">
                     <div className="space-y-1">
                         <span className="text-xs font-medium text-muted-foreground uppercase tracking-[0.2em]">{total} Production Jobs</span>
-                        <h1 className="text-6xl font-serif text-foreground">Orders</h1>
+                        <h1 className="text-6xl md:text-8xl font-serif text-foreground tracking-tight">Orders.</h1>
                     </div>
 
                     {hasOrders && (
@@ -128,60 +129,7 @@ export default async function OrdersPage({ searchParams }: { searchParams: Searc
                     <div className="space-y-16">
 
                         {/* Immersive List View */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                            {orders.map((o) => {
-                                const amount = totalByOrder[o.id] ?? 0;
-                                const code = o.order_code ?? `#${o.id.slice(0, 8).toUpperCase()}`;
-
-                                // Format Date
-                                const dateStr = new Date(o.created_at).toLocaleDateString(undefined, {
-                                    month: 'short', day: 'numeric'
-                                });
-
-                                // Format Money
-                                const moneyStr = new Intl.NumberFormat(undefined, {
-                                    style: 'currency',
-                                    currency: o.currency_code,
-                                    maximumFractionDigits: 0
-                                }).format(amount);
-
-                                return (
-                                    <Link
-                                        key={o.id}
-                                        href={`/orders/${o.id}`}
-                                        className="group bento-card p-8 flex flex-col justify-between h-[320px] bg-card"
-                                    >
-                                        <div className="flex justify-between items-start">
-                                            <div className="flex items-start gap-4">
-                                                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-secondary text-foreground group-hover:scale-110 transition-transform">
-                                                    <Package className="h-5 w-5 stroke-[1.5]" />
-                                                </div>
-                                                <div>
-                                                    <h3 className="text-xl font-serif text-foreground leading-none mb-1 group-hover:text-accent transition-colors">
-                                                        {code}
-                                                    </h3>
-                                                    <span className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground opacity-60">{dateStr}</span>
-                                                </div>
-                                            </div>
-                                            <div className="h-10 w-10 border border-border rounded-full flex items-center justify-center group-hover:bg-foreground group-hover:text-background transition-colors">
-                                                <ArrowRight className="h-4 w-4" />
-                                            </div>
-                                        </div>
-
-                                        <div className="space-y-6">
-                                            <div className="flex items-baseline gap-2">
-                                                <span className="text-4xl font-serif text-foreground leading-none tabular-nums">{moneyStr}</span>
-                                                <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-widest opacity-40">Total</span>
-                                            </div>
-
-                                            <div className="pt-6 border-t border-border">
-                                                <StatusBadge status={o.status} className="h-7 px-4 border border-border bg-background shadow-none rounded-full text-xs font-medium uppercase tracking-widest" />
-                                            </div>
-                                        </div>
-                                    </Link>
-                                );
-                            })}
-                        </div>
+                        <OrderList orders={orders} totalByOrder={totalByOrder} />
 
                         {/* Pagination Footer */}
                         <div className="flex flex-col items-center justify-center gap-6 pt-12 border-t border-border">

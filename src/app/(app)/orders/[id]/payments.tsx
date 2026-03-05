@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClientBrowser } from "@/lib/supabase/browser";
 import { toast } from "sonner";
+import { motion } from "framer-motion";
 import ClientTime from "@/components/ClientTime";
 
 // UI Components
@@ -143,53 +144,65 @@ export default function PaymentsSection({
                 </Button>
             </div>
 
-            <div className="grid gap-4">
+            <div className="grid gap-6">
                 {loading ? (
                     [...Array(2)].map((_, i) => (
-                        <div key={i} className="h-24 rounded-[2rem] bg-secondary animate-pulse" />
+                        <div key={i} className="h-24 rounded-sm bg-muted/40 animate-pulse border border-border/10" />
                     ))
                 ) : rows.length === 0 ? (
-                    <div className="bento-card bg-secondary/30 p-16 text-center flex flex-col items-center gap-6">
-                        <div className="h-20 w-20 bg-background border border-border rounded-[1.5rem] flex items-center justify-center mb-2">
-                            <Receipt className="h-10 w-10 text-foreground opacity-20" />
+                    <div className="bento-card bg-[#F0F0F0] border-none p-20 text-center flex flex-col items-center gap-6 rotate-[-0.5deg]">
+                        <div className="h-20 w-20 bg-white/50 border border-white/20 rounded-full flex items-center justify-center mb-2">
+                            <Receipt className="h-8 w-8 text-[#2D1B08] opacity-20" />
                         </div>
-                        <div className="space-y-2">
-                            <h4 className="text-2xl font-serif text-foreground">Financial Void</h4>
-                            <p className="text-sm font-sans text-muted-foreground italic">No transactions recorded for this blueprint.</p>
+                        <div className="space-y-3">
+                            <h4 className="text-3xl font-serif text-[#2D1B08]">Financial Void.</h4>
+                            <p className="text-sm font-sans text-[#2D1B08]/40 italic max-w-xs mx-auto">No transactions have been synchronized for this blueprint yet.</p>
                         </div>
                     </div>
                 ) : (
-                    rows.map((p) => (
-                        <div
-                            key={p.id}
-                            className="bento-card border-border/40 bg-card p-6 flex items-center justify-between group hover:shadow-xl transition-all"
-                        >
-                            <div className="flex items-center gap-6">
-                                <div className="h-14 w-14 rounded-2xl bg-secondary border border-border/30 flex items-center justify-center text-foreground group-hover:scale-110 transition-transform">
-                                    {getMethodIcon(p.method)}
-                                </div>
-                                <div className="space-y-1">
-                                    <p className="font-serif text-xl leading-none text-foreground capitalize">
-                                        {p.method.replace("_", " ")}
-                                    </p>
-                                    <div className="text-[10px] font-medium text-muted-foreground uppercase tracking-widest flex items-center gap-2 opacity-60">
-                                        <ClientTime iso={p.created_at} />
-                                        {p.reference && (
-                                            <>
-                                                <span className="opacity-30">•</span>
-                                                <span className="italic truncate max-w-[120px]">{p.reference}</span>
-                                            </>
-                                        )}
+                    rows.map((p, index) => {
+                        const rotation = [-0.5, 0.5, -1, 0.8][index % 4];
+                        const color = ["#FFF9E6", "#E6F4FF", "#FFEBFA", "#F0F0F0"][index % 4];
+
+                        return (
+                            <motion.div
+                                key={p.id}
+                                initial={{ opacity: 0, x: -10, rotate: rotation }}
+                                animate={{ opacity: 1, x: 0, rotate: rotation }}
+                                whileHover={{ scale: 1.01, rotate: 0, zIndex: 10 }}
+                                style={{ backgroundColor: color }}
+                                className="relative flex items-center justify-between p-8 rounded-sm border border-border/5 shadow-sm hover:shadow-xl transition-all overflow-hidden cursor-default"
+                            >
+                                <div className="flex items-center gap-8 relative z-10">
+                                    <div className="h-14 w-14 rounded-2xl bg-white/50 border border-white/20 flex items-center justify-center text-[#2D1B08] group-hover:scale-110 transition-transform shadow-sm">
+                                        {getMethodIcon(p.method)}
+                                    </div>
+                                    <div className="space-y-1">
+                                        <p className="font-serif text-2xl leading-none text-[#2D1B08] capitalize">
+                                            {p.method.replace("_", " ")}
+                                        </p>
+                                        <div className="text-[10px] font-bold text-[#2D1B08]/30 uppercase tracking-[0.15em] flex items-center gap-3">
+                                            <ClientTime iso={p.created_at} />
+                                            {p.reference && (
+                                                <>
+                                                    <span className="opacity-20">/</span>
+                                                    <span className="italic truncate max-w-[150px]">{p.reference}</span>
+                                                </>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div className="text-right">
-                                <span className="text-3xl font-serif tabular-nums text-foreground">
-                                    {p.currency_code} {p.amount.toLocaleString()}
-                                </span>
-                            </div>
-                        </div>
-                    ))
+                                <div className="text-right relative z-10">
+                                    <span className="text-4xl font-serif tabular-nums text-[#2D1B08] tracking-tighter">
+                                        {p.currency_code} {p.amount.toLocaleString()}
+                                    </span>
+                                </div>
+
+                                {/* Subtle corner accent */}
+                                <div className="absolute top-0 right-0 w-8 h-8 bg-black/5 rounded-bl-[2rem] translate-x-4 -translate-y-4" />
+                            </motion.div>
+                        );
+                    })
                 )}
             </div>
 

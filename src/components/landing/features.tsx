@@ -119,11 +119,11 @@ export default function Features() {
               </motion.div>
 
               {/* Text Area */}
-              <div className="mt-8">
-                <h3 className="text-3xl md:text-4xl mb-4 font-serif text-[#2D1B08]">
+              <div className="mt-6 md:mt-8">
+                <h3 className="text-2xl md:text-3xl lg:text-3xl mb-3 md:mb-4 font-serif text-[#2D1B08]">
                   {feature.title}
                 </h3>
-                <p className="text-lg text-[#2D1B08]/70 leading-relaxed font-sans font-medium">
+                <p className="text-base md:text-lg text-[#2D1B08]/70 leading-relaxed font-sans font-medium">
                   {feature.description}
                 </p>
               </div>

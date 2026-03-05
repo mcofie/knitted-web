@@ -48,7 +48,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
                         <Link href="/dashboard" className="flex items-center gap-2">
                             <Scissors className="w-5 h-5 text-foreground stroke-[1.5]" />
                             <span className="text-xl font-normal tracking-tight text-foreground font-serif">
-                                knitted
+                                knitted.
                             </span>
                         </Link>
 
@@ -78,21 +78,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
 
                     {/* Right: Actions */}
                     <div className="flex items-center gap-4">
-                        {mounted && (
-                            <button
-                                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                                className="flex w-9 h-9 items-center justify-center rounded-full hover:bg-muted transition-colors text-muted-foreground"
-                                aria-label="Toggle theme"
-                            >
-                                {theme === 'dark' ? (
-                                    <Sun className="w-4 h-4" />
-                                ) : (
-                                    <Moon className="w-4 h-4" />
-                                )}
-                            </button>
-                        )}
-
-                        <div className="flex items-center gap-2 pl-4 border-l border-border">
+                        <div className="flex items-center gap-2">
                             <button
                                 onClick={signOut}
                                 className="flex items-center gap-2 p-2 text-muted-foreground hover:text-destructive transition-colors"

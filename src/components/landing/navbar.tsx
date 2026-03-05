@@ -23,7 +23,6 @@ export default function Navbar() {
             <Link href="#features" className="text-sm font-medium text-foreground/70 hover:text-foreground transition-all">Features</Link>
             <Link href="#about" className="text-sm font-medium text-foreground/70 hover:text-foreground transition-all">About</Link>
             <Link href="#faq" className="text-sm font-medium text-foreground/70 hover:text-foreground transition-all">FAQ</Link>
-            <Link href="/pricing" className="text-sm font-medium text-foreground/70 hover:text-foreground transition-all">Pricing</Link>
           </div>
 
           <div className="hidden md:flex items-center gap-6">

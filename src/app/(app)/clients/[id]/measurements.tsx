@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { createClientBrowser } from "@/lib/supabase/browser";
 import { toast } from "sonner";
+import { motion } from "framer-motion";
 import MeasurementDialog from "./measurement-dialog";
 
 // UI Components
@@ -87,87 +88,109 @@ export default function MeasurementsSection({ customerId }: { customerId: string
 
     return (
         <div className="space-y-6">
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-8">
                 {loading ? (
                     [...Array(4)].map((_, i) => (
-                        <div key={i} className="h-40 rounded-[2rem] bg-secondary animate-pulse border border-border/50" />
+                        <div key={i} className="h-44 rounded-sm bg-muted/40 animate-pulse border border-border/10" />
                     ))
                 ) : items.length === 0 ? (
-                    <div className="col-span-full bento-card bg-secondary/30 p-16 text-center flex flex-col items-center gap-6">
-                        <div className="h-20 w-20 bg-background border border-border rounded-[1.5rem] flex items-center justify-center mb-2">
-                            <Ruler className="h-10 w-10 text-foreground opacity-20" />
+                    <div className="col-span-full bento-card bg-[#F0F0F0] border-none p-20 text-center flex flex-col items-center gap-6 rotate-[0.5deg]">
+                        <div className="h-20 w-20 bg-white/50 border border-white/20 rounded-full flex items-center justify-center mb-2">
+                            <Ruler className="h-8 w-8 text-[#2D1B08] opacity-20" />
                         </div>
-                        <div className="space-y-2">
-                            <h4 className="text-2xl font-serif text-foreground">Dimensions Empty</h4>
-                            <p className="text-sm font-sans text-muted-foreground italic">Add precision metrics to this creator&apos;s dossier.</p>
+                        <div className="space-y-3">
+                            <h4 className="text-3xl font-serif text-[#2D1B08]">Dimensions Empty.</h4>
+                            <p className="text-sm font-sans text-[#2D1B08]/40 italic max-w-xs mx-auto">Precision metrics for this creator are currently unspecified.</p>
                         </div>
-                        <Button onClick={() => setOpenEdit(true)} className="btn-primary mt-4 h-11 px-8">Add Metric</Button>
+                        <Button
+                            onClick={() => setOpenEdit(true)}
+                            className="h-11 px-10 rounded-full bg-[#2D1B08] text-white font-bold text-[10px] uppercase tracking-widest hover:opacity-90 transition-all mt-4"
+                        >
+                            Log Identity Metric
+                        </Button>
                     </div>
                 ) : (
                     <>
-                        {items.map((m) => (
-                            <div
-                                key={m.id}
-                                className="group bento-card bg-card p-8 flex flex-col justify-between hover:shadow-xl transition-all h-44 border-border/40"
-                            >
-                                <div className="flex justify-between items-start">
-                                    <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-[0.2em] opacity-40 truncate">
-                                        {m.name}
-                                    </span>
+                        {items.map((m, index) => {
+                            const rotation = [-1, 1, -0.5, 0.5][index % 4];
+                            const color = ["#FFF9E6", "#E6F4FF", "#FFEBFA", "#F0F0F0"][index % 4];
 
-                                    <DropdownMenu>
-                                        <DropdownMenuTrigger asChild>
-                                            <button className="h-8 w-8 rounded-full flex items-center justify-center border border-border opacity-0 group-hover:opacity-100 transition-opacity hover:bg-muted">
-                                                <MoreVertical className="h-3.5 w-3.5 text-muted-foreground" />
-                                            </button>
-                                        </DropdownMenuTrigger>
-                                        <DropdownMenuContent align="end" className="rounded-2xl border border-border shadow-2xl bg-background p-2">
-                                            <DropdownMenuItem
-                                                onClick={() => {
-                                                    setEditRow(m);
-                                                    setOpenEdit(true);
-                                                }}
-                                                className="rounded-xl font-medium text-xs py-3"
-                                            >
-                                                <Pencil className="mr-2 h-4 w-4" /> Edit
-                                            </DropdownMenuItem>
-                                            <DropdownMenuItem
-                                                className="rounded-xl font-medium text-xs py-3 text-rose-500"
-                                                onClick={() => {
-                                                    setDeleteRow(m);
-                                                    setOpenDelete(true);
-                                                }}
-                                            >
-                                                <Trash2 className="mr-2 h-4 w-4" /> Delete
-                                            </DropdownMenuItem>
-                                        </DropdownMenuContent>
-                                    </DropdownMenu>
-                                </div>
+                            return (
+                                <motion.div
+                                    key={m.id}
+                                    initial={{ opacity: 0, y: 10, rotate: rotation }}
+                                    animate={{ opacity: 1, y: 0, rotate: rotation }}
+                                    whileHover={{ scale: 1.02, rotate: 0, zIndex: 10, y: -2 }}
+                                    style={{ backgroundColor: color }}
+                                    className="group relative flex flex-col justify-between h-48 p-8 rounded-sm border border-border/5 shadow-sm hover:shadow-xl transition-all overflow-hidden"
+                                >
+                                    <div className="flex justify-between items-start relative z-10">
+                                        <span className="text-[9px] font-bold text-[#2D1B08]/30 uppercase tracking-[0.2em] truncate">
+                                            {m.name}
+                                        </span>
 
-                                <div className="space-y-1">
-                                    <div className="flex items-baseline gap-2">
-                                        <span className="text-5xl font-serif text-foreground tabular-nums">
-                                            {Number(m.value).toString()}
-                                        </span>
-                                        <span className="text-xs font-medium text-muted-foreground italic lowercase opacity-40">
-                                            {m.unit ?? "in"}
-                                        </span>
+                                        <DropdownMenu>
+                                            <DropdownMenuTrigger asChild>
+                                                <button className="h-7 w-7 rounded-full flex items-center justify-center border border-[#2D1B08]/10 group-hover:border-[#2D1B08]/30 transition-all hover:bg-white/50">
+                                                    <MoreVertical className="h-3 w-3 text-[#2D1B08]/40" />
+                                                </button>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent align="end" className="rounded-xl border border-border shadow-2xl bg-background p-2">
+                                                <DropdownMenuItem
+                                                    onClick={() => {
+                                                        setEditRow(m);
+                                                        setOpenEdit(true);
+                                                    }}
+                                                    className="rounded-lg font-bold text-[10px] py-3 uppercase tracking-widest"
+                                                >
+                                                    <Pencil className="mr-2 h-3 w-3" /> Edit Metric
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem
+                                                    className="rounded-lg font-bold text-[10px] py-3 text-rose-500 uppercase tracking-widest"
+                                                    onClick={() => {
+                                                        setDeleteRow(m);
+                                                        setOpenDelete(true);
+                                                    }}
+                                                >
+                                                    <Trash2 className="mr-2 h-3 w-3" /> Archive
+                                                </DropdownMenuItem>
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
                                     </div>
-                                </div>
-                            </div>
-                        ))}
+
+                                    <div className="space-y-1 relative z-10">
+                                        <div className="flex items-baseline gap-2">
+                                            <span className="text-5xl font-serif text-[#2D1B08] tabular-nums">
+                                                {Number(m.value).toString()}
+                                            </span>
+                                            <span className="text-[10px] font-bold text-[#2D1B08]/20 uppercase tracking-widest italic">
+                                                {m.unit ?? "in"}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    {/* Decorative subtle texture */}
+                                    <div className="absolute -bottom-4 -right-4 h-16 w-16 bg-[#2D1B08]/5 rounded-full blur-2xl" />
+                                </motion.div>
+                            );
+                        })}
 
                         {/* Inline Add Button */}
-                        <button
+                        <motion.button
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            whileHover={{ scale: 1.01, backgroundColor: "rgba(0,0,0,0.02)" }}
                             onClick={() => {
                                 setEditRow(null);
                                 setOpenEdit(true);
                             }}
-                            className="bento-card border-2 border-dashed border-border bg-transparent p-6 flex flex-col items-center justify-center group h-44 gap-3 hover:bg-secondary/20 hover:border-transparent transition-all text-muted-foreground opacity-30 hover:opacity-100"
+                            className="rounded-sm border-2 border-dashed border-[#2D1B08]/10 bg-transparent p-6 flex flex-col items-center justify-center group h-48 gap-4 hover:border-[#2D1B08]/30 transition-all text-[#2D1B08]/30 overflow-hidden"
                         >
-                            <Plus className="w-10 h-10 opacity-20 group-hover:scale-110 transition-transform" />
-                            <span className="text-[10px] font-medium uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity">Add Dimension</span>
-                        </button>
+                            <div className="h-12 w-12 rounded-full border border-dashed border-[#2D1B08]/10 flex items-center justify-center group-hover:scale-110 group-hover:bg-[#2D1B08]/5 transition-all">
+                                <Plus className="w-5 h-5 opacity-40" />
+                            </div>
+                            <span className="text-[9px] font-bold uppercase tracking-[0.25em] opacity-60">Log Dimension</span>
+                        </motion.button>
                     </>
                 )}
             </div>

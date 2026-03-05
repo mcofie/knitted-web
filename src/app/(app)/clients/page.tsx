@@ -7,6 +7,7 @@ import { MapPin, Phone, Users, Plus, Star, Search, Sparkles, Coffee, ChevronRigh
 import ClientsPageActions from "./ClientsPageActions";
 import ClientsPager from "@/app/(app)/clients/pager";
 import { Button } from "@/components/ui/button";
+import ClientList from "@/components/clients/client-list";
 
 export const dynamic = "force-dynamic";
 
@@ -77,7 +78,7 @@ export default async function ClientsPage({ searchParams }: { searchParams: Sear
                 <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between px-2">
                     <div className="space-y-1">
                         <span className="text-xs font-medium text-muted-foreground uppercase tracking-[0.2em]">{total} Active Records</span>
-                        <h1 className="text-6xl font-serif text-foreground">Directory</h1>
+                        <h1 className="text-6xl md:text-8xl font-serif text-foreground tracking-tight">Directory.</h1>
                     </div>
                     <div className="flex gap-4">
                         <ClientsPageActions />
@@ -89,47 +90,7 @@ export default async function ClientsPage({ searchParams }: { searchParams: Sear
                     <EmptyState />
                 ) : (
                     <div className="space-y-16">
-                        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-                            {clients.map((c) => (
-                                <Link
-                                    key={c.id}
-                                    href={`/clients/${c.id}`}
-                                    className="group bento-card p-8 flex flex-col justify-between h-[320px] bg-card"
-                                >
-                                    <div className="flex items-start justify-between">
-                                        <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-[1.5rem] bg-secondary group-hover:scale-110 transition-transform duration-500">
-                                            <Image
-                                                src={`https://api.dicebear.com/9.x/glass/svg?seed=${encodeURIComponent(c?.name || "Guest")}`}
-                                                alt={c?.name || "Avatar"}
-                                                fill
-                                                className="object-cover"
-                                                unoptimized
-                                            />
-                                        </div>
-                                        <div className="h-10 w-10 border border-border rounded-full flex items-center justify-center group-hover:bg-foreground group-hover:text-background transition-colors">
-                                            <ChevronRight className="w-4 h-4" />
-                                        </div>
-                                    </div>
-
-                                    <div className="space-y-6">
-                                        <div>
-                                            <h3 className="text-3xl font-serif text-foreground leading-[1.1] mb-2">
-                                                {c.name || "Unknown"}
-                                            </h3>
-                                            <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground uppercase tracking-widest opacity-60">
-                                                <MapPin className="w-3 h-3" />
-                                                <span>{c.city || 'Global Atelier'}</span>
-                                            </div>
-                                        </div>
-
-                                        <div className="flex items-center gap-2">
-                                            <div className="h-1 w-1 rounded-full bg-accent" />
-                                            <span className="text-[10px] uppercase font-medium tracking-widest text-muted-foreground/60">verified stakeholder</span>
-                                        </div>
-                                    </div>
-                                </Link>
-                            ))}
-                        </div>
+                        <ClientList clients={clients} />
 
                         {/* Pagination - Minimalist */}
                         <div className="pt-8 border-t border-border">
