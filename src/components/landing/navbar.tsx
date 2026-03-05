@@ -8,7 +8,7 @@ export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 py-6">
+    <header className="absolute top-0 left-0 right-0 z-50 py-6">
       <div className="mx-auto max-w-7xl px-6">
         <nav className="flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 shrink-0">

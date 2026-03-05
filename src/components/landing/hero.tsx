@@ -2,26 +2,36 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { TailorHeroIllustration } from "@/components/ui/illustrations";
+import Image from "next/image";
 
 export default function Hero() {
   return (
     <section className="relative pt-24 pb-20 lg:pt-32 lg:pb-32 overflow-hidden bg-background">
       <div className="mx-auto max-w-7xl px-6 relative z-10 text-center">
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1 }}
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 1.2, ease: "easeOut" }}
+          className="relative mx-auto max-w-5xl mb-12"
         >
-          <TailorHeroIllustration />
+          <div className="relative">
+            <Image
+              src="/images/hero_knitted.png"
+              alt="Knitted Hero"
+              width={1600}
+              height={900}
+              className="relative rounded-2xl"
+              priority
+            />
+          </div>
         </motion.div>
 
-        <div className="max-w-3xl mx-auto mt-4">
+        <div className="max-w-3xl mx-auto mt-4 px-4">
           <motion.h1
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2, duration: 0.8 }}
-            className="text-5xl md:text-7xl lg:text-8xl mb-8 text-foreground"
+            className="text-4xl md:text-7xl lg:text-8xl mb-8 text-foreground tracking-tight"
           >
             The software that <br />Sewn with <span className="italic">intent.</span>
           </motion.h1>
@@ -30,7 +40,7 @@ export default function Hero() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4, duration: 0.8 }}
-            className="text-lg md:text-xl text-muted-foreground leading-relaxed mb-12 max-w-xl mx-auto font-sans"
+            className="text-base md:text-xl text-muted-foreground leading-relaxed mb-12 max-w-xl mx-auto font-sans"
           >
             Knitted helps tailors manage client measurements and history with the meticulous care their craft deserves.
           </motion.p>
